@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
 	private TextView textView;
 	private EditText editText1;
 	private WebView webView;
-	private Button  btnNext, btnShow;
+	private Button  btnNext, btnShow, btnHome;
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
@@ -188,7 +188,9 @@ String customHtml = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN'"+
 	//	       webView.loadData(customHtml, "text/html", "UTF-8");*/
 
  Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
-callJsFunction("clearScreen();hideEyes();pictureSearch", keywords);
+ String seq = "clearScreen();hideEyes();showCenterPanel();pictureSearch";
+callJsFunction(seq, keywords);
+
 
 }
 
@@ -220,7 +222,17 @@ private void setListeners() {
 	});
 	
 	
-	//--- btnGo 
+	//--- btnHome
+    btnHome.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			String seq = "clearScreen();hideCenterPanel();showEyes";
+			callJsFunction(seq, "");
+			
+		}
+	});
+	
 	
 	
 	
@@ -253,6 +265,7 @@ private void setWidgets() {
 	webView = (WebView)findViewById(R.id.webView1);
 	btnShow = (Button)findViewById(R.id.btnShow);
 	btnNext = (Button)findViewById(R.id.btnNext);
+	btnHome = (Button)findViewById(R.id.btnHome);
 	editText1 = (EditText)findViewById(R.id.editText1);
 	btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
 	

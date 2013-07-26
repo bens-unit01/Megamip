@@ -12,28 +12,7 @@
         android:id="@+id/webView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
         android:layout_below="@+id/btnNext" />
-
-    <ImageButton
-        android:id="@+id/btnSpeak"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/webView1"
-        android:layout_alignParentTop="true"
-        android:layout_margin="10dp"
-        android:layout_toRightOf="@+id/btnNext"
-        android:contentDescription="@string/speak"
-        android:src="@android:drawable/ic_btn_speak_now" />
-
-    <Button
-        android:id="@+id/btnNext"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/btnShow"
-        android:text="Next" />
 
     <Button
         android:id="@+id/btnShow"
@@ -43,5 +22,37 @@
         android:layout_alignLeft="@+id/webView1"
         android:layout_alignParentTop="true"
         android:text="Show" />
+
+    <Button
+        android:id="@+id/btnNext"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnShow"
+        android:layout_alignBottom="@+id/btnShow"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@+id/btnShow"
+        android:text="Next" />
+
+    <Button
+        android:id="@+id/btnHome"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/webView1"
+        android:layout_marginLeft="58dp"
+        android:layout_toRightOf="@+id/btnSpeak"
+        android:text="Home" />
+
+    <ImageButton
+        android:id="@+id/btnSpeak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/webView1"
+        android:layout_alignTop="@+id/btnNext"
+        android:layout_margin="10dp"
+        android:layout_toRightOf="@+id/btnNext"
+        android:contentDescription="@string/speak"
+        android:src="@android:drawable/ic_btn_speak_now" />
 
 </RelativeLayout>
