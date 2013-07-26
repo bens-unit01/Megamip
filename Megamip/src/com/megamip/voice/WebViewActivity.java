@@ -3,28 +3,85 @@ package com.megamip.voice;
 import com.megamip.voice.R;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 public class WebViewActivity extends Activity {
 	
 	public static final String TAG = "A3";
-
+	private TextView textView;
+	private EditText editText1;
 	private WebView webView;
+	private Button btnGo, btnNext, btnShow;
+	private String accountType = null;
+	private String accountName = null;
+	private Handler handler = null;
+	private static final String JAVASCRIPT = "javascript:";
+	private static final String BRC = "()";
+	private static final String BRC_OPEN = "('";
+	private static final String BRC_CLOSE = "')";
+	private static final String Q = "?";
+	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
+
+	
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview);
 
 		webView = (WebView) findViewById(R.id.webView1);
-		webView.getSettings().setJavaScriptEnabled(true);
-		
-		
+		handler = new Handler();
+	    webView.getSettings().setJavaScriptEnabled(true);  
+        webView.addJavascriptInterface(this, "contactSupport");    
+        setWidgets();
+        setListeners();
+        loadPage("index.html");
+
 		Bundle extras = getIntent().getExtras();
 	    VoiceCommand command = (VoiceCommand)extras.get("command");
 		
 	    Log.d(TAG, "WebViewActivity command = "+command);
+		launch(command);
+	    
+	    
+	}
+
+	public void loadPage(String in) {
+		final String url = HTML_ROOT + in;
 		
+		Log.d(TAG, " loadPage url = "+url);
+    	loadURL(url);
+		
+	}
+
+	
+	  private void loadURL(final String in){
+	    	handler.post(new Runnable() {
+	            public void run() {
+	            	webView.loadUrl(in);
+	            }
+	        });
+	    }
+	  
+	  public void callJsFunction(String functionName,String args){
+	    	String json = "";
+	    //	final String callbackFunction = JAVASCRIPT + "f1" + BRC_OPEN + json 
+	  //  		+ BRC_CLOSE;
+	    	final String callbackFunction = JAVASCRIPT + functionName+BRC_OPEN+args+BRC_CLOSE ;
+	    	Log.d(TAG ,callbackFunction);
+	    	loadURL(callbackFunction); 	  	
+	    }
+
+	private void launch(VoiceCommand command) {
+		
+		
+
 	    String[] args = command.getArgs();
 	    String action = command.getAction();
 	    
@@ -68,7 +125,70 @@ public class WebViewActivity extends Activity {
 		               "google.setOnLoadCallback(OnLoad);   </script>   </head>"+
 		               "<body> <div id='searchcontrol'>Loading</div> </body> </html>";
 
-				       webView.loadData(customHtml, "text/html", "UTF-8");
+			//	       webView.loadData(customHtml, "text/html", "UTF-8");
+		 Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
+	    callJsFunction("pictureSearch", keywords);
+	    
 	}
+
+
+
+
+
+
+private void setListeners() {
+	
+	
+	//--- btnGo 
+	
+	btnGo.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			
+			
+			String input = editText1.getText().toString();
+			 callJsFunction("pictureSearch", input);
+			// callJsFunction("videoSearch", input);
+			//loadURL("http://www.google.com");
+			
+		}
+	});
+	
+	
+	//--- btnNext 
+	btnNext.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			
+			callJsFunction("next", "");
+			
+		}
+	});
+	
+	//--- btnShow
+	btnShow.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			
+			callJsFunction("show", "");
+			
+		}
+	});
+}
+
+private void setWidgets() {
+	
+	textView = (TextView)findViewById(R.id.textView1);
+	webView = (WebView)findViewById(R.id.webView1);
+	btnGo = (Button)findViewById(R.id.btnGo);
+	btnShow = (Button)findViewById(R.id.btnShow);
+	btnNext = (Button)findViewById(R.id.btnNext);
+	editText1 = (EditText)findViewById(R.id.editText1);
+	
+}
+
 
 }
