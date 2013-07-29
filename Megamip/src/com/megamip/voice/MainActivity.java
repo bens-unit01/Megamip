@@ -34,15 +34,12 @@ public class MainActivity extends Activity {
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
-	private static final String JAVASCRIPT = "javascript:";
-	private static final String BRC = "()";
-	private static final String BRC_OPEN = "('";
-	private static final String BRC_CLOSE = "')";
-	private static final String Q = "?";
+
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
 	
 	private MipCommand.PictureSearch psCommand;
 	private MipCommand.Next nextCommand;
+	
 	private Invoker invoker;
 	private MipReceiver receiver;
 	private MipCommand mc;
@@ -109,7 +106,7 @@ public class MainActivity extends Activity {
 			
 				
 				VoiceCommand voiceCommand = new VoiceCommand(text.get(0));
-				
+				Log.d(TAG,"onActivityResult, avant appel de voiceHandler vc= "+voiceCommand);
 				voiceHandler(voiceCommand);
 			}
 			break;
@@ -144,7 +141,7 @@ String apiSelect= "";
 
  
 
-  
+   psCommand = mc.new PictureSearch(receiver, keywords);
    invoker.launch(psCommand);
 
 }

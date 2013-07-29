@@ -37,9 +37,16 @@ public class MipReceiver {
 	 
  }
  
+ public void next() {
+		callJsFunction("next", "");
+	}
+ 
  public void videoSearch(){}
  
  public void webSearch(){}
+ 
+ 
+ 
  
  
  // methodes utilitaires
@@ -63,9 +70,7 @@ public class MipReceiver {
  }
  
 
-public void next() {
-	callJsFunction("next", "");
-}
+
 
 
 }
