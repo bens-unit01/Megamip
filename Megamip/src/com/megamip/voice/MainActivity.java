@@ -40,6 +40,12 @@ public class MainActivity extends Activity {
 	private static final String BRC_CLOSE = "')";
 	private static final String Q = "?";
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
+	
+	private MipCommand.PictureSearch psCommand;
+	private MipCommand.Next nextCommand;
+	private Invoker invoker;
+	private MipReceiver receiver;
+	private MipCommand mc;
 
 
 
@@ -57,6 +63,11 @@ public class MainActivity extends Activity {
         setWidgets();
         setListeners();
         loadPage("index.html");
+        
+        invoker = new Invoker();
+        receiver = new MipReceiver(handler, webView);
+        mc = new MipCommand();
+        
 
 	}
 	
@@ -99,7 +110,7 @@ public class MainActivity extends Activity {
 				
 				VoiceCommand voiceCommand = new VoiceCommand(text.get(0));
 				
-				launch(voiceCommand);
+				voiceHandler(voiceCommand);
 			}
 			break;
 		}
@@ -109,36 +120,10 @@ public class MainActivity extends Activity {
 	
 	
 	
-private void launchResults(VoiceCommand voiceCommand) {
-		
-	   	String action = voiceCommand.getAction();
-		char action0 = action.toCharArray()[0];
-		
-		
-		
-		//Intent intent = new Intent(ref, WebViewActivity.class);
-		//startActivity(intent);
-		
-		Log.d(TAG,"MainActivity launchResults action0 = "+action0);
-		
-		Intent intent = new Intent(context, WebViewActivity.class);
-	    intent.putExtra("command", voiceCommand);
-		startActivity(intent);
-		
-		
-		
-	}
 
-public void callJsFunction(String functionName,String args){
-	String json = "";
-//	final String callbackFunction = JAVASCRIPT + "f1" + BRC_OPEN + json 
-//  		+ BRC_CLOSE;
-	final String callbackFunction = JAVASCRIPT + functionName+BRC_OPEN+args+BRC_CLOSE ;
-	Log.d(TAG ,callbackFunction);
-	loadURL(callbackFunction); 	  	
-}
 
-private void launch(VoiceCommand command) {
+
+private void voiceHandler(VoiceCommand command) {
 
 
 
@@ -149,54 +134,25 @@ String action = command.getAction();
 String keywords ="";
 String apiSelect= "";
 
-for(int i = 0; i < args.length; i++){
-	keywords += args[i]+" ";
-}
-
-/*
-if(action.equals("picture") || action.equals("video")){
-	if(action.equals("picture")){
-		apiSelect = "new google.search.ImageSearch();";  // picture search
-	}else{
-		apiSelect = "new google.search.VideoSearch();";  // video search
+	for(int i = 0; i < args.length; i++){
+		keywords += args[i]+" ";
 	}
-}else{
-	apiSelect = "new google.search.LocalSearch();"; // google search
-	keywords += action;
-	
-}
 
-Log.d(TAG, "WebViewActivity keywords = "+keywords+" action = "+action);
-//webView.loadUrl("http://www.google.com");
 
-String customHtml = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN'"+
-         "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>" +
-         		"<html xmlns='http://www.w3.org/1999/xhtml'>   <head> <meta http-equiv='content-type' content='text/html; charset=utf-8'/>"+
-               " <title>MegaMip picture search</title>"+
-               "<script src='https://www.google.com/jsapi'"+
-               " type='text/javascript'></script>  <script language='Javascript' type='text/javascript'>"+
-               " google.load('search', '1');"+
-               "function OnLoad() {"+
-               "  var searchControl = new google.search.SearchControl();"+
-               " var localSearch = "+apiSelect+
-               "searchControl.addSearcher(localSearch);"+
-               "searchControl.draw(document.getElementById('searchcontrol'));"+
-               "searchControl.execute('"+keywords+"');  }"+
-               "google.setOnLoadCallback(OnLoad);   </script>   </head>"+
-               "<body> <div id='searchcontrol'>Loading</div> </body> </html>";
-
-	//	       webView.loadData(customHtml, "text/html", "UTF-8");*/
 
  Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
- String seq = "clearScreen();hideEyes();showCenterPanel();pictureSearch";
-callJsFunction(seq, keywords);
 
+ 
+
+  
+   invoker.launch(psCommand);
 
 }
 
 private void setListeners() {
 	
 	
+
 	// btnSpeak 
 	
 	btnSpeak.setOnClickListener(new View.OnClickListener() {
@@ -228,7 +184,7 @@ private void setListeners() {
 		@Override
 		public void onClick(View v) {
 			String seq = "clearScreen();hideCenterPanel();showEyes";
-			callJsFunction(seq, "");
+		//	callJsFunction(seq, "");
 			
 		}
 	});
@@ -242,7 +198,15 @@ private void setListeners() {
 		@Override
 		public void onClick(View v) {
 			
-			callJsFunction("next", "");
+	/*
+	 * 
+	 *  MipCommands mc = new MipCommands();
+   psCommand =  mc.new PictureSearch(receiver, keywords);
+   invoker.launch(psCommand);
+	 * */
+			
+	nextCommand = mc.new Next(receiver);
+	invoker.launch(nextCommand);
 			
 		}
 	});
@@ -253,7 +217,7 @@ private void setListeners() {
 		@Override
 		public void onClick(View v) {
 			
-			callJsFunction("show", "");
+	       
 			
 		}
 	});
@@ -270,5 +234,6 @@ private void setWidgets() {
 	btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
 	
 }
+
 
 }
