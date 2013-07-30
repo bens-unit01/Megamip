@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
 
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
 	
-	private MipCommand.PictureSearch psCommand;
+	private Command mCommand;
 	private MipCommand.Next nextCommand;
 	
 	private Invoker invoker;
@@ -140,9 +140,12 @@ String apiSelect= "";
  Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
 
  
-
-   psCommand = mc.new PictureSearch(receiver, keywords);
-   invoker.launch(psCommand);
+   if(action.equals("picture"))
+   mCommand = mc.new PictureSearch(receiver, keywords);
+   else
+   mCommand = mc.new VideoSearch(receiver, keywords);
+   
+   invoker.launch(mCommand);
 
 }
 
@@ -202,8 +205,8 @@ private void setListeners() {
    invoker.launch(psCommand);
 	 * */
 			
-	nextCommand = mc.new Next(receiver);
-	invoker.launch(nextCommand);
+	mCommand = mc.new Next(receiver);
+	invoker.launch(mCommand);
 			
 		}
 	});

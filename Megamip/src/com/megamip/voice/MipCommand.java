@@ -18,14 +18,33 @@ public class MipCommand {
 		}
 
 		public void execute() {
-			// TODO Auto-generated method stub
+			
 			mipReceiver.pictureSearch(keywords);
 		}
 
 		
 
 	}
+   
+	public class VideoSearch implements Command {
 
+		MipReceiver mipReceiver;
+		String keywords;
+		
+		// constructors 
+		private VideoSearch(){}
+		
+		public VideoSearch(MipReceiver mipReceiver, String keywords){
+			this.mipReceiver = mipReceiver;
+			this.keywords = keywords;
+		}
+		@Override
+		public void execute() {
+			
+			mipReceiver.videoSearch(keywords);
+		}
+		
+	}
   
 	public class Next implements Command{
 		

@@ -37,13 +37,19 @@ public class MipReceiver {
 	 
  }
  
+ public void videoSearch(String keywords){
+	 
+	 String seq = "clearScreen();hideEyes();showCenterPanel();videoSearch";
+	 callJsFunction(seq, keywords);
+ }
+ 
+ public void webSearch(){}
+ 
  public void next() {
 		callJsFunction("next", "");
 	}
  
- public void videoSearch(){}
- 
- public void webSearch(){}
+
  
  
  
