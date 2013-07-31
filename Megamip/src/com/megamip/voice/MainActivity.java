@@ -14,7 +14,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebSettings.PluginState;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -22,6 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	
+	
+	public static final int USER_MOBILE  = 0;
+	public static final int USER_DESKTOP = 1;
 	
 	public static  Context context;  // reference vers l'activité MainActivity 
 	protected static final int RESULT_SPEECH = 1;
@@ -56,6 +63,10 @@ public class MainActivity extends Activity {
 		webView = (WebView) findViewById(R.id.webView1);
 		handler = new Handler();
 	    webView.getSettings().setJavaScriptEnabled(true);  
+	    webView.setWebChromeClient(new WebChromeClient() {
+		});
+		webView.getSettings().setPluginState(PluginState.ON);
+		webView.getSettings().setUserAgent(USER_DESKTOP);
         webView.addJavascriptInterface(this, "contactSupport");    
         setWidgets();
         setListeners();
