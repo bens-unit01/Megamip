@@ -45,12 +45,26 @@ public class MipReceiver {
  
  public void webSearch(){}
  
- public void next() {
+ public void guiNext() {
 		callJsFunction("next", "");
 	}
  
-
+ public void guiBack() {
+		
+	 callJsFunction("back", "");
+		
+ }
  
+ public void guiHome() {
+	 String seq = "clearScreen();hideCenterPanel();showEyes";
+	 callJsFunction(seq, "");
+		
+	}
+  
+ public void guiShow() {
+	
+	 callJsFunction("show", "");
+	}
  
  
  
@@ -74,7 +88,12 @@ public class MipReceiver {
          }
      });
  }
- 
+
+
+
+
+
+
 
 
 

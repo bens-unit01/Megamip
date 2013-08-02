@@ -46,20 +46,74 @@ public class MipCommand {
 		
 	}
   
-	public class Next implements Command{
+	public class GuiNext implements Command{
 		
 		MipReceiver mipReceiver;
 	  // constructors 
-	 public Next() {}
-	 public Next(MipReceiver mipReceiver){
+	 private GuiNext() {}
+	 public GuiNext(MipReceiver mipReceiver){
 		 this.mipReceiver = mipReceiver;
 	}
 	 
 	public void execute(){
-		mipReceiver.next();
+		mipReceiver.guiNext();
 	}
 	 
 	 
 }
+	
+	
+public class GuiBack implements Command{
+		
+		MipReceiver mipReceiver;
+	  // constructors 
+	 private GuiBack() {}
+	 public GuiBack(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+	}
+	 
+	public void execute(){
+		mipReceiver.guiBack();
+	}
+	 
+	 
+}	
+
+
+
+public class GuiHome implements Command{
+		
+		MipReceiver mipReceiver;
+	  // constructors 
+	 private GuiHome() {}
+	 public GuiHome(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+	}
+	 
+	public void execute(){
+		mipReceiver.guiHome();
+	}
+	 
+	 
+}	
+
+
+
+public class GuiShow implements Command{
+		
+		MipReceiver mipReceiver;
+	  // constructors 
+	 private GuiShow() {}
+	 public GuiShow(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+	}
+	 
+	public void execute(){
+		mipReceiver.guiShow();
+	}
+	 
+	 
+}	
+
 
 }

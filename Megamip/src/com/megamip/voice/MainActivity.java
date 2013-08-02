@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
 	public static  Context context;  // reference vers l'activité MainActivity 
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG = "A3";
+	public static final String TAG2 = "A2";
 	private ImageButton btnSpeak;
 	private TextView textView;
 	private EditText editText1;
@@ -45,7 +46,7 @@ public class MainActivity extends Activity {
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
 	
 	private Command mCommand;
-	private MipCommand.Next nextCommand;
+	private MipCommand.GuiNext nextCommand;
 	
 	private Invoker invoker;
 	private MipReceiver receiver;
@@ -117,7 +118,7 @@ public class MainActivity extends Activity {
 			
 				
 				VoiceCommand voiceCommand = new VoiceCommand(text.get(0));
-				Log.d(TAG,"onActivityResult, avant appel de voiceHandler vc= "+voiceCommand);
+				Log.d(TAG2,"MainActivity - onActivityResult -----vc= "+voiceCommand);
 				voiceHandler(voiceCommand);
 			}
 			break;
@@ -151,11 +152,17 @@ String apiSelect= "";
  Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
 
  
-   if(action.equals("picture"))
+  // if(action.equals("picture"))
    mCommand = mc.new PictureSearch(receiver, keywords);
-   else
+   if(action.equals("video"))
    mCommand = mc.new VideoSearch(receiver, keywords);
-   
+   if(action.equals("next"))
+	   mCommand = mc.new GuiNext(receiver);
+   if(action.equals("home"))
+	   mCommand = mc.new GuiHome(receiver);
+   if(action.equals("show"))
+	   mCommand = mc.new GuiShow(receiver);
+	   
    invoker.launch(mCommand);
 
 }
@@ -189,59 +196,17 @@ private void setListeners() {
 	});
 	
 	
-	//--- btnHome
-    btnHome.setOnClickListener(new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			String seq = "clearScreen();hideCenterPanel();showEyes";
-		//	callJsFunction(seq, "");
-			
-		}
-	});
 	
-	
-	
-	
-	//--- btnNext 
-	btnNext.setOnClickListener(new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			
-	/*
-	 * 
-	 *  MipCommands mc = new MipCommands();
-   psCommand =  mc.new PictureSearch(receiver, keywords);
-   invoker.launch(psCommand);
-	 * */
-			
-	mCommand = mc.new Next(receiver);
-	invoker.launch(mCommand);
-			
-		}
-	});
-	
-	//--- btnShow
-	btnShow.setOnClickListener(new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			
-	       
-			
-		}
-	});
 }
 
 private void setWidgets() {
 	
-	textView = (TextView)findViewById(R.id.textView1);
+//	textView = (TextView)findViewById(R.id.textView1);
 	webView = (WebView)findViewById(R.id.webView1);
-	btnShow = (Button)findViewById(R.id.btnShow);
-	btnNext = (Button)findViewById(R.id.btnNext);
-	btnHome = (Button)findViewById(R.id.btnHome);
-	editText1 = (EditText)findViewById(R.id.editText1);
+//	btnShow = (Button)findViewById(R.id.btnShow);
+//	btnNext = (Button)findViewById(R.id.btnNext);
+//	btnHome = (Button)findViewById(R.id.btnHome);
+//	editText1 = (EditText)findViewById(R.id.editText1);
 	btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
 	
 }

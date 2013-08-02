@@ -19,22 +19,19 @@
          <script src="http://www.youtube.com/player_api"></script>
 
 	
-     
+ <style type="text/css">
+ #principal { display:none;}
+ </style>    
     
 
 
 </head>
 <body>
-  <!--  <input  type="button" id="go" value="go" style="width:60px;"     onclick="go()" >
-    <input  type="button" id="next" value="next" style="width:60px;" onclick="next()">
-    <input  type="button" id="show" value="show" style="width:60px;" onclick="show()">
-    <input  type="text"   id="txt_input" value="" style="width:150px;">
-    
-    -->
+ 
     <div id='eyes' style='background-color: black; color:black;'>
         
         <br><br><br>
-        .......................
+        ................................................----------------
 		      <img src="img/eye001.png" >
 		       .........................................................
 		       <img src="img/eye001.png" >
@@ -50,12 +47,13 @@
 
 <script>
 var index = 0;
+var selectedItem = null;
 $(document).ready(function () {	
 	
      
  
       
-  hideCenterPanel();     
+//  hideCenterPanel();     
         
         
          
@@ -82,7 +80,7 @@ function next(){
 }
 function show(){
     
-    var x = $("[data-wow-index ='"+ index+"'] a").trigger("click");
+    selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
  
     
 }
@@ -103,9 +101,30 @@ function clearScreen(){
 }
 function back(){
     
-    var esc = $.Event("keydown", {keyCode:27});
-    $("body").trigger(esc);
+  // $.fancybox.close()
+  
+   var esc = $.Event("keydown", {keyCode:27});
+  // $('.fancybox-opened').trigger(esc);
+  var x = $('.fancybox-opened');
+  alert(x);
+    // $.fancybox.close
+ // $('.fancybox-opened')
 }
+
+
+function showEyes(){
+ $("#eyes").slideDown("slow");
+}
+function hideEyes(){
+  $("#eyes").slideUp("slow");   
+}
+function showCenterPanel(){
+     $("#principal").slideDown("slow");   
+}
+function hideCenterPanel() {
+     $("#principal").slideUp("slow");   
+}
+
 function pictureSearch(keyword){
     
    
@@ -136,31 +155,22 @@ function pictureSearch(keyword){
                           
                           //--FancyBox --
                                 $("a").fancybox({
-
-                                   helpers: {
-                                       title : {
-                                           type : 'float'
-                                       }
-                                   }
+                                       showCloseButton: false,
+                                       openEffect : 'elastic',
+				       closeEffect : 'elastic',
+				       fitToView : true,
+				       helpers : {
+						title : {
+							type : 'inside'
+						}
+					}
+                                  
                                });
 
                        
                        
 		}
 	);
-}
-
-function showEyes(){
- $("#eyes").slideDown("slow");
-}
-function hideEyes(){
-  $("#eyes").slideUp("slow");   
-}
-function showCenterPanel(){
-     $("#principal").slideDown("slow");   
-}
-function hideCenterPanel() {
-     $("#principal").slideUp("slow");   
 }
 
 // video search functions  -------------------------------
@@ -195,14 +205,14 @@ function videoSearch(keyword){
                                   .addClass("selected");
                           
                           //--FancyBox --
-                         /*       $("a").fancybox({
+                                $("a").fancybox({
 
                                    helpers: {
                                        title : {
                                            type : 'float'
                                        }
                                    }
-                               });*/
+                               });
 
                        
                        
@@ -238,7 +248,8 @@ function onYouTubePlayerAPIReady(){
         margin : 50,
         beforeShow : function(){
             
-        var id = $.fancybox.inner.find('iframe').attr('id'); 
+       var id = $.fancybox.inner.find('iframe').attr('id'); 
+     
         var player = new YT.Player(id, {
                         events: {
                             'onReady': onPlayerReady,
