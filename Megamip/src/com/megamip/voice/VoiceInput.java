@@ -5,25 +5,24 @@ import java.util.Arrays;
 
 import android.util.Log;
 
-public class VoiceCommand implements Serializable {
+public class VoiceInput extends MipInput implements Serializable {
 	
 	private final static String TAG = "A3";
 	public static final int SEARCH_CMD = 0;
 	public static final int SEARCH_PIC = 1;
 	public static final int SEARCH_VID = 2;
 	
-	private String action;
-	private String[] args;
+
 	
 	
 	// constructors 
 	
-	public VoiceCommand() {
+	public VoiceInput() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	
-	public VoiceCommand(String input){
+	public VoiceInput(String input){
 		
 		String[] inputArray = input.split(" ");
 		try{

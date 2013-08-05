@@ -44,7 +44,7 @@ public class WebViewActivity extends Activity {
         loadPage("index.html");
 
 		Bundle extras = getIntent().getExtras();
-	    VoiceCommand command = (VoiceCommand)extras.get("command");
+	    VoiceInput command = (VoiceInput)extras.get("command");
 		
 	    Log.d(TAG, "WebViewActivity command = "+command);
 		launch(command);
@@ -78,7 +78,7 @@ public class WebViewActivity extends Activity {
 	    	loadURL(callbackFunction); 	  	
 	    }
 
-	private void launch(VoiceCommand command) {
+	private void launch(VoiceInput command) {
 		
 		
 

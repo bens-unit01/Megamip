@@ -2,7 +2,11 @@ package com.megamip.voice;
 
 import java.util.ArrayList;
 
+
 import com.megamip.voice.R;
+import com.megamip.voice.MipUsbDevice.UsbEvent;
+import com.megamip.voice.MipUsbDevice.UsbListener;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -42,6 +46,8 @@ public class MainActivity extends Activity {
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
+	private MipUsbDevice mipUsbDevice;
+	// private  mipUsbListener;
 
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
 	
@@ -117,7 +123,7 @@ public class MainActivity extends Activity {
 
 			
 				
-				VoiceCommand voiceCommand = new VoiceCommand(text.get(0));
+				VoiceInput voiceCommand = new VoiceInput(text.get(0));
 				Log.d(TAG2,"MainActivity - onActivityResult -----vc= "+voiceCommand);
 				voiceHandler(voiceCommand);
 			}
@@ -132,7 +138,7 @@ public class MainActivity extends Activity {
 
 
 
-private void voiceHandler(VoiceCommand command) {
+private void voiceHandler(VoiceInput command) {
 
 
 
@@ -167,9 +173,37 @@ String apiSelect= "";
 
 }
 
+
+protected void movementHandler(MovementInput movementInput) {
+	
+	
+	
+	String action = movementInput.getAction();
+	
+	if(action.equals("L"))
+		mCommand = mc.new GuiNext(receiver);
+//	else
+	//    mCommand = mc.new VoiceInput();
+	
+}
+
 private void setListeners() {
 	
+	// usb device 
 	
+	mipUsbDevice  = new MipUsbDevice(context);
+	mipUsbDevice.addUsbListener(new UsbListener() {
+		
+		@Override
+		public void onNotify(UsbEvent e) {
+			byte[] data = e.getData();
+			movementHandler(new MovementInput(data));
+			
+		}
+
+	
+	});
+     
 
 	// btnSpeak 
 	
@@ -198,6 +232,7 @@ private void setListeners() {
 	
 	
 }
+
 
 private void setWidgets() {
 	
