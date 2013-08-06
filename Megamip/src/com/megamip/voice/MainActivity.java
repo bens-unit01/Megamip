@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
 	private TextView textView;
 	private EditText editText1;
 	private WebView webView;
-	private Button  btnNext, btnShow, btnHome;
+//	private Button  btnNext, btnShow, btnHome;
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
         loadPage("index.html");
         
         invoker = new Invoker();
-        receiver = new MipReceiver(handler, webView);
+        receiver = new MipReceiver(handler, webView, this);
         mc = new MipCommand();
         
 
@@ -158,18 +158,18 @@ String apiSelect= "";
  Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
 
  
-  // if(action.equals("picture"))
-   mCommand = mc.new PictureSearch(receiver, keywords);
-   if(action.equals("video"))
-   mCommand = mc.new VideoSearch(receiver, keywords);
-   if(action.equals("next"))
-	   mCommand = mc.new GuiNext(receiver);
-   if(action.equals("home"))
-	   mCommand = mc.new GuiHome(receiver);
-   if(action.equals("show"))
-	   mCommand = mc.new GuiShow(receiver);
-	   
-   invoker.launch(mCommand);
+	  // if(action.equals("picture"))
+	   mCommand = mc.new PictureSearch(receiver, keywords);
+	   if(action.equals("video"))
+	   mCommand = mc.new VideoSearch(receiver, keywords);
+	   if(action.equals("next"))
+		   mCommand = mc.new GuiNext(receiver);
+	   if(action.equals("home"))
+		   mCommand = mc.new GuiHome(receiver);
+	   if(action.equals("show"))
+		   mCommand = mc.new GuiShow(receiver);
+		   
+	   invoker.launch(mCommand);
 
 }
 
@@ -179,11 +179,17 @@ protected void movementHandler(MovementInput movementInput) {
 	
 	
 	String action = movementInput.getAction();
-	
-	if(action.equals("L"))
+	 
+	if(action.equals("82"))          // ascii code for "R"
 		mCommand = mc.new GuiNext(receiver);
-//	else
-	//    mCommand = mc.new VoiceInput();
+	else
+		mCommand = mc.new Speak(receiver);
+	
+		
+     Log.d(TAG2,"MainActivity - movementHandler ----- action = "+action);
+	
+	invoker.launch(mCommand);
+
 	
 }
 
@@ -207,32 +213,39 @@ private void setListeners() {
 
 	// btnSpeak 
 	
-	btnSpeak.setOnClickListener(new View.OnClickListener() {
+/*	btnSpeak.setOnClickListener(new View.OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
 
-			Intent intent = new Intent(
-					RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
-
-			try {
-				startActivityForResult(intent, RESULT_SPEECH);
-			
-			} catch (ActivityNotFoundException a) {
-				Toast t = Toast.makeText(getApplicationContext(),
-						"Ops! Your device doesn't support Speech to Text",
-						Toast.LENGTH_SHORT);
-				t.show();
-			}
+			speak();
 		}
 	});
 	
-	
+	*/
 	
 }
 
+
+public void speak() {
+	// TODO Auto-generated method stub
+	Intent intent = new Intent(
+			RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+	intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
+
+	try {
+		startActivityForResult(intent, RESULT_SPEECH);
+	
+	} catch (ActivityNotFoundException a) {
+		Toast t = Toast.makeText(getApplicationContext(),
+				"Ops! Your device doesn't support Speech to Text",
+				Toast.LENGTH_SHORT);
+		t.show();
+	}
+
+	
+}
 
 private void setWidgets() {
 	
@@ -242,7 +255,7 @@ private void setWidgets() {
 //	btnNext = (Button)findViewById(R.id.btnNext);
 //	btnHome = (Button)findViewById(R.id.btnHome);
 //	editText1 = (EditText)findViewById(R.id.editText1);
-	btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
+	//btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
 	
 }
 

@@ -115,5 +115,21 @@ public class GuiShow implements Command{
 	 
 }	
 
+public class Speak implements Command{
+	
+	MipReceiver mipReceiver;
+  // constructors 
+ private Speak() {}
+ public Speak(MipReceiver mipReceiver){
+	 this.mipReceiver = mipReceiver;
+}
+ 
+public void execute(){
+	mipReceiver.speak();
+}
+ 
+ 
+}	
+
 
 }
