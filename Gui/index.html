@@ -6,20 +6,26 @@
     <link rel="stylesheet" type="text/css" href="css-js/style.css" />
 
           <!-- Fancybox -->
+	  
+	  
     			<!-- Add jQuery library -->
+			<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 	      <script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
         <script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
 				<!-- Add fancyBox main JS and CSS files -->
-    		<script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
-    		<link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
+    	
+	<script>
+		!window.jQuery && document.write('<script src="jquery-1.4.3.min.js"><\/script>');
+	</script>
+	
+	<script type="text/javascript" src="css-js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+	<link rel="stylesheet" type="text/css" href="css-js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
 				<!-- youtube API -->
          <script src="http://www.youtube.com/player_api"></script>
-				 <!-- Mip scripts  -->
-				 <script language="JavaScript" type="text/javascript" src="css-js/mip-1.0.js"></script>
-<!--
+				
 
-//-->
-</script>
+
+
 
 
 	
@@ -35,18 +41,17 @@
         <br><br><br>    <br><br><br>
         
 		      <img src="img/eye001.png" width="450" height="450">
-		       .............................--------.------------------------------.........
+		       ...........................--------.------------------------------.........
 		       <img src="img/eye001.png" width="450" height="450">
 		           <br><br><br>    <br><br><br>    <br><br><br>
 
-
-    <!--     .............................--------...........................------------------------------.........   400 -->
+   </div>
 <div  id="principal"> 
 
 	<div  id="results"> 
 	</div>
 </div>
-
+<!--      ...........................--------.------------------------------.........            -->
 
 <script>
 var index = 0;
@@ -104,10 +109,12 @@ function clearScreen(){
 }
 function back(){
     
-   //$.fancybox.close()  
+    
+    parent.jQuery.fancybox.close()
+  // $.fancybox.close()  
   
  // var esc = $.Event("keydown", {keyCode:27});
-   $('.fancybox-wrap').tap();
+  // $('.fancybox-wrap').tap();
  // var x = $('.fancybox-opened');
   //alert(x);
     // $.fancybox.close
@@ -127,6 +134,14 @@ function showCenterPanel(){
 function hideCenterPanel() {
      $("#principal").slideUp("slow");   
 }
+
+
+
+
+//--------------------------------------------
+
+
+
 
 function pictureSearch(keyword){
     
@@ -158,18 +173,11 @@ function pictureSearch(keyword){
                                   .addClass("selected");
                           
                           //--FancyBox --
-                                $("a").fancybox({
-                                       showCloseButton: false,
-                                       openEffect : 'elastic',
-				       closeEffect : 'elastic',
-				       fitToView : true,
-				       helpers : {
-						title : {
-							type : 'inside'
-						}
-					}
-                                  
-                               });
+                               $("a").fancybox({
+				'overlayShow'	: false,
+				'transitionIn'	: 'elastic',
+				'transitionOut'	: 'elastic'
+			});
 
                        
                        
