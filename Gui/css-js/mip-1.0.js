@@ -1,68 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-	<title>Megamip picture, video and web search</title>
-    <link rel="stylesheet" type="text/css" href="css-js/style.css" />
-
-          <!-- Fancybox -->
-    			<!-- Add jQuery library -->
-	      <script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
-        <script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
-				<!-- Add fancyBox main JS and CSS files -->
-    		<script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
-    		<link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
-				<!-- youtube API -->
-         <script src="http://www.youtube.com/player_api"></script>
-				 <!-- Mip scripts  -->
-				 <script language="JavaScript" type="text/javascript" src="css-js/mip-1.0.js"></script>
-<!--
-
-//-->
-</script>
-
-
-	
- <style type="text/css">
- #principal { display:none;}
- </style>    
-    
-</head>
-<body>
-
-    <div id='eyes' style='background-color: black; color:black;'>
-        
-        <br><br><br>    <br><br><br>
-        
-		      <img src="img/eye001.png" width="450" height="450">
-		       .............................--------.------------------------------.........
-		       <img src="img/eye001.png" width="450" height="450">
-		           <br><br><br>    <br><br><br>    <br><br><br>
-
-
-    <!--     .............................--------...........................------------------------------.........   400 -->
-<div  id="principal"> 
-
-	<div  id="results"> 
-	</div>
-</div>
-
-
-<script>
-var index = 0;
-var selectedItem = null;
-$(document).ready(function () {	
-	
-     
- 
-      
-//  hideCenterPanel();     
-        
-        
-         
-     
-		
-});
 
 function next(){
 
@@ -266,7 +201,3 @@ function onYouTubePlayerAPIReady(){
     });
     
 }
-
-</script>
-</body>
-</html>

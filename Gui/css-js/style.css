@@ -10,7 +10,8 @@ body{
 	font-size:13px;
 	color:#eee;
 	font-family:Arial, Helvetica, sans-serif;
-	background:url('img/bg.jpg') repeat-x #718693;
+	background-color:black;
+	/*background:url('img/bg.jpg') repeat-x #718693; */ 
 }
 
 .bg1 {background-color:black;}
@@ -19,7 +20,8 @@ body{
 
 #principal{
 	
-	background-color:#4C5A65;
+	background-color:#4C5A65; 
+   
 	padding:50px 50px 30px;
 	margin:20px auto;
 	position:relative;
