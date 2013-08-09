@@ -40,11 +40,11 @@
 
     <div id='eyes' style='background-color: black; color:black;'>
         
-        <br><br><br>    <br><br><br>
+        <br><br><br><br><br><br>
         
-		      <img src="img/eye001.png">
+       <img src="img/eye001.png">
 		      
-		           <br><br><br>    <br><br><br>    <br><br><br>
+       <br><br><br>    <br><br><br>    <br><br><br>
 
    </div>
 <div  id="principal"> 
@@ -161,13 +161,20 @@ function pictureSearch(keyword){
 		},function(data){
 		
 		var content = "";
+                var newWidth = 0;
 			for(var i = 0; i < data.responseData.results.length; i++){
-			content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
+                          //  newWidth = data.responseData.results[i].tbWidth+15;
+			content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
                                   "<a href='"+data.responseData.results[i].url+"'>"+
                                   "<img src='"+data.responseData.results[i].tbUrl + "'/>"+
                                   "</a>"+
+                                  "<p>"+data.responseData.results[i].visibleUrl+"</p><br/>"+
+                                  "<span style='font-weight:bold;' >Size: </span>"+data.responseData.results[i].width+"x"+data.responseData.results[i].height+
                                   "</div>";
-                          
+                          if(i == 3){
+                              content +="<br/>"
+                          }
+                              
 			  $('#results').append(content);
 			}	
                         
@@ -204,12 +211,19 @@ function videoSearch(keyword){
 		    rsz	:8,
 		    start	: 0
 		},function(data){
+                var date;    
 		var content = "";
+                var month, day, year;
 			for(var i = 0; i < data.responseData.results.length; i++){
+                        date = new Date(data.responseData.results[i].published); 
+                        month = date.getMonth()+1;
+                        day = date.getDate();
+                        year = date.getFullYear();
 			content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
                                   "<a class='fancybox fancybox.iframe' href='"+data.responseData.results[i].playUrl+"'>"+
                                   "<img src='"+data.responseData.results[i].tbUrl + "'/>"+
-                                  "</a>"+
+                                  "</a><br/><br/>"+
+                                  "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
                                   "</div>";
                           
 			  $('#results').append(content);

@@ -9,7 +9,7 @@
 body{
 	font-size:13px;
 	color:#eee;
-	font-family:Arial, Helvetica, sans-serif;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
 	background-color:black;
 	/*background:url('img/bg.jpg') repeat-x #718693; */ 
 }
@@ -17,7 +17,10 @@ body{
 .bg1 {background-color:black;}
 #container{ width:900px; height:500px; background-color:black;}
 
-
+#results {
+    margin : 0px auto;
+    position:relative;
+}
 #principal{
 	
 	background-color:#4C5A65; 
@@ -29,8 +32,8 @@ body{
 	-moz-border-radius:16px;
 	-webkit-border-radius:16px;
 	border-radius:16px;
-	width:700px;
+	width:950px;
 }
-.pic{ padding:3px; display:inline-block; margin: 5px;}
-.selected{	background-color:yellow;}
+.pic{ padding:5px; display:inline-block; margin: 30px; line-height: 10px; width:150px;}
+.selected{	background-color:yellow; color:black;}
 .not-selected {background-color:black;}
