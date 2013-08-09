@@ -168,6 +168,8 @@ String apiSelect= "";
 		   mCommand = mc.new GuiHome(receiver);
 	   if(action.equals("show"))
 		   mCommand = mc.new GuiShow(receiver);
+	   if(action.equals("back"))
+		   mCommand = mc.new GuiBack(receiver);
 		   
 	   invoker.launch(mCommand);
 
@@ -180,10 +182,10 @@ protected void movementHandler(MovementInput movementInput) {
 	
 	String action = movementInput.getAction();
 	 
-	if(action.equals("82"))          // ascii code for "R"
+	if(action.equals("82"))          // decimal ascii code for "R" - right 
 		mCommand = mc.new GuiNext(receiver);
 	else
-		mCommand = mc.new Speak(receiver);
+		mCommand = mc.new Speak(receiver);  // it's a left movement
 	
 		
      Log.d(TAG2,"MainActivity - movementHandler ----- action = "+action);

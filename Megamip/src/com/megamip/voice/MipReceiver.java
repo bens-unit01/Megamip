@@ -60,8 +60,8 @@ public class MipReceiver {
  
  public void guiBack() {
 		
-	// callJsFunction("back", "");
-	 webView.performClick();
+	 callJsFunction("back", "");
+	// webView.performClick();
 		
  }
  
