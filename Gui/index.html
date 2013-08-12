@@ -42,7 +42,7 @@
         
         <br><br><br><br><br><br>
         
-       <img src="img/eye001.png">
+       <img src="img/eye001.png" width="1250">
 		      
        <br><br><br>    <br><br><br>    <br><br><br>
 
@@ -112,10 +112,10 @@ function back(){
     
     
     
-    $('.fancybox-close').trigger('click');
+  //  $('.fancybox-close').trigger('click');
     
    // parent.jQuery.fancybox.close()
-  // $.fancybox.close()  
+   $.fancybox.close()  
   
  // var esc = $.Event("keydown", {keyCode:27});
   // $('.fancybox-wrap').tap();
@@ -187,7 +187,10 @@ function pictureSearch(keyword){
                                $("a").fancybox({
 				'overlayShow'	: false,
 				'transitionIn'	: 'elastic',
-				'transitionOut'	: 'elastic'
+				'transitionOut'	: 'elastic',
+                                'closeClick':true, 
+                                'closeBtn':false,
+                                padding:0
 			});
 
                        
@@ -236,7 +239,9 @@ function videoSearch(keyword){
                           
                           //--FancyBox --
                                 $("a").fancybox({
-
+                                'closeClick':true,    
+                                'closeBtn':false,
+                                'padding':0,
                                    helpers: {
                                        title : {
                                            type : 'float'

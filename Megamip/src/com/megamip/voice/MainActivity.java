@@ -42,18 +42,12 @@ public class MainActivity extends Activity {
 	private TextView textView;
 	private EditText editText1;
 	private WebView webView;
-//	private Button  btnNext, btnShow, btnHome;
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
 	private MipUsbDevice mipUsbDevice;
-	// private  mipUsbListener;
-
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
-	
 	private Command mCommand;
-	private MipCommand.GuiNext nextCommand;
-	
 	private Invoker invoker;
 	private MipReceiver receiver;
 	private MipCommand mc;
@@ -73,9 +67,9 @@ public class MainActivity extends Activity {
 	    webView.setWebChromeClient(new WebChromeClient() {
 		});
 		webView.getSettings().setPluginState(PluginState.ON);
-		webView.getSettings().setUserAgent(USER_DESKTOP);
+	//	webView.getSettings().setUserAgent(USER_DESKTOP);
         webView.addJavascriptInterface(this, "contactSupport");    
-        setWidgets();
+        
         setListeners();
         loadPage("index.html");
         
@@ -213,18 +207,7 @@ private void setListeners() {
 	});
      
 
-	// btnSpeak 
 	
-/*	btnSpeak.setOnClickListener(new View.OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-
-			speak();
-		}
-	});
-	
-	*/
 	
 }
 
@@ -249,17 +232,7 @@ public void speak() {
 	
 }
 
-private void setWidgets() {
-	
-//	textView = (TextView)findViewById(R.id.textView1);
-	webView = (WebView)findViewById(R.id.webView1);
-//	btnShow = (Button)findViewById(R.id.btnShow);
-//	btnNext = (Button)findViewById(R.id.btnNext);
-//	btnHome = (Button)findViewById(R.id.btnHome);
-//	editText1 = (EditText)findViewById(R.id.editText1);
-	//btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
-	
-}
+
 
 
 }
