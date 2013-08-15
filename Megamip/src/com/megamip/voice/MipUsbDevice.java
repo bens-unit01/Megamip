@@ -90,7 +90,7 @@ public class MipUsbDevice {
 
 	
 	
-	// inner interface and class
+	// inner interface to implement the Observer design pattern 
 
 	public interface UsbListener {
 
@@ -98,6 +98,8 @@ public class MipUsbDevice {
 
 	}
 
+	
+	
 	public class UsbEvent {
 		private Object sender;
 		private byte[] data;

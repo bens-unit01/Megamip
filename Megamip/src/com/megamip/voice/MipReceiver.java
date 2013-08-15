@@ -9,6 +9,7 @@ import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
+import com.megamip.voice.MainActivity;
 
 public class MipReceiver {
 	
@@ -25,11 +26,11 @@ public class MipReceiver {
 	
 	private Handler handler; 
 	private WebView webView;
-	private Activity activity;
+	private MainActivity activity;
 // constructor 
 	public MipReceiver() {}
 	
-	public MipReceiver(Handler handler, WebView webView, Activity activity) {
+	public MipReceiver(Handler handler, WebView webView, MainActivity activity) {
 		this.handler = handler;
 		this.webView = webView;
 		this.activity = activity;
@@ -42,6 +43,7 @@ public class MipReceiver {
 	 
 	 String seq = "clearScreen();hideEyes();showCenterPanel();pictureSearch";
 	 callJsFunction(seq, keywords);
+	 callJsFunction("log","<b>Picture search for: </b>"+keywords);
 
 	 
  }
@@ -50,6 +52,7 @@ public class MipReceiver {
 	 
 	 String seq = "clearScreen();hideEyes();showCenterPanel();videoSearch";
 	 callJsFunction(seq, keywords);
+	 callJsFunction("log","<b>Video search for: </b>"+keywords);
  }
  
  public void webSearch(){}
@@ -80,7 +83,7 @@ public class MipReceiver {
  public void speak(){
 	 
 		// TODO Auto-generated method stub
-		Intent intent = new Intent(
+	/*	Intent intent = new Intent(
 				RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
 		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
@@ -94,7 +97,16 @@ public class MipReceiver {
 					"Ops! Your device doesn't support Speech to Text",
 				Toast.LENGTH_SHORT);
 			
-		}
+		}*/
+	 Log.d(TAG ,"MipReceiver - speak()");
+	 
+	 
+	 handler.post(new Runnable() {
+         public void run() {
+        	 activity.onSpeak();
+         }
+     });
+	
  }
  
  

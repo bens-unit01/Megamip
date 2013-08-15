@@ -44,13 +44,18 @@
         
        <img src="img/eye001.png" width="1250">
 		      
-       <br><br><br>    <br><br><br>    <br><br><br>
+       <br>
+       
+       <div id="log"></div>
+       <br><br><br><br><br>    <br><br><br>
 
    </div>
 <div  id="principal"> 
 
 	<div  id="results"> 
 	</div>
+    <br>
+     <div id="output"></div>
 </div>
 <!--      ...........................--------.------------------------------.........            -->
 
@@ -139,6 +144,12 @@ function hideCenterPanel() {
      $("#principal").slideUp("slow");   
 }
 
+function log(displayString){
+    
+    $('#output').empty();
+    $('#output').append(displayString);
+    
+}
 
 
 
@@ -206,14 +217,19 @@ function videoSearch(keyword){
     
    
   
-	var apiURL = 'http://ajax.googleapis.com/ajax/services/search/'+'video'+
-                        '?v=1.0&callback=?';
+	//var apiURL = 'http://ajax.googleapis.com/ajax/services/search/'+'video'+
+                        '?v=1.0&callback=?&format=5';
+         var apiURL ='http://gdata.youtube.com/feeds/users/GoogleDevelopers/uploads?v=2&alt=json-in-script&format=5&callback=showMyVideos';
 	
-	$.getJSON(apiURL,{
-		    q	: keyword,
+        
+       /* ,{
+	    q	: keyword,
 		    rsz	:8,
-		    start	: 0
-		},function(data){
+		    start	: 0,
+                   ytfeed:'top_rated'
+		},*/
+        
+	$.getJSON(apiURL,function(data){
                 var date;    
 		var content = "";
                 var month, day, year;

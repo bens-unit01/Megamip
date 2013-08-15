@@ -2,31 +2,28 @@ package com.megamip.voice;
 
 import java.util.ArrayList;
 
-
-import com.megamip.voice.R;
-import com.megamip.voice.MipUsbDevice.UsbEvent;
-import com.megamip.voice.MipUsbDevice.UsbListener;
-
-import android.os.Bundle;
-import android.os.Handler;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.webkit.WebSettings.PluginState;
-import android.widget.Button;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
+import com.megamip.voice.MipUsbDevice.UsbEvent;
+import com.megamip.voice.MipUsbDevice.UsbListener;
 
 public class MainActivity extends Activity {
 	
@@ -51,6 +48,9 @@ public class MainActivity extends Activity {
 	private Invoker invoker;
 	private MipReceiver receiver;
 	private MipCommand mc;
+	private SpeakAgainDlg mSpeakAgainDlg;
+	
+	private SpeechRecognizer mSpeechRecognizer;
 
 
 
@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	@Override
+	/*@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
 		}
 
 		}
-	}
+	}*/
 	
 	
 	
@@ -206,15 +206,18 @@ private void setListeners() {
 	
 	});
      
-
+  // mic device 
+	
+	 mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
+     mSpeechRecognizer.setRecognitionListener(new SpeechListener());        
 	
 	
 }
 
 
-public void speak() {
+public void onSpeak() {
 	// TODO Auto-generated method stub
-	Intent intent = new Intent(
+	/*Intent intent = new Intent(
 			RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
 	intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
@@ -227,12 +230,85 @@ public void speak() {
 				"Ops! Your device doesn't support Speech to Text",
 				Toast.LENGTH_SHORT);
 		t.show();
-	}
-
+	}*/
 	
+	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1); 
+    
+    mSpeechRecognizer.startListening(intent);
+    Log.i("A3","MainActivity -- onSpeak() ");
+
+    
 }
 
 
+// inner class to implement the RecognitionListener interface 
 
+class SpeechListener implements RecognitionListener          
+{
+         public void onReadyForSpeech(Bundle params)
+         {
+        	    mSpeakAgainDlg = new SpeakAgainDlg("Speak now !!",context);
+        	    mSpeakAgainDlg.show();
+                  Log.d(TAG, "onReadyForSpeech");
+         }
+         public void onBeginningOfSpeech()
+         {
+                  Log.d(TAG, "onBeginningOfSpeech");
+         }
+         public void onRmsChanged(float rmsdB)
+         {
+                  Log.d(TAG, "onRmsChanged");
+         }
+         public void onBufferReceived(byte[] buffer)
+         {
+                  Log.d(TAG, "onBufferReceived");
+         }
+         public void onEndOfSpeech()
+         {
+        	 	mSpeakAgainDlg.dismiss();
+                  Log.d(TAG, "onEndofSpeech");
+         }
+         public void onError(int error)
+         { 
+        	 
+        	 mSpeakAgainDlg.dismiss();
+                  Log.d(TAG,  "error " +  error);
+             //     mText.setText("error " + error);
+         }
+         public void onResults(Bundle results)                   
+         {
+                  String str = new String();
+                  
+                 
+                  
+                  Log.d(TAG, "onResults " + results);
+                  ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                  for (int i = 0; i < data.size(); i++)
+                  {
+                            Log.d(TAG, "result " + data.get(i));
+                            str += data.get(i);
+                  }
+                  
+                  
+                VoiceInput voiceCommand = new VoiceInput(str);
+  				Log.d(TAG2,"onResults -----vc= "+voiceCommand);
+  				voiceHandler(voiceCommand);
+  				
+           //       mText.setText("results: "+String.valueOf(data.size()));   
+             //    refDialog.dismiss();
+                  
+         }
+         public void onPartialResults(Bundle partialResults)
+         {
+                  Log.d(TAG, "onPartialResults");
+         }
+         public void onEvent(int eventType, Bundle params)
+         {
+                  Log.d(TAG, "onEvent " + eventType);
+         }
+}
 
 }
