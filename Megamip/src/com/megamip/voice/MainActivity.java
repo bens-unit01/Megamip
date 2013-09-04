@@ -13,8 +13,12 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.Menu;
+import android.view.WindowManager;
+import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
+import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,8 +37,7 @@ public class MainActivity extends Activity {
 	
 	public static  Context context;  // reference vers l'activité MainActivity 
 	protected static final int RESULT_SPEECH = 1;
-	public static final String TAG = "A3";
-	public static final String TAG2 = "A2";
+	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
 	private ImageButton btnSpeak;
 	private TextView textView;
 	private EditText editText1;
@@ -48,9 +51,10 @@ public class MainActivity extends Activity {
 	private Invoker invoker;
 	private MipReceiver receiver;
 	private MipCommand mc;
-	private SpeakAgainDlg mSpeakAgainDlg;
+	private SpeakNow mSpeakNowDlg;
 	
 	private SpeechRecognizer mSpeechRecognizer;
+	private int compteur1 = 0;
 
 
 
@@ -65,25 +69,39 @@ public class MainActivity extends Activity {
 		handler = new Handler();
 	    webView.getSettings().setJavaScriptEnabled(true);  
 	    webView.setWebChromeClient(new WebChromeClient() {
+	    	@Override
+	    	public boolean onConsoleMessage(ConsoleMessage cm) {
+	    		
+	    		Log.d(TAG3,"console.log: "+ cm.message() + " line: "+cm.lineNumber()+ cm.sourceId() );
+	    		return true;
+	    	}
+	    	
+	    	
 		});
 		webView.getSettings().setPluginState(PluginState.ON);
-	//	webView.getSettings().setUserAgent(USER_DESKTOP);
-        webView.addJavascriptInterface(this, "contactSupport");    
+		webView.getSettings().setUserAgent(USER_DESKTOP);
+		webView.getSettings().setRenderPriority(RenderPriority.HIGH);
+		webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.addJavascriptInterface(this, "megaMipJSInterface");    
         
-        setListeners();
-        loadPage("index.html");
+       
         
         invoker = new Invoker();
         receiver = new MipReceiver(handler, webView, this);
         mc = new MipCommand();
         
+        
+        mSpeakNowDlg = new SpeakNow("Speak now !!",context);
+        setListeners();
+       // loadPage("index.html");
+        loadPage("test.html");
 
 	}
 	
 	public void loadPage(String in) {
 		final String url = HTML_ROOT + in;
 		
-		Log.d(TAG, " loadPage url = "+url);
+		Log.d(TAG3, " loadPage url = "+url);
     	loadURL(url);
 		
 	}
@@ -104,28 +122,6 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	/*@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-
-		switch (requestCode) {
-		case RESULT_SPEECH: {
-			if (resultCode == RESULT_OK && null != data) {
-
-				ArrayList<String> text = data
-						.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-
-			
-				
-				VoiceInput voiceCommand = new VoiceInput(text.get(0));
-				Log.d(TAG2,"MainActivity - onActivityResult -----vc= "+voiceCommand);
-				voiceHandler(voiceCommand);
-			}
-			break;
-		}
-
-		}
-	}*/
 	
 	
 	
@@ -149,7 +145,7 @@ String apiSelect= "";
 
 
 
- Log.d(TAG, "WebViewActivity launch - call of callJsFunction ");
+ Log.d(TAG3, "WebViewActivity launch - call of callJsFunction ");
 
  
 	  // if(action.equals("picture"))
@@ -191,7 +187,7 @@ protected void movementHandler(MovementInput movementInput) {
 
 private void setListeners() {
 	
-	// usb device 
+	// Listener for the usb device 
 	
 	mipUsbDevice  = new MipUsbDevice(context);
 	mipUsbDevice.addUsbListener(new UsbListener() {
@@ -206,7 +202,7 @@ private void setListeners() {
 	
 	});
      
-  // mic device 
+  //Listener for the mic device 
 	
 	 mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
      mSpeechRecognizer.setRecognitionListener(new SpeechListener());        
@@ -214,7 +210,7 @@ private void setListeners() {
 	
 }
 
-
+// onSpeak is called through the javascript interface : megaMipJSInterface
 public void onSpeak() {
 	// TODO Auto-generated method stub
 	/*Intent intent = new Intent(
@@ -232,15 +228,22 @@ public void onSpeak() {
 		t.show();
 	}*/
 	
-	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
-    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
-    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1); 
-    
-    mSpeechRecognizer.startListening(intent);
-    Log.i("A3","MainActivity -- onSpeak() ");
+	
 
     
+   	handler.post(new Runnable() {
+            public void run() {
+           	
+            	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1); 
+                
+                mSpeechRecognizer.startListening(intent);
+                Log.i("A3","MainActivity -- onSpeak() ");
+           	  
+            }
+        });
 }
 
 
@@ -250,51 +253,75 @@ class SpeechListener implements RecognitionListener
 {
          public void onReadyForSpeech(Bundle params)
          {
-        	    mSpeakAgainDlg = new SpeakAgainDlg("Speak now !!",context);
-        	    mSpeakAgainDlg.show();
-                  Log.d(TAG, "onReadyForSpeech");
+        	  
+        	   /*WindowManager.LayoutParams lWindowParams = new WindowManager.LayoutParams();
+        	    lWindowParams.copyFrom(getDialog().getWindow.getAttributes());
+        	    */
+        	    mSpeakNowDlg.show();
+        	    mSpeakNowDlg.showListening();
+        	//	mCommand = mc.new GuiShowMic(receiver);   // we launch the mic animation on the GUI
+        	//	invoker.launch(mCommand);
+                  Log.d(TAG3, "onReadyForSpeech");
          }
          public void onBeginningOfSpeech()
          {
-                  Log.d(TAG, "onBeginningOfSpeech");
+                  Log.d(TAG3, "onBeginningOfSpeech");
          }
          public void onRmsChanged(float rmsdB)
          {
-                  Log.d(TAG, "onRmsChanged");
+        	 
+        	 mSpeakNowDlg.updateVoiceMeter(rmsdB);
+               //   Log.d(TAG, "onRmsChanged");
          }
          public void onBufferReceived(byte[] buffer)
          {
-                  Log.d(TAG, "onBufferReceived");
+                if(0 == compteur1){ 
+                	Log.d(TAG3, "onBufferReceived");
+                	compteur1 = 1;
+                }
          }
          public void onEndOfSpeech()
          {
-        	 	mSpeakAgainDlg.dismiss();
-                  Log.d(TAG, "onEndofSpeech");
+        	 	mSpeakNowDlg.dismiss();
+        	 
+        	 // mCommand = mc.new GuiHideMic(receiver);   // we hide the mic animation on the GUI
+     		 // invoker.launch(mCommand);
+                  Log.d(TAG3, "onEndofSpeech");
          }
          public void onError(int error)
          { 
-        	 
-        	 mSpeakAgainDlg.dismiss();
-                  Log.d(TAG,  "error " +  error);
+        	 compteur1 = 0;
+        	  mSpeakNowDlg.dismiss();
+        	// mCommand = mc.new GuiHideMic(receiver);   // we hide the mic animation on the GUI
+     		 // invoker.launch(mCommand);
+                  Log.d(TAG3,  "onError " +  error);
              //     mText.setText("error " + error);
+                  
+             if(SpeechRecognizer.ERROR_NO_MATCH == error)    {
+            	 String message = "Recognition problem : the system is not able to recognize this word";
+            	 mCommand = mc.new GuiShowMessage(receiver, message);  
+            	 invoker.launch(mCommand);
+             } 
+               
          }
          public void onResults(Bundle results)                   
          {
+        	 compteur1 = 0;
                   String str = new String();
                   
                  
                   
-                  Log.d(TAG, "onResults " + results);
+                  Log.d(TAG3, "onResults " + results);
                   ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                   for (int i = 0; i < data.size(); i++)
                   {
-                            Log.d(TAG, "result " + data.get(i));
+                            Log.d(TAG3, "result " + data.get(i));
                             str += data.get(i);
                   }
                   
                   
                 VoiceInput voiceCommand = new VoiceInput(str);
-  				Log.d(TAG2,"onResults -----vc= "+voiceCommand);
+  				Log.d(TAG3,"onResults -----vc= "+voiceCommand);
   				voiceHandler(voiceCommand);
   				
            //       mText.setText("results: "+String.valueOf(data.size()));   
@@ -303,12 +330,26 @@ class SpeechListener implements RecognitionListener
          }
          public void onPartialResults(Bundle partialResults)
          {
-                  Log.d(TAG, "onPartialResults");
+                  Log.d(TAG3, "onPartialResults");
          }
          public void onEvent(int eventType, Bundle params)
          {
-                  Log.d(TAG, "onEvent " + eventType);
+                  Log.d(TAG3, "onEvent " + eventType);
          }
+}
+
+
+
+@Override
+public void onPause() {
+	
+  super.onPause();	
+  if(mSpeakNowDlg.isShowing()){
+	  mSpeakNowDlg.dismiss();
+	  Log.d(TAG3,"MainActivity onPause() block if");
+  }
+  
+  Log.d(TAG3,"MainActivity onPause()");
 }
 
 }

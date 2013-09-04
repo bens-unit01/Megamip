@@ -2,17 +2,21 @@
 <html>
 <head>
     
-  <title>Megamip picture, video and web search</title>
+<title>Megamip picture, video and web search</title>
 
 <link rel="stylesheet" type="text/css" href="css-js/style.css" />
-  <!--  jQuery library ------>
+  <!--  jQuery library -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 
 <!--<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
 <script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
 -->
 
-  <!-- Fancybox -------------->
+<script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
+<script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
+<script type="text/javascript" src="css-js/jquery.transit.min.js"></script>  
+
+  <!-- Fancybox-->
 <script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
 <link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
 
@@ -32,14 +36,12 @@
 </head>
 <body>
 
-<div id='eyes' style='background-color: black; color:black;'>
-    
-    <br><br><br><br><br><br>
-    
-   <img src="img/eye001.png" width="1250">
 
-   <br><br><br>    <br><br><br>    <br><br><br>
-
+<div id='principal-2'>
+    <div id='eyes' class='eyes-state-00 active'></div>
+    <div id='next' class='eyes-state-01 not-active'></div>
+    <div id='notifications' class="eyes-state-08 not-active"></div>
+    <img  src='img/eye001-2.png' id='shrink' class="not-active">
 </div>
 
 <div  id="principal"> 
@@ -49,11 +51,12 @@
     <div id="loading"></div>
 
 </div>
-<!--      ...........................--------.------------------------------.........            -->
+<!--      ....................................            -->
 
 <script>
 var index = 0;
 var selectedItem = null;
+var timerId = null;
 
   
 
@@ -65,6 +68,10 @@ var selectedItem = null;
            // $( "#loading" ).slideUp( 200 );  
            alert('2222')
            } */   
+
+
+  //  document.cookie="VISITOR_INFO1_LIVE=oKckVSqvaGw; path=/; domain=.youtube.com";
+ //  window.location.reload();
 
 $(document).ready(function () { 
 
@@ -80,19 +87,133 @@ $(document).ready(function () {
     }
   });
  
+
+
+
  /*$(document).on('click',function(){
 
   $.post("/mockjax");
  })*/
       
 //  hideCenterPanel();     
-        
-    
-         
-     
 
 });
 
+
+
+//----------animations 
+
+function sequence01(){    // transition - shrink 
+
+ var $active = $('#eyes');
+ var $next = $("#next");
+
+   /*  $next.fadeTo(2000, 0.25);
+     $active.fadeTo(2000, 1);
+     $next.fadeOut();*/
+     transition($next, $active);
+
+       var timerId1 = setInterval(
+    function(){
+      
+    $active.removeAttr('style');
+    $next.removeAttr('style');
+     shrink();
+      clearInterval(timerId1);
+
+    }, 4009);
+
+     var timerId2 = setInterval(
+    function(){
+      
+     // call to the control module  through the javascript interface  
+     megaMipJSInterface.onSpeak();
+     clearInterval(timerId2);
+
+    }, 7000);
+   
+   
+   
+    }
+
+    function shrink(){
+
+ // $.setDisabledByDefault(true);
+   var $active = $( "#eyes" );
+   var $next  = $("#shrink");
+
+   
+   $active.removeClass('eyes-state-01').addClass('eyes-state-09');
+   $next.removeClass('not-active').addClass('active');
+
+   $next.transition({ scale:1.2, delay: 200});
+   $next.transition({ scale:0.5});
+   }
+
+   function transition( $active, $next){
+
+     $next.fadeTo(2000, 0.25);
+     $active.fadeTo(2000, 1);
+     $next.fadeOut();
+
+    }
+
+    function animationInit(){
+        $("#eyes").removeAttr('class');
+        $("#eyes").removeAttr('style');
+        $("#next").removeAttr('class');
+        $("#next").removeAttr('style');
+        $("#notifications").removeAttr('class');
+        $("#notifications").removeAttr('style');
+        $("#shrink").removeAttr('class');
+        $("#shrink").removeAttr('style');
+        
+        $("#eyes").addClass('active eyes-state-00');
+        $("#next").addClass('not-active eyes-state-01');
+        $("#notifications").addClass('not-active eyes-state-08');
+        $("#shrink").addClass('not-active');
+    }
+
+//------------------
+function showMic(){
+
+var $eyes = $( "#eyes" );
+ $eyes.removeClass("eyes-state-00").addClass("eyes-state-01");
+
+   var $active = $eyes;
+ var i=1;var j=0;
+// starting the mic animation 
+ timerId = setInterval(function(){
+  j=i; j++;
+    if( i != 7){
+ $eyes.removeClass("eyes-state-0"+i);
+ $eyes.addClass("eyes-state-0"+j);
+i++;
+
+ }else{
+    
+    
+    $eyes.removeClass("eyes-state-0"+i);
+    $eyes.addClass("eyes-state-01");
+    i=1; 
+  // clearInterval(timerId);
+
+  }
+
+},300);
+
+}
+
+
+function hideMic(){
+
+  if(timerId != null){
+   clearInterval(timerId);  // we stop the mic animation 
+    var currentClass = $( "#eyes" ).attr('class');
+   $( "#eyes" ).removeClass(currentClass).addClass('eyes-state-00');
+   timerId = null;
+ }
+}
 function next(){
 
       // unselect the current item 
@@ -178,7 +299,14 @@ function pictureSearch(keyword){
 
     
     var content = "";
-                var newWidth = 0;
+    var newWidth = 0;
+
+    if(data.responseData != null){
+
+         clearScreen();
+         hideEyes();
+         showCenterPanel();
+
       for(var i = 0; i < data.responseData.results.length; i++){
                           //  newWidth = data.responseData.results[i].tbWidth+15;
       content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
@@ -211,10 +339,15 @@ function pictureSearch(keyword){
       });
 
                        
-                       
+    
+       }else{
+
+        log("<b>Network error</b>:"+data.responseStatus);
+
+       }
     }
   );
-$.post("/mockjax"); // to fire the loading screen 
+// $.post("/mockjax"); // to fire the loading screen 
 }
 
 // video search functions  -------------------------------

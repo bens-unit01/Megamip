@@ -38,10 +38,17 @@ public class MipReceiver {
 
 
 // public methods 
+public void guiShowMic(){	
+	callJsFunction("hideCenterPanel();showEyes();showMic", "");
+}
+
+public void guiHideMic(){
+	callJsFunction("hideMic", "");
 	
+}
  public void pictureSearch(String keywords){
 	 
-	 String seq = "clearScreen();hideEyes();showCenterPanel();pictureSearch";
+	 String seq = "pictureSearch";
 	 callJsFunction(seq, keywords);
 	 callJsFunction("log","<b>Picture search for: </b>"+keywords);
 
@@ -79,7 +86,10 @@ public class MipReceiver {
 	 callJsFunction("show", "");
 	}
  
- 
+ public void guiShowMessage(String message){
+	 
+	 callJsFunction("log",message);
+ }
  public void speak(){
 	 
 		// TODO Auto-generated method stub
@@ -101,12 +111,15 @@ public class MipReceiver {
 	 Log.d(TAG ,"MipReceiver - speak()");
 	 
 	 
-	 handler.post(new Runnable() {
+	/* handler.post(new Runnable() {
          public void run() {
-        	 activity.onSpeak();
+        	 //activity.onSpeak();
+        	  
          }
-     });
+     });*/
 	
+	 callJsFunction("sequence01", "");
+	 
  }
  
  

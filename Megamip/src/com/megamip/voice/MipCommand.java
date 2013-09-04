@@ -4,10 +4,44 @@ public class MipCommand {
 	
 	
 	
+	public class GuiShowMic implements Command {
+
+		private MipReceiver mipReceiver;
+		  // constructors 
+		 private GuiShowMic() {}
+		 public GuiShowMic(MipReceiver mipReceiver){
+			 this.mipReceiver = mipReceiver;
+		}
+		 
+		public void execute(){
+			mipReceiver.guiShowMic();
+		}
+		 
+		
+		
+	}
+	
+	public class GuiHideMic implements Command {
+
+		private MipReceiver mipReceiver;
+		  // constructors 
+		 private GuiHideMic() {}
+		 public GuiHideMic(MipReceiver mipReceiver){
+			 this.mipReceiver = mipReceiver;
+		}
+		 
+		public void execute(){
+			mipReceiver.guiHideMic();
+		}
+		 
+		
+		
+	}
+	
 	public class PictureSearch implements Command {
 		
-		MipReceiver mipReceiver;
-		String keywords;
+		private MipReceiver mipReceiver;
+		private String keywords;
 		// constructors 
 		private  PictureSearch(){}
 		
@@ -28,8 +62,8 @@ public class MipCommand {
    
 	public class VideoSearch implements Command {
 
-		MipReceiver mipReceiver;
-		String keywords;
+		private MipReceiver mipReceiver;
+		private String keywords;
 		
 		// constructors 
 		private VideoSearch(){}
@@ -48,7 +82,7 @@ public class MipCommand {
   
 	public class GuiNext implements Command{
 		
-		MipReceiver mipReceiver;
+		private MipReceiver mipReceiver;
 	  // constructors 
 	 private GuiNext() {}
 	 public GuiNext(MipReceiver mipReceiver){
@@ -65,7 +99,7 @@ public class MipCommand {
 	
 public class GuiBack implements Command{
 		
-		MipReceiver mipReceiver;
+	private MipReceiver mipReceiver;
 	  // constructors 
 	 private GuiBack() {}
 	 public GuiBack(MipReceiver mipReceiver){
@@ -83,7 +117,7 @@ public class GuiBack implements Command{
 
 public class GuiHome implements Command{
 		
-		MipReceiver mipReceiver;
+	private MipReceiver mipReceiver;
 	  // constructors 
 	 private GuiHome() {}
 	 public GuiHome(MipReceiver mipReceiver){
@@ -101,7 +135,7 @@ public class GuiHome implements Command{
 
 public class GuiShow implements Command{
 		
-		MipReceiver mipReceiver;
+	private MipReceiver mipReceiver;
 	  // constructors 
 	 private GuiShow() {}
 	 public GuiShow(MipReceiver mipReceiver){
@@ -117,7 +151,7 @@ public class GuiShow implements Command{
 
 public class Speak implements Command{
 	
-	MipReceiver mipReceiver;
+private MipReceiver mipReceiver;
   // constructors 
  private Speak() {}
  public Speak(MipReceiver mipReceiver){
@@ -131,5 +165,22 @@ public void execute(){
  
 }	
 
+public class GuiShowMessage implements Command{
+	
+ private MipReceiver mipReceiver;
+ private String message;
+  // constructors 
+ private GuiShowMessage() {}
+ public GuiShowMessage(MipReceiver mipReceiver, String message){
+	 this.mipReceiver = mipReceiver;
+	 this.message = message;
+}
+ 
+public void execute(){
+	mipReceiver.guiShowMessage(message);
+}
+ 
+ 
+}	
 
 }
