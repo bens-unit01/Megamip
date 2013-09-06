@@ -24,12 +24,13 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.apache.cordova.DroidGap;
 
 
 import com.megamip.voice.MipUsbDevice.UsbEvent;
 import com.megamip.voice.MipUsbDevice.UsbListener;
 
-public class MainActivity extends Activity {
+public class MainActivity extends DroidGap {
 	
 	
 	public static final int USER_MOBILE  = 0;
@@ -46,7 +47,8 @@ public class MainActivity extends Activity {
 	private String accountName = null;
 	private Handler handler = null;
 	private MipUsbDevice mipUsbDevice;
-	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
+	//private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
+	private static final String HTML_ROOT = "file:///android_asset/www/";	
 	private Command mCommand;
 	private Invoker invoker;
 	private MipReceiver receiver;
@@ -59,14 +61,15 @@ public class MainActivity extends Activity {
 
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
 		context = this;
-	
-		webView = (WebView) findViewById(R.id.webView1);
 		handler = new Handler();
+		/*
+		webView = (WebView) findViewById(R.id.webView1);
+		
 	    webView.getSettings().setJavaScriptEnabled(true);  
 	    webView.setWebChromeClient(new WebChromeClient() {
 	    	@Override
@@ -85,7 +88,12 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(this, "megaMipJSInterface");    
         
        
-        
+        */
+		
+		//super.loadUrl("file:///android_asset/www/index.html");
+		super.loadUrl("file:///android_asset/www/index.html");
+		webView = super.appView;
+		webView.addJavascriptInterface(this, "megaMipJSInterface");  
         invoker = new Invoker();
         receiver = new MipReceiver(handler, webView, this);
         mc = new MipCommand();
@@ -94,7 +102,7 @@ public class MainActivity extends Activity {
         mSpeakNowDlg = new SpeakNow("Speak now !!",context);
         setListeners();
        // loadPage("index.html");
-        loadPage("test.html");
+        //loadPage("test.html");
 
 	}
 	

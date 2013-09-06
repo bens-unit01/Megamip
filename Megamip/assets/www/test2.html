@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+  <title>Megamip test</title>
+
+<link rel="stylesheet" type="text/css" href="css-js/style.css" />
+  <!--  jQuery library -->
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>  -->
+<!-- jquery.animate-enhanced.js --> 
+
+<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
+
+<script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
+<script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
+<script type="text/javascript" src="css-js/jquery.transit.js"></script>  
+
+
+  <!-- Fancybox-->
+<script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
+<link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
+
+
+<script src="http://www.youtube.com/player_api"></script>
+
+
+
+
+
+
+
+ <style type="text/css">
+ #principal { display:none;}
+ </style>    
+<title>PhoneGap Device Ready Example</title>
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    // Call onDeviceReady when PhoneGap is loaded.
+    //
+    // At this point, the document has loaded but phonegap-1.2.0.js has not.
+    // When PhoneGap is loaded and talking with the native device,
+    // it will call the event `deviceready`.
+    // 
+    function onLoad() {
+        document.addEventListener("deviceready", onDeviceReady, false);
+    }
+
+    // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
+    //
+    function onDeviceReady() {
+        window.addEventListener("batterystatus", onBatteryStatus, false);
+    }
+
+    // Handle the batterystatus event
+    //
+    function onBatteryStatus(info) {
+        console.log("Level: " + info.level + " isPlugged: " + info.isPlugged); 
+    }
+
+    </script>
+  </head>
+  <body onload="onLoad()">
+    <h1>Test de l'api  pour la battery </h1>
+  </body>
+</html>
+
+
+

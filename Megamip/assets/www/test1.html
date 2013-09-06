@@ -2,19 +2,19 @@
 <html>
 <head>
     
-<title>Megamip picture, video and web search</title>
+  <title>Megamip test</title>
 
 <link rel="stylesheet" type="text/css" href="css-js/style.css" />
   <!--  jQuery library -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>  -->
+<!-- jquery.animate-enhanced.js --> 
 
-<!--<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
-<script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
--->
+<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
 
 <script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
 <script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
-<script type="text/javascript" src="css-js/jquery.transit.min.js"></script>  
+<script type="text/javascript" src="css-js/jquery.transit.js"></script>  
+
 
   <!-- Fancybox-->
 <script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
@@ -36,19 +36,40 @@
 </head>
 <body>
 
+<button id='b1'>&nbsp;1 fade-out&nbsp;</button>
+<button id='b2'>&nbsp;2 fade-in&nbsp;</button>
+<button id='b3'>&nbsp;3 shrink&nbsp;</button>
+<button id='b4'>&nbsp;4 extend&nbsp;</button>
+<button id='b5'>&nbsp;5 loop&nbsp;</button>
+<button id='b6'>&nbsp;6 transition&nbsp;</button>
+<button id='b7'>&nbsp;7 sequence-01&nbsp;</button>
+<button id='b8'>&nbsp;8 reset &nbsp;</button>
+<button id='b9'>&nbsp;9 sequence-02 &nbsp;</button>
+<button id='b10'>&nbsp;10 notific.. &nbsp;</button>
+<div id='container'>
 
-<div id='principal-2'>
-    <div id='eyes' class='eyes-state-00 active'></div>
-    <div id='next' class='eyes-state-01 not-active'></div>
-    <div id='notifications' class="eyes-state-08 not-active"></div>
-    <img  src='img/eye001-2.png' id='shrink' class="not-active">
-</div>
+    <div id='principal-2'>
+        <div id='eyes' class='eyes-state-00 active'></div>
+        <div id='next' class='eyes-state-01 not-active'></div>
+        <div id='notifications' class="eyes-state-09 not-active">
+        <div class="notfct-background">
+          <div id="battery-level" class="notfct-left-00"></div>
+            <div id="signal-level" class="notfct-right-00"></div>
+            <div class="notfct-date">12:05PM<br/>15/08/2013<br/></div>
+            <div class="notfct-emails">5</div>
+        </div>
+        </div>
+        <img  src='img/eye001-2.png' id='shrink' class="not-active">
+    </div>
 
-<div  id="principal"> 
+    
 
-    <div  id="results"></div>
-    <div id="output"></div>
-    <div id="loading"></div>
+
+    <div  id="principal"> 
+        <div  id="results"></div>
+        <div id="output"></div>
+        <div id="loading"></div>
+    </div>
 
 </div>
 <!--      ....................................            -->
@@ -56,22 +77,11 @@
 <script>
 var index = 0;
 var selectedItem = null;
-var timerId = null;
-
-  
-
-
-   /*   //$( "#loading" ).show();
-           alert('1111')
-           },
-            ajaxStop: function() { 
-           // $( "#loading" ).slideUp( 200 );  
-           alert('2222')
-           } */   
+var batteryLevel = 10; 
+var signalLevel = 50;
 
 
-  //  document.cookie="VISITOR_INFO1_LIVE=oKckVSqvaGw; path=/; domain=.youtube.com";
- //  window.location.reload();
+
 
 $(document).ready(function () { 
 
@@ -96,14 +106,70 @@ $(document).ready(function () {
  })*/
       
 //  hideCenterPanel();     
+        
+    
+         
+     
 
 });
 
+$('#b1').click(offMode);  // fade out
+
+$('#b2').click(onMode);   // fade in
+
+$('#b3').click(shrink);   
+
+$('#b4').click(extend);
+
+$('#b5').click(function(){
+  loop(5)
+});
+
+$('#b6').click(function(){    // transition 
+
+ var $active = $('#eyes');
+ var $next = $('#notifications');
+
+ 
+// $active.removeClass('eyes-state-01').addClass('eyes-state-00');
+
+ var step = 0;
+ setInterval(function(){
+    
+
+if(step != 0){
+         $active = $('#notifications');
+         $next = $('#eyes');
+         step = 0;
+   }else{
+         $active = $('#eyes');
+         $next = $('#notifications');
+         step = 1;
+   }
+    transition($active, $next);
+      
+     }, 5000);
+
+});
+
+$('#b7').click(function(){
+
+//var $active = $('#eyes');
+//var $next = $('#notifications');
+//$active.removeClass('eyes-state-01').addClass('eyes-state-00');
+shrink(); extend();
+});
+
+$('#b8').click(function(){
+
+//location.reload();
+
+// window.location.reload(true);
+animationInit();
+  });
 
 
-//----------animations 
-
-function sequence01(){    // transition - shrink 
+$('#b9').click(function(){    // sequence 2 
 
  var $active = $('#eyes');
  var $next = $("#next");
@@ -113,30 +179,45 @@ function sequence01(){    // transition - shrink
      $next.fadeOut();*/
      transition($next, $active);
 
-       var timerId1 = setInterval(
+       var timerId = setInterval(
     function(){
       
     $active.removeAttr('style');
     $next.removeAttr('style');
      shrink();
-      clearInterval(timerId1);
+      clearInterval(timerId);
 
     }, 4009);
-
-     var timerId2 = setInterval(
-    function(){
-      
-     // call to the control module  through the javascript interface  
-     megaMipJSInterface.onSpeak();
-     clearInterval(timerId2);
-
-    }, 7000);
    
-   
-   
-    }
 
-    function shrink(){
+    });
+
+$('#b10').click(function(){    // sequence 2 
+
+    notfctInit();
+      });
+   
+// ------------------------------------------------- 
+
+function offMode(){
+   $( "#eyes" ).animate({
+    opacity: 0.4
+    }, 1500 );
+}
+function onMode(){
+  $( "#eyes" ).animate({
+  opacity: 1
+  }, 1500 );
+
+}
+function extend(){
+  var $active = $( "#eyes" );
+  var $next  = $("#shrink");
+  //$next.animate({ margin:0, width: "+=140", height: "+=140" }, 1000 );
+  $next.transition({ scale:1});
+}
+
+function shrink(){
 
  // $.setDisabledByDefault(true);
    var $active = $( "#eyes" );
@@ -148,72 +229,114 @@ function sequence01(){    // transition - shrink
 
    $next.transition({ scale:1.2, delay: 200});
    $next.transition({ scale:0.5});
-   }
+  
 
-   function transition( $active, $next){
+}
+
+function animationInit(){
+  $("#eyes").removeAttr('class');
+  $("#eyes").removeAttr('style');
+  $("#next").removeAttr('class');
+  $("#next").removeAttr('style');
+  $("#notifications").removeAttr('class');
+  $("#notifications").removeAttr('style');
+  $("#shrink").removeAttr('class');
+  $("#shrink").removeAttr('style');
+
+  $("#eyes").addClass('active eyes-state-00');
+  $("#next").addClass('not-active eyes-state-01');
+  $("#notifications").addClass('not-active eyes-state-08');
+  $("#shrink").addClass('not-active');
+
+}
+
+
+
+function loop(n){
+  var $active = $( "#eyes" );
+  var i=1;var j=0;
+  var timerId = setInterval(function(){
+    j=i; j++;
+   if( i != n){
+      $( "#eyes" ).removeClass("eyes-state-0"+i);
+      $( "#eyes" ).addClass("eyes-state-0"+j);
+      i++;
+
+   }else{
+      $( "#eyes" ).removeClass("eyes-state-0"+i);
+      $( "#eyes" ).addClass("eyes-state-01");
+      i=1; 
+    // clearInterval(timerId);
+    }
+
+    },300);
+}
+function transition( $active, $next){
 
      $next.fadeTo(2000, 0.25);
      $active.fadeTo(2000, 1);
      $next.fadeOut();
 
-    }
-
-    function animationInit(){
-        $("#eyes").removeAttr('class');
-        $("#eyes").removeAttr('style');
-        $("#next").removeAttr('class');
-        $("#next").removeAttr('style');
-        $("#notifications").removeAttr('class');
-        $("#notifications").removeAttr('style');
-        $("#shrink").removeAttr('class');
-        $("#shrink").removeAttr('style');
-        
-        $("#eyes").addClass('active eyes-state-00');
-        $("#next").addClass('not-active eyes-state-01');
-        $("#notifications").addClass('not-active eyes-state-08');
-        $("#shrink").addClass('not-active');
-    }
-
-//------------------
-function showMic(){
-
-var $eyes = $( "#eyes" );
- $eyes.removeClass("eyes-state-00").addClass("eyes-state-01");
-
-   var $active = $eyes;
- var i=1;var j=0;
-// starting the mic animation 
- timerId = setInterval(function(){
-  j=i; j++;
-    if( i != 7){
- $eyes.removeClass("eyes-state-0"+i);
- $eyes.addClass("eyes-state-0"+j);
-i++;
-
- }else{
-    
-    
-    $eyes.removeClass("eyes-state-0"+i);
-    $eyes.addClass("eyes-state-01");
-    i=1; 
-  // clearInterval(timerId);
-
-  }
-
-},300);
 
 }
 
 
-function hideMic(){
+function notfctInit(){
 
-  if(timerId != null){
-   clearInterval(timerId);  // we stop the mic animation 
-    var currentClass = $( "#eyes" ).attr('class');
-   $( "#eyes" ).removeClass(currentClass).addClass('eyes-state-00');
-   timerId = null;
- }
+$battery = $("#battery-level");
+$signal = $("#signal-level");
+ // setting the battery charge level
+  
+
+    if( batteryLevel > 80){        // battery level 100%
+         $battery.removeAttr('class').addClass("notfct-left-05");
+
+    }else if( 0 == batteryLevel){   // battery level 0%
+         $battery.removeAttr('class').addClass("notfct-left-00");
+
+    }else if( batteryLevel <= 20){   // battery level 20%
+          $battery.removeAttr('class').addClass("notfct-left-01");
+
+    }else if( batteryLevel <= 40){   // battery level 40%
+          $battery.removeAttr('class').addClass("notfct-left-02");
+
+    }else if( batteryLevel <= 60){   // battery level 60%
+          $battery.removeAttr('class').addClass("notfct-left-03");
+
+    }else{                           // battery level 80%
+          $battery.removeAttr('class').addClass("notfct-left-04");
+    }
+
+
+ // setting the signal strenth level 
+
+   if( signalLevel > 80){        // battery level 100%
+         $signal.removeAttr('class').addClass("notfct-right-05");
+
+    }else if( 0 == signalLevel){   // battery level 0%
+         $signal.removeAttr('class').addClass("notfct-right-00");
+
+    }else if( signalLevel <= 20){   // battery level 20%
+          $signal.removeAttr('class').addClass("notfct-right-01");
+
+    }else if( signalLevel <= 40){   // battery level 40%
+          $signal.removeAttr('class').addClass("notfct-right-02");
+
+    }else if( signalLevel <= 60){   // battery level 60%
+          $signal.removeAttr('class').addClass("notfct-right-03");
+
+    }else{                           // battery level 80%
+          $signal.removeAttr('class').addClass("notfct-right-04");
+    }
+
+
+
 }
+
+
+
+<!--                           ************                  -->
+
 function next(){
 
       // unselect the current item 
@@ -299,14 +422,7 @@ function pictureSearch(keyword){
 
     
     var content = "";
-    var newWidth = 0;
-
-    if(data.responseData != null){
-
-         clearScreen();
-         hideEyes();
-         showCenterPanel();
-
+                var newWidth = 0;
       for(var i = 0; i < data.responseData.results.length; i++){
                           //  newWidth = data.responseData.results[i].tbWidth+15;
       content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
@@ -339,15 +455,10 @@ function pictureSearch(keyword){
       });
 
                        
-    
-       }else{
-
-        log("<b>Network error</b>:"+data.responseStatus);
-
-       }
+                       
     }
   );
-// $.post("/mockjax"); // to fire the loading screen 
+$.post("/mockjax"); // to fire the loading screen 
 }
 
 // video search functions  -------------------------------
