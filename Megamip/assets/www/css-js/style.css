@@ -276,9 +276,9 @@ top:110px;
 left: 85px;
 color:#00FFFF;
 z-index: 100;
-font-size: 1.5em;
+font-size: 1.9em;
 text-decoration: none;
-font-family: verdana;
+font-family: sans-serif, verdana; 
 
 }
 
