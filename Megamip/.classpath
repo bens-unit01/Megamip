@@ -8,5 +8,11 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="libs/usb-serial-for-android-v010.jar"/>
 	<classpathentry kind="lib" path="libs/cordova-2.9.0.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-continuation-8.0.1.v20110908.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-http-8.0.1.v20110908.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-io-8.0.1.v20110908.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-server-8.0.1.v20110908.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-util-8.0.1.v20110908.jar"/>
+	<classpathentry kind="lib" path="libs/servlet-api-3.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

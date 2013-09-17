@@ -9,6 +9,9 @@ import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
+
+import com.megamip.control.ArduinoCtrl;
+import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.voice.MainActivity;
 
 public class MipReceiver {
@@ -20,13 +23,15 @@ public class MipReceiver {
 	private static final String BRC_CLOSE = "')";
 	private static final String Q = "?";
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";	
-	private static final String TAG = "A3";
+
+	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
 	
 	// actors 
 	
 	private Handler handler; 
 	private WebView webView;
 	private MainActivity activity;
+	private ArduinoCtrl arduinoCtrl;
 // constructor 
 	public MipReceiver() {}
 	
@@ -34,6 +39,7 @@ public class MipReceiver {
 		this.handler = handler;
 		this.webView = webView;
 		this.activity = activity;
+		this.arduinoCtrl = new ArduinoCtrlMM(activity.getApplicationContext());
 	}
 
 
@@ -108,7 +114,7 @@ public void guiHideMic(){
 				Toast.LENGTH_SHORT);
 			
 		}*/
-	 Log.d(TAG ,"MipReceiver - speak()");
+	 Log.d(TAG3 ,"MipReceiver - speak()");
 	 
 	 
 	/* handler.post(new Runnable() {
@@ -123,6 +129,32 @@ public void guiHideMic(){
  }
  
  
+ 
+ // Megamip motion methods 
+ 
+ public void mipMoveForward(){
+		Log.d(TAG2, "MipReceiver moveForward ...");
+	 arduinoCtrl.drive(70, 70, 5, 5);
+ }
+ 
+ 
+ public void mipMoveBackward(){
+	 arduinoCtrl.drive(-70, -70, 5, 5);
+	 Log.d(TAG2, "MipReceiver moveBackward ...");
+ }
+ 
+ 
+ public void mipMoveLeft(){
+	 arduinoCtrl.drive(-70, 70, 5, 5);
+	 Log.d(TAG2, "MipReceiver moveLeft ...");
+ }
+ 
+ 
+ public void mipMoveRight(){
+	 arduinoCtrl.drive(70, -70, 5, 5);
+	 Log.d(TAG2, "MipReceiver moveRight ...");
+ }
+ 
  // methodes utilitaires
  
  public void callJsFunction(String functionName,String args){
@@ -130,7 +162,7 @@ public void guiHideMic(){
 //		final String callbackFunction = JAVASCRIPT + "f1" + BRC_OPEN + json 
 //	  		+ BRC_CLOSE;
 		final String callbackFunction = JAVASCRIPT + functionName+BRC_OPEN+args+BRC_CLOSE ;
-		Log.d(TAG ,callbackFunction);
+		Log.d(TAG3 ,callbackFunction);
 		loadURL(callbackFunction); 	  	
 	}
 

@@ -6,12 +6,11 @@
 
 <link rel="stylesheet" type="text/css" href="css-js/style.css" />
   <!--  jQuery library -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
-
-<!--<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
-<script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
+<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 -->
 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
 <script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
 <script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
 <script type="text/javascript" src="css-js/jquery.transit.min.js"></script>  
@@ -42,15 +41,12 @@
       <div id='eyes' class='eyes-state-00 active'></div>
       <div id='next' class='eyes-state-01 not-active'></div>
       <div id='notifications' class="eyes-state-08 not-active"></div>
-      <img  src='img/eye001-2.png' id='shrink' class="not-active">
+      <img id='shrink' src='img/eye001-2.png'  class="not-active">
   </div>
 
   <div  id="principal"> 
-
       <div  id="results"></div>
       <div id="output"></div>
-      <div id="loading"></div>
-
   </div>
 
 </div>
@@ -61,7 +57,7 @@ var index = 0;
 var selectedItem = null;
 var timerId = null;
 var batteryLevel = 0; 
-
+$.support.cors = true;  // support to load cross domain pages - important for PhoneGap
   
 // PhoneGap init methods 
 
@@ -97,27 +93,11 @@ function onLoad() {
 
 $(document).ready(function () { 
 
-     $("body").on({
-
-    ajaxStart:function(){
-
-     $( "#loading" ).show();
-    },
-    ajaxStop:function(){
-
-       $( "#loading" ).slideUp( 200 ); 
-    }
-  });
- 
+    
 
 
 
- /*$(document).on('click',function(){
-
-  $.post("/mockjax");
- })*/
-      
-//  hideCenterPanel();     
+  
 
 });
 
@@ -127,42 +107,78 @@ $(document).ready(function () {
 
 function sequence01(){    // transition - shrink 
 
+
+// fade-out fade-in effect ---------------------
  var $active = $('#eyes');
  var $next = $("#next");
+transition($next, $active);
 
-   /*  $next.fadeTo(2000, 0.25);
-     $active.fadeTo(2000, 1);
-     $next.fadeOut();*/
-     transition($next, $active);
 
+// shrink effect ----------------------------------
        var timerId1 = setInterval(
     function(){
       
-    $active.removeAttr('style');
+    $active.removeAttr('style'); // resetting the style 
     $next.removeAttr('style');
      shrink();
       clearInterval(timerId1);
 
-    }, 4009);
+    }, 2000);
 
-     var timerId2 = setInterval(
+
+// count down animation  ----------------------------------
+
+ var timerId2 = setInterval(
     function(){
       
-     // call to the control module  through the javascript interface
+    $active.removeAttr('style'); // resetting the style 
+    $next.removeAttr('style');
+     animationInit();
+     setFrameTo(2);
+     loop(2,4);
+     clearInterval(timerId2);
+
+    }, 3000);
+
+//call to the "speak now"   ( onScreen ...) method ---------
+    var timerId3 = setInterval(
+    function(){
+      
+     // call through the javascript interface to show up the "speak now" screen
      try{  
      megaMipJSInterface.onSpeak();
       }catch(error){
         console.log("bloc catch err: "+error);
       }
-     clearInterval(timerId2);
-     animationInit();
+     clearInterval(timerId3);
+     animationInit();  // reset the eyes to the initial state 
 
-    }, 7000);
+    }, 4500);
    
    
    
     }
 
+
+
+
+function setFrameTo(n){
+
+  $("#eyes").removeAttr('class');
+  $("#eyes").removeAttr('style');
+  $("#next").removeAttr('class');
+  $("#next").removeAttr('style');
+  $("#notifications").removeAttr('class');
+  $("#notifications").removeAttr('style');
+  $("#shrink").removeAttr('class');
+  $("#shrink").removeAttr('style');
+
+  $("#eyes").addClass('active eyes-state-0'+n);
+  $("#next").addClass('not-active eyes-state-01');
+  $("#notifications").addClass('not-active eyes-state-08');
+  $("#shrink").addClass('not-active');
+
+ }
     function shrink(){
 
  // $.setDisabledByDefault(true);
@@ -201,14 +217,32 @@ function sequence01(){    // transition - shrink
         $("#shrink").addClass('not-active');
     }
 
+
+function loop(firstFrame,lastFrame){
+  var $active = $( "#eyes" );
+  var i=firstFrame;var j=0;
+  var timerId = setInterval(function(){
+    j=i; j++;
+   if( i != lastFrame+1){
+      $( "#eyes" ).removeClass("eyes-state-0"+i);
+      $( "#eyes" ).addClass("eyes-state-0"+j);
+      i++;
+
+   }else{
+       
+         clearInterval(timerId);
+    }
+
+    },300);
+}
    
 //------------------
 function showMic(){
 
 var $eyes = $( "#eyes" );
- $eyes.removeClass("eyes-state-00").addClass("eyes-state-01");
+$eyes.removeClass("eyes-state-00").addClass("eyes-state-01");
 
-   var $active = $eyes;
+ var $active = $eyes;
  var i=1;var j=0;
 // starting the mic animation 
  timerId = setInterval(function(){
@@ -306,6 +340,8 @@ function log(displayString){
 }
 
 
+
+
 //--------------------------------------------
 
 
@@ -325,17 +361,15 @@ function pictureSearch(keyword){
         start : 0
     },function(data){
 
-    
     var content = "";
     var newWidth = 0;
+    clearScreen();
+    hideEyes();
+    showCenterPanel();
 
     if(data.responseData != null){
-
-         clearScreen();
-         hideEyes();
-         showCenterPanel();
-
-      for(var i = 0; i < data.responseData.results.length; i++){
+  
+    for(var i = 0; i < data.responseData.results.length; i++){
                           //  newWidth = data.responseData.results[i].tbWidth+15;
       content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
                                   "<a href='"+data.responseData.results[i].url+"'>"+
@@ -358,13 +392,13 @@ function pictureSearch(keyword){
                           
                           //--FancyBox --
                                $("a").fancybox({
-        'overlayShow' : false,
-        'transitionIn'  : 'elastic',
-        'transitionOut' : 'elastic',
-                                'closeClick':true, 
-                                'closeBtn':false,
-                                padding:0
-      });
+                                  'overlayShow' : false,
+                                  'transitionIn'  : 'elastic',
+                                  'transitionOut' : 'elastic',
+                                  'closeClick':true, 
+                                  'closeBtn':false,
+                                  padding:0
+                              });
 
                        
     
@@ -384,7 +418,7 @@ function pictureSearch(keyword){
 function videoSearch(keyword){
     
    
-  // $( "#loading" ).show().delay(800).slideUp( 200 );   
+  
   var apiURL = 'http://ajax.googleapis.com/ajax/services/search/'+'video'+
                         '?v=1.0&callback=?';
 
@@ -434,7 +468,7 @@ function videoSearch(keyword){
                        
     }
   );
- $.post("/mockjax"); // to fire the loading screen 
+
 
 }
 

@@ -46,6 +46,8 @@
 <button id='b8'>&nbsp;8 reset &nbsp;</button>
 <button id='b9'>&nbsp;9 sequence-02 &nbsp;</button>
 <button id='b10'>&nbsp;10 notific.. &nbsp;</button>
+<button id='b11'>&nbsp;11 setFrameTo(3) &nbsp;</button>
+<button id='b12'>&nbsp;12 n/a.. &nbsp;</button>
 <div id='container'>
 
     <div id='principal-2'>
@@ -197,8 +199,30 @@ $('#b10').click(function(){    // sequence 2
     notfctInit();
       });
    
+
+
+   $('#b11').click(function() {
+         setFrameTo(3);
+   });
 // ------------------------------------------------- 
 
+function setFrameTo(n){
+
+  $("#eyes").removeAttr('class');
+  $("#eyes").removeAttr('style');
+  $("#next").removeAttr('class');
+  $("#next").removeAttr('style');
+  $("#notifications").removeAttr('class');
+  $("#notifications").removeAttr('style');
+  $("#shrink").removeAttr('class');
+  $("#shrink").removeAttr('style');
+
+  $("#eyes").addClass('active eyes-state-0'+n);
+  $("#next").addClass('not-active eyes-state-01');
+  $("#notifications").addClass('not-active eyes-state-08');
+  $("#shrink").addClass('not-active');
+
+}
 function offMode(){
    $( "#eyes" ).animate({
     opacity: 0.4

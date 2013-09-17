@@ -1,5 +1,23 @@
 package com.megamip.voice;
 
+
+
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+//import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -27,6 +45,9 @@ import android.widget.Toast;
 import org.apache.cordova.DroidGap;
 
 
+import com.megamip.util.JettyServer;
+import com.megamip.util.JettyServer.JettyListener;
+import com.megamip.util.JettyServer.ServerEvent;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
 import com.megamip.voice.MipUsbDevice.UsbListener;
 
@@ -35,7 +56,7 @@ public class MainActivity extends DroidGap {
 	
 	public static final int USER_MOBILE  = 0;
 	public static final int USER_DESKTOP = 1;
-	
+
 	public static  Context context;  // reference vers l'activité MainActivity 
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
@@ -57,6 +78,9 @@ public class MainActivity extends DroidGap {
 	
 	private SpeechRecognizer mSpeechRecognizer;
 	private int compteur1 = 0;
+	private JettyServer mJettyServer;
+	
+
 
 
 
@@ -67,30 +91,7 @@ public class MainActivity extends DroidGap {
 		
 		context = this;
 		handler = new Handler();
-		/*
-		webView = (WebView) findViewById(R.id.webView1);
-		
-	    webView.getSettings().setJavaScriptEnabled(true);  
-	    webView.setWebChromeClient(new WebChromeClient() {
-	    	@Override
-	    	public boolean onConsoleMessage(ConsoleMessage cm) {
-	    		
-	    		Log.d(TAG3,"console.log: "+ cm.message() + " line: "+cm.lineNumber()+ cm.sourceId() );
-	    		return true;
-	    	}
-	    	
-	    	
-		});
-		webView.getSettings().setPluginState(PluginState.ON);
-		webView.getSettings().setUserAgent(USER_DESKTOP);
-		webView.getSettings().setRenderPriority(RenderPriority.HIGH);
-		webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.addJavascriptInterface(this, "megaMipJSInterface");    
-        
-       
-        */
-		
-		//super.loadUrl("file:///android_asset/www/index.html");
+
 		super.loadUrl("file:///android_asset/www/index.html");
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");  
@@ -98,14 +99,18 @@ public class MainActivity extends DroidGap {
         receiver = new MipReceiver(handler, webView, this);
         mc = new MipCommand();
         
+        mJettyServer = new JettyServer();
         
         mSpeakNowDlg = new SpeakNow("Speak now !!",context);
+      
         setListeners();
        // loadPage("index.html");
         //loadPage("test.html");
 
 	}
 	
+	
+
 	public void loadPage(String in) {
 		final String url = HTML_ROOT + in;
 		
@@ -157,9 +162,11 @@ String apiSelect= "";
 
  
 	  // if(action.equals("picture"))
-	   mCommand = mc.new PictureSearch(receiver, keywords);
+	   mCommand = mc.new GuiShow(receiver);
 	   if(action.equals("video"))
-	   mCommand = mc.new VideoSearch(receiver, keywords);
+	      mCommand = mc.new VideoSearch(receiver, keywords);
+	   if(action.equals("picture"))
+		      mCommand = mc.new PictureSearch(receiver, keywords);
 	   if(action.equals("next"))
 		   mCommand = mc.new GuiNext(receiver);
 	   if(action.equals("home"))
@@ -174,7 +181,7 @@ String apiSelect= "";
 }
 
 
-protected void movementHandler(MovementInput movementInput) {
+private void movementHandler(MovementInput movementInput) {
 	
 	
 	
@@ -193,11 +200,47 @@ protected void movementHandler(MovementInput movementInput) {
 	
 }
 
+
+private void jettyHandler(String params) {
+
+	
+	String[] input = params.split(JettyServer.SPLIT_CHAR);
+	
+	
+Log.d(TAG2, "jettHandler cmd: "+input[1]);	
+
+ if(input[1].equals("moveForward")){
+		mCommand = mc.new MipMoveForward(receiver);
+	 invoker.launch(mCommand);
+	 Log.d(TAG2, "jettHandler triggered moveForward");	
+ 	}
+ 
+ if(input[1].equals("moveBackward")){
+		mCommand = mc.new MipMoveBackward(receiver);
+	 invoker.launch(mCommand);
+	 Log.d(TAG2, "jettHandler triggered moveBackward");	
+	}
+	
+ if(input[1].equals("moveLeft")){
+		mCommand = mc.new MipMoveLeft(receiver);
+	 invoker.launch(mCommand);
+	 Log.d(TAG2, "jettHandler triggered moveLeft");	
+	}
+ 
+ if(input[1].equals("moveRight")){
+		mCommand = mc.new MipMoveRight(receiver);
+		invoker.launch(mCommand);
+	 Log.d(TAG2, "jettHandler triggered moveRight");	
+	}
+	
+
+}
 private void setListeners() {
 	
 	// Listener for the usb device 
 	
-	mipUsbDevice  = new MipUsbDevice(context);
+	mipUsbDevice  = MipUsbDevice.getInstance(context);
+
 	mipUsbDevice.addUsbListener(new UsbListener() {
 		
 		@Override
@@ -215,7 +258,21 @@ private void setListeners() {
 	 mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
      mSpeechRecognizer.setRecognitionListener(new SpeechListener());        
 	
-	
+ // listener for the jetty server 
+     
+     mJettyServer.addJettyListener(new JettyListener() {
+		
+		@Override
+		public void onNotify(ServerEvent e) {
+			// TODO Auto-generated method stub
+			 Log.d(TAG3," onNotify fired - jettyListener ... 0");
+			jettyHandler(e.getParams());
+			
+			 Log.d(TAG3," onNotify fired - jettyListener ... 1");
+		}
+
+
+	});
 }
 
 // onSpeak is called through the javascript interface : megaMipJSInterface
@@ -248,7 +305,7 @@ public void onSpeak() {
                 intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1); 
                 
                 mSpeechRecognizer.startListening(intent);
-                Log.i("A3","MainActivity -- onSpeak() ");
+                Log.i("A2","MainActivity -- onSpeak() ");
            	  
             }
         });
@@ -269,11 +326,11 @@ class SpeechListener implements RecognitionListener
         	    mSpeakNowDlg.showListening();
         	//	mCommand = mc.new GuiShowMic(receiver);   // we launch the mic animation on the GUI
         	//	invoker.launch(mCommand);
-                  Log.d(TAG3, "onReadyForSpeech");
+                  Log.d(TAG2, "onReadyForSpeech");
          }
          public void onBeginningOfSpeech()
          {
-                  Log.d(TAG3, "onBeginningOfSpeech");
+                  Log.d(TAG2, "onBeginningOfSpeech");
          }
          public void onRmsChanged(float rmsdB)
          {
@@ -284,7 +341,7 @@ class SpeechListener implements RecognitionListener
          public void onBufferReceived(byte[] buffer)
          {
                 if(0 == compteur1){ 
-                	Log.d(TAG3, "onBufferReceived");
+                	Log.d(TAG2, "onBufferReceived");
                 	compteur1 = 1;
                 }
          }
@@ -294,7 +351,7 @@ class SpeechListener implements RecognitionListener
         	 
         	 // mCommand = mc.new GuiHideMic(receiver);   // we hide the mic animation on the GUI
      		 // invoker.launch(mCommand);
-                  Log.d(TAG3, "onEndofSpeech");
+                  Log.d(TAG2, "onEndofSpeech");
          }
          public void onError(int error)
          { 
@@ -302,14 +359,40 @@ class SpeechListener implements RecognitionListener
         	  mSpeakNowDlg.dismiss();
         	// mCommand = mc.new GuiHideMic(receiver);   // we hide the mic animation on the GUI
      		 // invoker.launch(mCommand);
-                  Log.d(TAG3,  "onError " +  error);
+                  Log.d(TAG2,  "onError error no = " +  error);
              //     mText.setText("error " + error);
                   
-             if(SpeechRecognizer.ERROR_NO_MATCH == error)    {
-            	 String message = "Recognition problem : the system is not able to recognize this word";
+        
+            	 String message = "";
+            	 
+              switch(error){
+              
+              case SpeechRecognizer.ERROR_AUDIO :
+            	  message = "Recording error, please try again ...";
+              case SpeechRecognizer.ERROR_CLIENT :
+            	  message = "Server issue, error no 05";
+              case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS :
+            	  message = "Server issue, error no 09";
+              case SpeechRecognizer.ERROR_NETWORK :
+            	  message = "Network issue, please try again ...";
+              case SpeechRecognizer.ERROR_NETWORK_TIMEOUT :
+            	  message = "Connection to the server timed out.";
+              case SpeechRecognizer.ERROR_NO_MATCH :
+            	  message = "Recognition problem : the system is not able to recognize this word";	  
+              case SpeechRecognizer.ERROR_RECOGNIZER_BUSY :
+            	  message = "Server is busy, please try again later ...";
+              case SpeechRecognizer.ERROR_SERVER :
+            	  message = "Server error";
+              case SpeechRecognizer.ERROR_SPEECH_TIMEOUT :
+            	  message = "No speech input";
+              
+               default : message = "Unknown error";
+            	  
+              }
+             
             	 mCommand = mc.new GuiShowMessage(receiver, message);  
             	 invoker.launch(mCommand);
-             } 
+              
                
          }
          public void onResults(Bundle results)                   
@@ -319,17 +402,17 @@ class SpeechListener implements RecognitionListener
                   
                  
                   
-                  Log.d(TAG3, "onResults " + results);
+                  Log.d(TAG2, "onResults " + results);
                   ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                   for (int i = 0; i < data.size(); i++)
                   {
-                            Log.d(TAG3, "result " + data.get(i));
+                            Log.d(TAG2, "result " + data.get(i));
                             str += data.get(i);
                   }
                   
                   
                 VoiceInput voiceCommand = new VoiceInput(str);
-  				Log.d(TAG3,"onResults -----vc= "+voiceCommand);
+  				Log.d(TAG2,"onResults -----vc= "+voiceCommand);
   				voiceHandler(voiceCommand);
   				
            //       mText.setText("results: "+String.valueOf(data.size()));   
@@ -338,11 +421,11 @@ class SpeechListener implements RecognitionListener
          }
          public void onPartialResults(Bundle partialResults)
          {
-                  Log.d(TAG3, "onPartialResults");
+                  Log.d(TAG2, "onPartialResults");
          }
          public void onEvent(int eventType, Bundle params)
          {
-                  Log.d(TAG3, "onEvent " + eventType);
+                  Log.d(TAG2, "onEvent " + eventType);
          }
 }
 

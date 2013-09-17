@@ -21,13 +21,16 @@ body{
     margin : 0px auto;
     position:relative;
     background: black;
+    -moz-border-radius:16px;
+    -webkit-border-radius:16px;
+    border-radius:16px;
 }
 #principal{
 	
 	background-color:#4C5A65; 
    
-	padding:50px 50px 30px;
-	margin:20px auto;
+	padding: 7px;
+	margin:70px auto;
 	position:relative;
 
 	-moz-border-radius:16px;
@@ -45,11 +48,12 @@ body{
 	height:100%;
 	background: #3a3a3a url(../img/wait.gif) no-repeat scroll 50% 35%;
 	opacity:0.4;
-  	display:none;
-  	z-index:30;
+  display:none;
+  z-index:30;
 
     
 }
+#outputs{ padding : 4px;}
 .pic{
      padding:8px; 
      display:inline-block; 

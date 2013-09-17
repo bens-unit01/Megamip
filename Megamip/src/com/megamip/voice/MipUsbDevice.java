@@ -1,6 +1,16 @@
 package com.megamip.voice;
 
 
+// code of this class is partially inspired from :http://code.google.com/p/usb-serial-for-android/source/browse/UsbSerialLibrary/src/com/hoho/android/usbserial/util/SerialInputOutputManager.java
+/**
+ * 
+ * @author Messaoud BENSALEM
+ * @version 1.0 07/09/13 
+ * 
+ * This class provide a listener to an usb device through
+ * the SerialListener interface according to the Observer design pattern
+ * 
+ */
 
 import android.content.Context;
 import android.hardware.usb.UsbManager;
@@ -16,15 +26,7 @@ import com.hoho.android.usbserial.driver.*;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.*;
 
-/**
- * 
- * @author Messaoud BENSALEM
- * @version 1.0 07/09/13 
- * 
- * This class provide a listener to an usb device through
- * the SerialListener interface according to the Observer design pattern
- * 
- */
+
 
 public class MipUsbDevice {
 
@@ -33,9 +35,9 @@ public class MipUsbDevice {
 	// attributes
 	private ArrayList<UsbListener> mListeListeners = new ArrayList<UsbListener>();
 	private UsbManager mUsbManager;
-	private UsbSerialDriver mSerialDevice;
+	private UsbSerialDriver mUsbDriver;
 	private SerialInputOutputManager mSerialIoManager;
-	
+	private static MipUsbDevice mMipUsbDevice = null;
 	
 	private final ExecutorService mExecutor = Executors
 			.newSingleThreadExecutor();
@@ -43,20 +45,30 @@ public class MipUsbDevice {
 	
 	// constructors 
 	
-
-		public MipUsbDevice() {
+       public static MipUsbDevice getInstance(Context context){
+    	   if(null == mMipUsbDevice){
+    		   mMipUsbDevice = new MipUsbDevice(context);
+    	   }
+    	   
+    	 
+    	   
+    	   return mMipUsbDevice;
+       }
+		private MipUsbDevice() {
 			super();
 		}
 
-		public MipUsbDevice(Context context) {
+		private MipUsbDevice(Context context) {
 			super();
 
 			mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-			mSerialDevice = UsbSerialProber.acquire(mUsbManager);
-			Log.d(TAG, "MipUsbDevice constructor - before try - mSerialDevice = "+mSerialDevice+" mUsbManager"+mUsbManager);
+			mUsbDriver = UsbSerialProber.acquire(mUsbManager);
+			Log.d(TAG, "MipUsbDevice constructor - before try - mSerialDevice = "+mUsbDriver+" mUsbManager"+mUsbManager);
 			
 			try {
-				mSerialDevice.open();
+				mUsbDriver.open();
+				mUsbDriver.setBaudRate(115200);
+				Log.d(TAG,"MipUsbDevice  - driver open - baudrate = 115200");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -130,7 +142,7 @@ public class MipUsbDevice {
 
 	public void addUsbListener(UsbListener usbListener) {
 		mListeListeners.add(usbListener);
-		Log.d(TAG, "UsbDevice 4 mSerialDriver = "+mSerialDevice);
+		Log.d(TAG, "UsbDevice 4 mSerialDriver = "+mUsbDriver);
 
 	}
 	
@@ -140,9 +152,9 @@ public class MipUsbDevice {
 
 	
 	private void startIoManager() {
-		if (mSerialDevice != null) {
+		if (mUsbDriver != null) {
 			Log.i(TAG, "Starting io manager ..");
-			mSerialIoManager = new SerialInputOutputManager(mSerialDevice,
+			mSerialIoManager = new SerialInputOutputManager(mUsbDriver,
 					mListener);
 			mExecutor.submit(mSerialIoManager);
 			Log.d(TAG, "UsbDevice 6");
@@ -162,33 +174,34 @@ public class MipUsbDevice {
 	public void pause() {
 		
 		stopIoManager();
-		if(mSerialDevice != null)
+		if(mUsbDriver != null)
 			try{
-					mSerialDevice.close( );
+					mUsbDriver.close( );
 					
 	}catch(IOException e){}
 	
-	mSerialDevice = null;
+	mUsbDriver = null;
 	}
 
 	public void resume() {
 	
-		 mSerialDevice = UsbSerialProber.acquire(mUsbManager);
-	        Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
-	        if (mSerialDevice == null) {
+		 mUsbDriver = UsbSerialProber.acquire(mUsbManager);
+	        Log.d(TAG, "Resumed, mSerialDevice=" + mUsbDriver);
+	        if (mUsbDriver == null) {
 	           
 	        } else {
 	            try {
-	                mSerialDevice.open();
+	                mUsbDriver.open();
+	                mUsbDriver.setBaudRate(115200);
 	            } catch (IOException e) {
 	                Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
 	               
 	                try {
-	                    mSerialDevice.close();
+	                    mUsbDriver.close();
 	                } catch (IOException e2) {
 	                    // Ignore.
 	                }
-	                mSerialDevice = null;
+	                mUsbDriver = null;
 	                return;
 	            }
 	     
@@ -198,6 +211,16 @@ public class MipUsbDevice {
 		
 	}
 
-	
+	public void writeAsync(byte[] data){
+		//mSerialIoManager.writeAsync(data);
+		try {
+			mUsbDriver.write(data, 1000);
+			Log.d(TAG,"writeAsync - data:"+data[0]+" "+data[1]);
+		} catch (IOException e) {
+		
+			Log.d(TAG,"MipUsbDevice - writeAsync - block catch ex:"+e.getMessage());
+		}
+		
+	}
 
 }

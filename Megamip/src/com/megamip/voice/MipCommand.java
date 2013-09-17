@@ -4,7 +4,7 @@ public class MipCommand {
 	
 	
 	
-	public class GuiShowMic implements Command {
+public class GuiShowMic implements Command {
 
 		private MipReceiver mipReceiver;
 		  // constructors 
@@ -19,9 +19,9 @@ public class MipCommand {
 		 
 		
 		
-	}
+}
 	
-	public class GuiHideMic implements Command {
+public class GuiHideMic implements Command {
 
 		private MipReceiver mipReceiver;
 		  // constructors 
@@ -36,9 +36,9 @@ public class MipCommand {
 		 
 		
 		
-	}
+}
 	
-	public class PictureSearch implements Command {
+public class PictureSearch implements Command {
 		
 		private MipReceiver mipReceiver;
 		private String keywords;
@@ -58,9 +58,9 @@ public class MipCommand {
 
 		
 
-	}
+}
    
-	public class VideoSearch implements Command {
+public class VideoSearch implements Command {
 
 		private MipReceiver mipReceiver;
 		private String keywords;
@@ -78,11 +78,11 @@ public class MipCommand {
 			mipReceiver.videoSearch(keywords);
 		}
 		
-	}
+}
   
-	public class GuiNext implements Command{
+public class GuiNext implements Command{
 		
-		private MipReceiver mipReceiver;
+	private MipReceiver mipReceiver;
 	  // constructors 
 	 private GuiNext() {}
 	 public GuiNext(MipReceiver mipReceiver){
@@ -117,16 +117,16 @@ public class GuiBack implements Command{
 
 public class GuiHome implements Command{
 		
-	private MipReceiver mipReceiver;
-	  // constructors 
-	 private GuiHome() {}
-	 public GuiHome(MipReceiver mipReceiver){
-		 this.mipReceiver = mipReceiver;
-	}
-	 
-	public void execute(){
-		mipReceiver.guiHome();
-	}
+		private MipReceiver mipReceiver;
+		  // constructors 
+		 private GuiHome() {}
+		 public GuiHome(MipReceiver mipReceiver){
+			 this.mipReceiver = mipReceiver;
+		}
+		 
+		public void execute(){
+			mipReceiver.guiHome();
+		}
 	 
 	 
 }	
@@ -135,52 +135,127 @@ public class GuiHome implements Command{
 
 public class GuiShow implements Command{
 		
-	private MipReceiver mipReceiver;
-	  // constructors 
-	 private GuiShow() {}
-	 public GuiShow(MipReceiver mipReceiver){
-		 this.mipReceiver = mipReceiver;
-	}
-	 
-	public void execute(){
-		mipReceiver.guiShow();
-	}
-	 
+		private MipReceiver mipReceiver;
+		  // constructors 
+		 private GuiShow() {}
+		 public GuiShow(MipReceiver mipReceiver){
+			 this.mipReceiver = mipReceiver;
+		}
+		 
+		public void execute(){
+			mipReceiver.guiShow();
+		}
+		 
 	 
 }	
 
 public class Speak implements Command{
 	
-private MipReceiver mipReceiver;
-  // constructors 
- private Speak() {}
- public Speak(MipReceiver mipReceiver){
-	 this.mipReceiver = mipReceiver;
-}
- 
-public void execute(){
-	mipReceiver.speak();
-}
+		private MipReceiver mipReceiver;
+		  // constructors 
+		 private Speak() {}
+		 public Speak(MipReceiver mipReceiver){
+			 this.mipReceiver = mipReceiver;
+		}
+		 
+		public void execute(){
+			mipReceiver.speak();
+		}
  
  
 }	
 
 public class GuiShowMessage implements Command{
 	
- private MipReceiver mipReceiver;
- private String message;
-  // constructors 
- private GuiShowMessage() {}
- public GuiShowMessage(MipReceiver mipReceiver, String message){
-	 this.mipReceiver = mipReceiver;
-	 this.message = message;
-}
- 
-public void execute(){
-	mipReceiver.guiShowMessage(message);
-}
+		 private MipReceiver mipReceiver;
+		 private String message;
+		  // constructors 
+		 private GuiShowMessage() {}
+		 public GuiShowMessage(MipReceiver mipReceiver, String message){
+			 this.mipReceiver = mipReceiver;
+			 this.message = message;
+		}
+		 
+		public void execute(){
+			mipReceiver.guiShowMessage(message);
+		}
  
  
 }	
 
+
+// Megamip motion classes 
+
+
+
+public class MipMoveForward implements Command{
+	
+		 private MipReceiver mipReceiver;
+		 private String message;
+		  // constructors 
+		 private MipMoveForward() {}
+		 public MipMoveForward(MipReceiver mipReceiver){
+			 this.mipReceiver = mipReceiver;
+			 
+		}
+		 
+		public void execute(){
+			mipReceiver.mipMoveForward();
+		}
+		 
+}	
+
+public class MipMoveBackward implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String message;
+	  // constructors 
+	 private MipMoveBackward() {}
+	 public MipMoveBackward(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+		 
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveBackward();
+	}
+	 
+}	
+
+
+public class MipMoveLeft implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String message;
+	  // constructors 
+	 private MipMoveLeft() {}
+	 public MipMoveLeft(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+		 
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveLeft();
+	}
+	 
+}	
+
+
+
+public class MipMoveRight implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String message;
+	  // constructors 
+	 private MipMoveRight() {}
+	 public MipMoveRight(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+		 
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveRight();
+	}
+	 
+}	
 }
