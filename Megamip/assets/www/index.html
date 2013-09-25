@@ -419,30 +419,25 @@ function videoSearch(keyword){
     
    
   
-  var apiURL = 'http://ajax.googleapis.com/ajax/services/search/'+'video'+
-                        '?v=1.0&callback=?';
+ var apiURL = 'https://gdata.youtube.com/feeds/api/videos?q='+keyword+"&max-results=8&callback=?&alt=json&format=1";
 
-  $.getJSON(apiURL,{
-        q : keyword,
-        rsz :8,
-        start : 0
-    },function(data){
+  $.getJSON(apiURL,
+    function(data){
 
-         
                 var date;    
     var content = "";
                 var month, day, year;
-      for(var i = 0; i < data.responseData.results.length; i++){
-                        date = new Date(data.responseData.results[i].published); 
-                        month = date.getMonth()+1;
-                        day = date.getDate();
-                        year = date.getFullYear();
+      for(var i = 0; i < data.feed.entry.length; i++){
+                   //     date = new Date(data.responseData.results[i].published); 
+                   //     month = date.getMonth()+1;
+                   //     day = date.getDate();
+                   //     year = date.getFullYear();
       content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
-                                  "<a class='fancybox fancybox.iframe' href='"+data.responseData.results[i].playUrl+"'>"+
-                                  "<img src='"+data.responseData.results[i].tbUrl + "'/>"+
-                                  "</a><br/><br/>"+
-                                  "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
-                                  "</div>";
+                                  "<a class='fancybox fancybox.iframe' href='"+data.feed.entry[i].media$group.media$content[0].url+"'>"+
+                                  "<img src='"+data.feed.entry[i].media$group.media$thumbnail[2].url + "'/>"+
+                                  "</a><br/><br/></div>";
+                               //   "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
+                                
                           
         $('#results').append(content);
       } 

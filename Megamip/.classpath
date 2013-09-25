@@ -14,5 +14,8 @@
 	<classpathentry kind="lib" path="libs/jetty-server-8.0.1.v20110908.jar"/>
 	<classpathentry kind="lib" path="libs/jetty-util-8.0.1.v20110908.jar"/>
 	<classpathentry kind="lib" path="libs/servlet-api-3.0.jar"/>
+	<classpathentry kind="lib" path="libs/commons-codec-1.8.jar"/>
+	<classpathentry kind="lib" path="libs/jsoup-1.7.2.jar"/>
+	<classpathentry kind="lib" path="libs/jshybuggerce-bundle-2.0.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

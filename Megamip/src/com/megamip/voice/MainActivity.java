@@ -7,15 +7,16 @@ package com.megamip.voice;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-//import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+
+
 
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Credentials;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -43,11 +45,29 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.apache.cordova.DroidGap;
+import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.RequestLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
+import org.jshybugger.DebugServiceClient;
 
 
 import com.megamip.util.JettyServer;
 import com.megamip.util.JettyServer.JettyListener;
 import com.megamip.util.JettyServer.ServerEvent;
+import com.megamip.util.MipDeviceManager;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
 import com.megamip.voice.MipUsbDevice.UsbListener;
 
@@ -92,9 +112,15 @@ public class MainActivity extends DroidGap {
 		context = this;
 		handler = new Handler();
 
-		super.loadUrl("file:///android_asset/www/index.html");
+		 
+	
+		//super.loadUrl("content://jsHybugger.org/file:///android_asset/www/test2.html");
+		super.loadUrl("file:///android_asset/www/test3.html");
 		webView = super.appView;
-		webView.addJavascriptInterface(this, "megaMipJSInterface");  
+		webView.addJavascriptInterface(this, "megaMipJSInterface");
+		// attach web view to debugging service 
+		//DebugServiceClient dbgClient = DebugServiceClient.attachWebView(webView, this);
+		
         invoker = new Invoker();
         receiver = new MipReceiver(handler, webView, this);
         mc = new MipCommand();
@@ -442,5 +468,28 @@ public void onPause() {
   
   Log.d(TAG3,"MainActivity onPause()");
 }
+
+public  void getNotifications(){
+	
+
+	// the notifications are formated on a string "new emails":"wifi percentage":"battery percentage"
+	
+	MipDeviceManager deviceManager = new MipDeviceManager(context);
+    try {
+		String notifications = deviceManager.getNotifications();
+		mCommand = mc.new GuiDisplayNotifications(receiver, notifications);
+		invoker.launch(mCommand);
+		Log.d(TAG3,"MaintActivity - getNotifications - bloc try - notifications: "+notifications);
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+	
+		Log.d(TAG3,"getNewEmails - bloc catch e: "+e.getMessage());
+	}
+    
+	
+   
+}
+
+
 
 }

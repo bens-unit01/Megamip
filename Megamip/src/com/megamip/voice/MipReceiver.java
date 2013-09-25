@@ -96,6 +96,11 @@ public void guiHideMic(){
 	 
 	 callJsFunction("log",message);
  }
+ 
+ 
+ public void guiDisplayNotifications(String notifications){
+	 callJsFunction("setNotifications",notifications);
+ }
  public void speak(){
 	 
 		// TODO Auto-generated method stub

@@ -56,6 +56,8 @@ public class JettyServer {
 					Log.d(TAG3, "JettyServer  onNotify   ");
 				}
 //				
+				
+				
 				//URI format
 				//http://127.0.0.1:1234/Function/para1/para2
 				
@@ -89,7 +91,10 @@ public class JettyServer {
         	{
         		Log.i(TAG3,"Error"+ex.getMessage());
 			}
-		}			
+		}	
+		
+		
+		
     };
 
 	

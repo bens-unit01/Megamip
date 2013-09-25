@@ -1,0 +1,135 @@
+
+
+
+*{
+	margin:0;
+	padding:0;
+}
+
+body{
+	font-size:13px;
+	color:#eee;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	background-color:#231F20;
+	/*background:url('img/bg.jpg') repeat-x #718693; */ 
+}
+
+.bg1 {background-color:black;}
+#container{ width:900px; height:500px; background-color:black;}
+
+#results {
+    margin : 0px auto;
+    position:relative;
+}
+#principal{
+	
+	background-color:#4C5A65; 
+   
+	padding:50px 50px 30px;
+	margin:20px auto;
+	position:relative;
+
+	-moz-border-radius:16px;
+	-webkit-border-radius:16px;
+	border-radius:16px;
+	width:950px;
+}
+
+#loading {
+	position:fixed;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	background: #3a3a3a url(../img/wait.gif) no-repeat scroll 50% 35%;
+	opacity:0.4;
+  	display:none;
+  	z-index:30;
+
+    
+}
+.pic{
+     padding:8px; 
+     display:inline-block; 
+     margin: 30px; 
+     line-height: 10px; 
+     width:150px;
+     -moz-border-radius:4px;
+     -webkit-border-radius:4px;
+     border-radius:4px;
+  }
+ .active {
+ 	display:block;
+ 	position:absolute;
+ 	top:50px;
+ 	left:0;
+ } 
+ .not-active {
+ 	display:none;
+ 	position:absolute;
+ 	top:50px;
+ 	left:0;
+ }
+.selected{	background-color:yellow; color:black;}
+.not-selected {background-color:black;}
+
+.eyes-state-00 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/eye002-1.png) no-repeat 0 0;
+}
+.eyes-state-08 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/eye002-2.png) no-repeat 0 0;
+}
+
+/*  in this background we have only the right eye*/
+.eyes-state-09 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/eye002-3.png) no-repeat 0 0;
+	
+}
+.eyes-state-01 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 0;
+}
+
+.eyes-state-02 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 -370px;
+}
+
+.eyes-state-03 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 -740px;
+}
+
+.eyes-state-04 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 -1110px;
+}
+
+.eyes-state-05 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 -1480px;
+}
+
+.eyes-state-06 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 -1850px;
+}
+
+.eyes-state-07 {
+	width: 100%;
+	height:360px;
+	background: #231F20 url(../img/gesture001.png) no-repeat 0 -2220px;
+}
+

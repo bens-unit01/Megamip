@@ -184,6 +184,25 @@ public class GuiShowMessage implements Command{
 }	
 
 
+public class GuiDisplayNotifications implements Command{
+	
+		 private MipReceiver mipReceiver;
+		 private String notifications;
+		  // constructors 
+		 private GuiDisplayNotifications() {}
+		 public GuiDisplayNotifications(MipReceiver mipReceiver, String notifications){
+			 this.mipReceiver = mipReceiver;
+			 this.notifications = notifications;
+		}
+		 
+		public void execute(){
+			mipReceiver.guiDisplayNotifications(notifications);
+		}
+ 
+ 
+}	
+
+
 // Megamip motion classes 
 
 

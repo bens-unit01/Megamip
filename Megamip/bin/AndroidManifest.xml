@@ -30,6 +30,7 @@
 	<uses-permission android:name="android.permission.WRITE_CONTACTS" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> 
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
 	<uses-permission android:name="android.permission.BROADCAST_STICKY" />
 	
@@ -55,6 +56,19 @@
         <activity
             android:name="com.megamip.voice.WebViewActivity"
             android:theme="@android:style/Theme.NoTitleBar" />
+        
+        <!--  jsHybugger WebView content provider -->
+		<provider android:name="org.jshybugger.DebugContentProvider"
+				  android:exported="false"
+				  android:authorities="jsHybugger.org" />
+		  
+		<!--  jsHybugger debug service -->
+		<service android:name="org.jshybugger.DebugService"
+				 android:exported="false"
+				 android:enabled="true"/>
+		
+		
     </application>
+    
 
 </manifest>
