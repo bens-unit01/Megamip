@@ -2,25 +2,7 @@ package com.megamip.voice;
 
 
 
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-
-
-
-
 import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -43,27 +25,11 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
-import org.apache.cordova.DroidGap;
-import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.RequestLine;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
-import org.jshybugger.DebugServiceClient;
 
 
+
+
+import com.megamip.util.DroidGap;
 import com.megamip.util.JettyServer;
 import com.megamip.util.JettyServer.JettyListener;
 import com.megamip.util.JettyServer.ServerEvent;
@@ -106,8 +72,8 @@ public class MainActivity extends DroidGap {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		
+		//setContentView(R.layout.activity_main);
 		
 		context = this;
 		handler = new Handler();
@@ -115,7 +81,9 @@ public class MainActivity extends DroidGap {
 		 
 	
 		//super.loadUrl("content://jsHybugger.org/file:///android_asset/www/test2.html");
-		super.loadUrl("file:///android_asset/www/test3.html");
+		super.onCreate(savedInstanceState);
+		//super.loadUrl("file:///android_asset/www/index.html");
+		
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
 		// attach web view to debugging service 

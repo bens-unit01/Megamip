@@ -4,10 +4,8 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="libs/usb-serial-for-android-v010.jar"/>
-	<classpathentry kind="lib" path="libs/cordova-2.9.0.jar"/>
+	<classpathentry kind="lib" path="libs/cordova-2.9.0.jar" sourcepath="/Cordova"/>
 	<classpathentry kind="lib" path="libs/jetty-continuation-8.0.1.v20110908.jar"/>
 	<classpathentry kind="lib" path="libs/jetty-http-8.0.1.v20110908.jar"/>
 	<classpathentry kind="lib" path="libs/jetty-io-8.0.1.v20110908.jar"/>
@@ -17,5 +15,7 @@
 	<classpathentry kind="lib" path="libs/commons-codec-1.8.jar"/>
 	<classpathentry kind="lib" path="libs/jsoup-1.7.2.jar"/>
 	<classpathentry kind="lib" path="libs/jshybuggerce-bundle-2.0.1.jar"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

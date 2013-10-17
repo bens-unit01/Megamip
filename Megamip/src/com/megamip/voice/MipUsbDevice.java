@@ -72,7 +72,11 @@ public class MipUsbDevice {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.d(TAG,"MipUsbDevice - constructor - bloc catch ex = "+e.getMessage());
+				Log.e(TAG,"MipUsbDevice - constructor - bloc catch ex = "+e.getMessage());
+			}catch(NullPointerException e){
+				
+				e.printStackTrace();
+				Log.e(TAG,"MipUsbDevice - constructor - bloc catch ex = "+e.getMessage());
 			}
 		//	stopIoManager();
 			startIoManager();
