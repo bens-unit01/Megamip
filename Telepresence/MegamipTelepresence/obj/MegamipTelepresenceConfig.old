@@ -16,7 +16,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'10/17/2013'</value>
+      <value>'10/18/2013'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -36,12 +36,12 @@
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>C:\Users\user\Documents\Raouf\Flex_projects\Telepresence\01\MegamipTelepresence\src</path-element>
+      <path-element>C:\Users\user\Documents\Raouf\repository\Telepresence\MegamipTelepresence\src</path-element>
       <path-element>C:\Development\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>C:\Users\user\Documents\Raouf\Flex_projects\Telepresence\01\MegamipTelepresence\src\Main.as</path-element>
+    <path-element>C:\Users\user\Documents\Raouf\repository\Telepresence\MegamipTelepresence\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>

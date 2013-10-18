@@ -42,6 +42,7 @@ echo Packaging: %OUTPUT%
 echo using certificate: %CERT_FILE%...
 echo.
 call adt -package -target %TYPE%%TARGET% %OPTIONS% %SIGNING_OPTIONS% "%OUTPUT%" "%APP_XML%" %FILE_OR_DIR%
+::call adt -target apk-debug -connect -keystore [...]
 echo.
 if errorlevel 1 goto failed
 goto end

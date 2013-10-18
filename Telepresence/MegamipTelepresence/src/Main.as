@@ -93,11 +93,11 @@ package
 			var textLabel1:TextField = new TextField();
               publishBtn.graphics.clear();
               publishBtn.graphics.beginFill(0xD4D4D4); // grey color
-              publishBtn.graphics.drawRoundRect(90, 300, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
+              publishBtn.graphics.drawRoundRect(90, 450, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
               publishBtn.graphics.endFill();
               textLabel1.text = "Publish";
               textLabel1.x = 110;
-              textLabel1.y = 303;
+              textLabel1.y = 453;
               textLabel1.selectable = false;
               publishBtn.addChild(textLabel1);
 			  
@@ -106,11 +106,11 @@ package
 			 var textLabel4:TextField = new TextField();
               readBtn.graphics.clear();
               readBtn.graphics.beginFill(0xD4D4D4); // grey color
-              readBtn.graphics.drawRoundRect(180, 300, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
+              readBtn.graphics.drawRoundRect(180, 450, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
               readBtn.graphics.endFill();
               textLabel4.text = "Read";
               textLabel4.x = 200;
-              textLabel4.y = 303;
+              textLabel4.y = 453;
               textLabel4.selectable = false;
               readBtn.addChild(textLabel4);
 			  
@@ -118,11 +118,11 @@ package
 			var textLabel2:TextField = new TextField();
               stopBtn.graphics.clear();
               stopBtn.graphics.beginFill(0xD4D4D4); // grey color
-              stopBtn.graphics.drawRoundRect(270, 300, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
+              stopBtn.graphics.drawRoundRect(270, 450, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
               stopBtn.graphics.endFill();
               textLabel2.text = "Stop";
               textLabel2.x = 290;
-              textLabel2.y = 303;
+              textLabel2.y = 453;
               textLabel2.selectable = false;
               stopBtn.addChild(textLabel2);
 			  
@@ -131,11 +131,11 @@ package
 			  var textLabel3:TextField = new TextField();
               clearBtn.graphics.clear();
               clearBtn.graphics.beginFill(0xD4D4D4); // grey color
-              clearBtn.graphics.drawRoundRect(360, 300, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
+              clearBtn.graphics.drawRoundRect(360, 450, 80, 25, 10, 10); // x, y, width, height, ellipseW, ellipseH
               clearBtn.graphics.endFill();
               textLabel3.text = "Clear";
               textLabel3.x = 380;
-              textLabel3.y = 303;
+              textLabel3.y = 453;
               textLabel3.selectable = false;
               clearBtn.addChild(textLabel3);
 			
@@ -304,7 +304,7 @@ package
 				videoPublish = new Video();
 				videoPublish.height = 120;
 				videoPublish.width = 120;
-				videoPublish.x = 370;
+				videoPublish.x = 670;
 				videoPublish.y = 15;
 				videoPublish.attachCamera(camera);
 				                
@@ -370,14 +370,15 @@ package
 		
 		
 		var returnValue:Camera;
-	
-		for (var i:int = 0; i < 2; i++ ) {
+
+	/*	for (var i:int = 0; i < 2; i++ ) {
 			var cam:Camera = Camera.getCamera(String(i));
 			if (cam.position == CameraPosition.FRONT) {
 				returnValue = cam;	
 			}
 		}	
-		
+	*/
+		returnValue = Camera.getCamera();
 		return returnValue;
 	}
 		

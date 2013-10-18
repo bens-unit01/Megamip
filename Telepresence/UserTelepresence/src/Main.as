@@ -21,6 +21,7 @@ package
     import flash.media.Video;
     import flash.media.Microphone;
     import flash.media.Camera;
+	import flash.media.CameraPosition;
 	
 	
 
@@ -47,7 +48,7 @@ package
 		var nsPublish:NetStream;
         var videoPublish:Video;
 		var videoRead:Video;
-        var camera:Camera;
+        var camera:Camera = null;
         var mic:Microphone;
         private var publishBtn:Sprite = new Sprite();
 		private var readBtn:Sprite = new Sprite();
@@ -145,6 +146,9 @@ package
 			this.addChild(readBtn);
 			
 			
+			
+			
+			
 			}
 		/*
 		 *  Connect and start publishing the live stream
@@ -152,10 +156,13 @@ package
 		private function publishHandler(event:MouseEvent):void {
 			trace("Okay, let's connect now");
 			
-			ncPublish = new NetConnection();
+			/*ncPublish = new NetConnection();
             ncPublish.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
             ncPublish.connect("rtmp://dL6fny.cloud.influxis.com/Telepresence1/");
 			trace("Okay, let's connect now");
+			*/
+		    camera = getCamera();
+			publishLiveStream();
 		}
 		
 		/*
@@ -164,11 +171,11 @@ package
 		private function readHandler(event:MouseEvent):void {
 			trace("Okay, start reading the live stream now");
 			
-			ncRead = new NetConnection();
+		/*	ncRead = new NetConnection();
             ncRead.addEventListener(NetStatusEvent.NET_STATUS, netStatusReadhHandler);
             ncRead.connect("rtmp://dL6fny.cloud.influxis.com/Telepresence1/");
-			
-			
+			*/
+			readLiveStream();
 		
 		}
 		
@@ -177,7 +184,7 @@ package
 		 */
 		private function stopHandler(event:MouseEvent):void {
 			trace("Now we're disconnecting");
-			ncPublish.close();
+		//	ncPublish.close();               ***************************
 			
 		}
 		
@@ -203,7 +210,7 @@ package
 			trace("event.info.level: " + event.info.level);
 			trace("event.info.code: " + event.info.code);
 			
-            switch (event.info.code)
+          /*  switch (event.info.code)
             {
                 case "NetConnection.Connect.Success":
 	                trace("Congratulations! you're connected");
@@ -233,6 +240,8 @@ package
 	                trace("The stream name is already used");
 	                break;
 	        }
+			
+			*/
         }
         
         /*
@@ -246,7 +255,7 @@ package
 			trace("event.info.level: " + event.info.level);
 			trace("event.info.code: " + event.info.code);
 			
-            switch (event.info.code)
+           /* switch (event.info.code)
             {
                 case "NetConnection.Connect.Success":
 	                trace("Congratulations! you're connected");
@@ -271,6 +280,8 @@ package
 	                trace("The stream name is already used");
 	                break;
 	        }
+			
+			*/
         }
 		
 		/*
@@ -290,12 +301,12 @@ package
 		 *  publish it to the local server
 		 */
         private function publishLiveStream():void {
-		    nsPublish = new NetStream(ncPublish, NetStream.CONNECT_TO_FMS);
+		 /*   nsPublish = new NetStream(ncPublish, NetStream.CONNECT_TO_FMS);
 		    nsPublish.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
 			nsPublish.client = new CustomClient();
-		
+		*/
 		    
-		    camera = Camera.getCamera();
+		   
 		    mic = Microphone.getMicrophone();
 		    
 		    if (camera != null){
@@ -309,7 +320,7 @@ package
 				videoPublish.y = 15;
 				videoPublish.attachCamera(camera);
 				                
-				nsPublish.attachCamera(camera);
+			//	nsPublish.attachCamera(camera); **********************
                 
                 addChild(videoPublish);
 			}
@@ -317,13 +328,13 @@ package
 			if (mic != null) {
 				mic.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
 								
-			    nsPublish.attachAudio(mic);
+		//	    nsPublish.attachAudio(mic);       **************************
 			}
 			
 			if (camera != null || mic != null){
 				// start publishing
 			    // triggers NetStream.Publish.Start
-			    nsPublish.publish("user01", "live");
+			  //  nsPublish.publish("user01", "live");   **********************
 		    } else {
 			    trace("Please check your camera and microphone");
 		    }
@@ -335,19 +346,38 @@ package
 		
 		private function readLiveStream():void {
 			
-			nsRead = new NetStream(ncRead, NetStream.CONNECT_TO_FMS);
+			/*nsRead = new NetStream(ncRead, NetStream.CONNECT_TO_FMS);
 		    nsRead.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
 			nsRead.client = new CustomClient();
-		    
+		    */
 			videoRead = new Video();
-		
-			videoRead.attachNetStream(nsRead);
+		    videoRead.attachCamera(camera);    //*************************
+			//videoRead.attachNetStream(nsRead);      **************
 			this.addChild(videoRead);
-		    nsRead.play("megamip01");
+		   //  nsRead.play("megamip01");    ******************
 			
 		   
 		 }
-			
+		/*
+		 * 
+		 * */
+		
+		 private function getCamera():Camera {
+			var returnValue:Camera = camera;
+		if(null == camera){
+	
+
+			for (var i:int = 0; i < 2; i++ ) {
+				var cam:Camera = Camera.getCamera(String(i));
+				if (cam.position == CameraPosition.FRONT) {
+					returnValue = cam;	
+				}
+			}	
+		}
+		//returnValue = Camera.getCamera();
+		return returnValue;
+	}
+		
 			
 		/*
 		 * 
