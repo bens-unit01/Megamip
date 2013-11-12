@@ -2,6 +2,7 @@ package com.megamip.voice;
 
 
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -29,6 +30,8 @@ import android.widget.TextView;
 
 
 
+import com.megamip.telepresence.MegamipLSClient;
+import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
 import com.megamip.util.DroidGap;
 import com.megamip.util.JettyServer;
 import com.megamip.util.JettyServer.JettyListener;
@@ -36,6 +39,9 @@ import com.megamip.util.JettyServer.ServerEvent;
 import com.megamip.util.MipDeviceManager;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
 import com.megamip.voice.MipUsbDevice.UsbListener;
+import com.megamip.telepresence.MegamipLSClient;
+import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
+import com.megamip.telepresence.MegamipLSClient.MegamipLSClientListener;
 
 public class MainActivity extends DroidGap {
 	
@@ -65,6 +71,7 @@ public class MainActivity extends DroidGap {
 	private SpeechRecognizer mSpeechRecognizer;
 	private int compteur1 = 0;
 	private JettyServer mJettyServer;
+	private MegamipLSClient mMegamipLSClient;
 	
 
 
@@ -94,6 +101,7 @@ public class MainActivity extends DroidGap {
         mc = new MipCommand();
         
         mJettyServer = new JettyServer();
+        mMegamipLSClient = new MegamipLSClient();
         
         mSpeakNowDlg = new SpeakNow("Speak now !!",context);
       
@@ -229,6 +237,31 @@ Log.d(TAG2, "jettHandler cmd: "+input[1]);
 	
 
 }
+
+private void pushServerHandler(String args){
+	
+	String[] params = args.split(MegamipLSClient.CMD_SEPARATOR);
+	
+	if(MegamipLSClient.CMD_LAUNCH.equals(params[0])){
+		String p2pID = params[1];
+		Log.d(TAG3, "pushServerHandler - launching Telepresence module - p2pID:"+p2pID);	
+		
+		Intent intent;
+		try {
+			intent = Intent.parseUri("telepresenceapp://"+p2pID,Intent.URI_INTENT_SCHEME);
+			intent.addCategory(Intent.CATEGORY_BROWSABLE);
+			intent.setComponent(null);
+			intent.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			startActivity(intent);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+}
+
 private void setListeners() {
 	
 	// Listener for the usb device 
@@ -267,6 +300,20 @@ private void setListeners() {
 
 
 	});
+   
+// listener for the push server ( Lightstreamer server ) 
+     
+     mMegamipLSClient.addMegamipLSClientListener(new MegamipLSClientListener() {
+		
+		@Override
+		public void onNotify(LsServerEvent e) {
+
+			pushServerHandler(e.getParams());
+			
+		}
+	});
+     
+     
 }
 
 // onSpeak is called through the javascript interface : megaMipJSInterface
@@ -426,6 +473,13 @@ class SpeechListener implements RecognitionListener
 
 
 @Override
+protected void onResume() {
+	// TODO Auto-generated method stub
+	super.onResume();
+	mMegamipLSClient.onResume();
+	Log.d(TAG2, "MainActivity onResume()--- ");
+}
+@Override
 public void onPause() {
 	
   super.onPause();	
@@ -434,6 +488,7 @@ public void onPause() {
 	  Log.d(TAG3,"MainActivity onPause() block if");
   }
   
+  mMegamipLSClient.onPause();   // we disconnect from the Lightstreamer server
   Log.d(TAG3,"MainActivity onPause()");
 }
 
