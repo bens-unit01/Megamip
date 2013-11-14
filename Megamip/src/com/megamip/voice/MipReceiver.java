@@ -41,6 +41,7 @@ public class MipReceiver {
 		this.activity = activity;
 		this.arduinoCtrl = new ArduinoCtrlMM(activity.getApplicationContext());
 	}
+	
 
 
 // public methods 

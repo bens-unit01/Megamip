@@ -54,6 +54,7 @@
     <element path="lib\BaseUI.swc" />
     <element path="lib\Main.swc" />
     <element path="lib\OSMF.swc" />
+    <element path="lib\Lightstreamer_as_client.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

@@ -6,6 +6,7 @@ package  {
 	import com.soma.ui.*;
 	import com.soma.ui.layouts.*;
 	import flash.text.TextFormat;
+	import flash.net.*;
     
 	import org.osmf.media.MediaElement;
 	import org.osmf.net.StreamingURLResource;
@@ -70,6 +71,8 @@ package  {
 		private var videoElementRead:VideoElement;
 		private var farPeerID:String;
 		private var myPeerID:String;
+		
+		private var megamipLSClient:MegamipLSClient;
 		public static var externalArgs:String = "";
 		
 	
@@ -98,7 +101,7 @@ package  {
 		
 		private function onInvoke(event:InvokeEvent):void
 		{
-			  externalArgs =  event.arguments[0] + "\n" + event.arguments[1];
+			 externalArgs =  event.arguments[0] + "\n" + event.arguments[1];
 			  var fingerPrint:String = event.arguments[0];
 			  fingerPrint = fingerPrint.substr(fingerPrint.indexOf("//") + 2);
 			  txtFingerPrint.text = externalArgs + "\n" +fingerPrint;
@@ -106,7 +109,10 @@ package  {
 			  
 			 
 			initConnection(null);
-			   
+			
+			 megamipLSClient = new MegamipLSClient();
+			 megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			  
 		}
 		
 		private function onInvoke2(event:MouseEvent):void
@@ -114,6 +120,8 @@ package  {
 			 
 			  farPeerID =   txtFingerPrint.text
 			  initConnection(null);
+			  megamipLSClient = new MegamipLSClient();
+			  megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
 			  
 		}
 		private function initSendStream(event:MouseEvent):void{
@@ -290,7 +298,7 @@ package  {
             {
                 case "NetConnection.Connect.Success":
 	                trace("Congratulations! you're connected");
-	               initRecvStream(null);
+					 initRecvStream(null);
 				   //readLiveStream();
 	                break;
                 case "NetConnection.Connect.Rejected":
@@ -311,6 +319,10 @@ package  {
 	            case "NetStream.Publish.BadName":
 	                trace("The stream name is already used");
 	                break;
+				
+				case "NetStream.Connect.Closed":
+					deactivate(null);
+					break;
 	        }
         }
 		
@@ -429,7 +441,7 @@ package  {
 		private function deactivate(e:Event):void 
 		{
 			// make sure the app behaves well (or exits) when in background
-			//NativeApplication.nativeApplication.exit();
+			NativeApplication.nativeApplication.exit();
 		}
 	
 			
@@ -444,7 +456,7 @@ package  {
 			
 			for (var i:int = 0; i < 2; i++ ) {
 				var cam:Camera = Camera.getCamera(String(i));
-				if (cam.position == CameraPosition.FRONT) {
+				if (cam.position == CameraPosition.FRONT || cam.position == CameraPosition.UNKNOWN) {
 					returnValue = cam;	
 				}
 			}	
@@ -581,8 +593,38 @@ package  {
 		
 		}
 		
+			//------------------------ LightStreamer communication methods ( remote control)
+	
+		public function lsReceiveData(event:Event):void{
+        
+			var message:String = megamipLSClient.getMessage();
+			 trace("lsReceiveData event:" + event);
+			 trace("lsReceiveData message:" +message);
+			 sendMegamipCMD(message);
+		    
+
+		}
+		private function sendMegamipCMD(str:String):void {
+			
+		var url:String = "http://localhost:8080/"+str;
+		var request:URLRequest = new URLRequest(url);
+		request.method = URLRequestMethod.GET;
+
+		var variables:URLVariables = new URLVariables();
+		variables.name = "cmd_params";
+		request.data = variables;
+
+		var loader:URLLoader = new URLLoader();
+		loader.addEventListener(Event.COMPLETE, onSendMegamipCallback);
+		loader.dataFormat = URLLoaderDataFormat.TEXT;
+		loader.load(request);
+
+			
+		}
 		
-		
+		function onSendMegamipCallback (event:Event):void {
+		trace(event.target.data);
+		}
 	}
 }
 

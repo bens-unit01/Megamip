@@ -54,13 +54,14 @@ package  {
 		
 		// members 
 		private var txtFingerPrint:TextField;
-		private var btnConnect:PushButton;
+		private var btnStart:PushButton;
 		private var btnForward:PushButton;
 		private var btnLeft:PushButton;
 		private var btnRight:PushButton;
 		private var btnBack:PushButton;
-		private var btnPublish:PushButton;
+		private var btnExit:PushButton;
 		private var btnRead:PushButton;
+		
 		private var ncRead:NetConnection;
 		private var ncPublish:NetConnection;
 		private var nc:NetConnection;
@@ -90,6 +91,7 @@ package  {
 		private function initSendStream(event:MouseEvent):void{
 			
 		trace("initSendStream");
+		txtFingerPrint.appendText("\n Connected !!\n Publishing ...");
 
 		nsPublish = new NetStream(nc, NetStream.DIRECT_CONNECTIONS);
 		nsPublish.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
@@ -119,8 +121,11 @@ package  {
 			nsRead.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			//nsRead.play("media");
 			nsRead.client = this;
+			
+			//  +------------------### log ###-------------------+
 			trace("connected to stream nc farID: " + nc.farID + " nearID: " + nc.nearID);
 			trace("nsRead  farID: " + nsRead.farID);
+			txtFingerPrint.appendText("\n Reading stream from Megamip ...");
 		   readLiveStream();
 		}
 
@@ -160,6 +165,11 @@ package  {
 		    /*var txtFP:String = txtFingerPrint.text;
 			farPeerID = txtFP;
 			*/
+			
+			//             +----------### log ###----------+ 
+			txtFingerPrint.appendText( "--------------\n Connecting ...");
+			
+			
 			nc = new NetConnection();
 			nc.addEventListener(NetStatusEvent.NET_STATUS, ncStatusHandler);
 			nc.connect(SERVER_ADRESS, DEVELOPER_KEY);
@@ -199,10 +209,10 @@ package  {
 		 * */
 		
 		 private function ncStatusHandler(event:NetStatusEvent):void{
-			trace(event.info.code);
+			trace("ncStatusHandler - "+event.info.code);
 			myPeerID = nc.nearID;
 
-			txtFingerPrint.text = myPeerID;
+			//txtFingerPrint.text = myPeerID;
 			// connecting to LightStreamer server and sending the p2p fingerprint
 			if(event.info.code == "NetConnection.Connect.Success"){
 				megamipLSClient = new MegamipLSClient();
@@ -417,7 +427,15 @@ package  {
 		private function deactivate(e:Event):void 
 		{
 			// make sure the app behaves well (or exits) when in background
-			//NativeApplication.nativeApplication.exit();
+			trace("deactivate() -- exiting TelepresenceUser...");
+			nc.removeEventListener(NetStatusEvent.NET_STATUS, ncStatusHandler);
+			nsPublish.removeEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
+			nsRead.removeEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+			
+			nsPublish.close();
+			nsRead.close();
+			nc.close();
+			NativeApplication.nativeApplication.exit();
 		}
 	
 			
@@ -443,9 +461,13 @@ package  {
 		}
 		
 		private function initListeners():void {
-			btnConnect.addEventListener(MouseEvent.CLICK, initConnection);
-			btnPublish.addEventListener(MouseEvent.CLICK, initSendStream);	
-		    btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
+		   btnStart.addEventListener(MouseEvent.CLICK, initConnection);
+		   btnExit.addEventListener(MouseEvent.CLICK, deactivate);	
+		   // btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
+		   btnForward.addEventListener(MouseEvent.CLICK, moveForward);
+		   btnBack.addEventListener(MouseEvent.CLICK, moveBackward);
+		   btnLeft.addEventListener(MouseEvent.CLICK, moveLeft);
+		   btnRight.addEventListener(MouseEvent.CLICK, moveRight);
 		}
 		private function initGui():void {
 			
@@ -567,17 +589,22 @@ package  {
 		
 		//------------connection buttons  
 		
-		 btnConnect = new PushButton(bottomPanel, 20, 60);
-		 btnConnect.label = "Connect";
-		 btnConnect.width = 100;
+		 btnStart = new PushButton(bottomPanel, 20, 60);
+		 btnStart.label = "Start";
+		 btnStart.width = 100;
+		 btnStart.height = 35;
+		 
+		 
 		
-		 btnPublish = new PushButton(bottomPanel, 20, 60);
-		 btnPublish.label = "Publish";
-		 btnPublish.width = 100;
+		 btnExit = new PushButton(bottomPanel, 20, 60);
+		 btnExit.label = "Exit";
+		 btnExit.width = 100;
+		 btnExit.height = 35;
 		 
 		 btnRead  = new PushButton(bottomPanel, 20, 60);
-		 btnRead.label = "Read";
+		 btnRead.label = "--";
 		 btnRead.width = 100;
+		 btnRead.height = 35;
 		 
 		
 		var txtFormat:TextFormat = new TextFormat();
@@ -599,8 +626,8 @@ package  {
 		hbox2.childrenGap = new GapUI(5, 5);
 		hbox2.childrenPadding = new PaddingUI(15,15, 15, 15);
 		hbox2.childrenAlign = HBoxUI.ALIGN_CENTER_LEFT;
-		hbox2.addChild(btnConnect);
-		hbox2.addChild(btnPublish);
+		hbox2.addChild(btnStart);
+		hbox2.addChild(btnExit);
 		hbox2.addChild(btnRead);
 		hbox2.addChild(txtFingerPrint);
 		hbox2.refresh();
@@ -615,7 +642,40 @@ package  {
 		}
 		
 		
+		
+		//------------------------ LightStreamer communication methods ( remote control )
+	
+		public function p2pReceiveData(str:String):void{
+
+		   // we use str !!
+
+		}
+
+		private function lsSendData(str:String):void{
+			
+			 megamipLSClient.sendMessage(str);
+		}
+		
+		private function moveForward(evt:MouseEvent):void {
+			
+		   	lsSendData(MegamipRC.CMD_FORWARD);
+		}
+		private function moveBackward(evt:MouseEvent):void {
+			
+		   	lsSendData(MegamipRC.CMD_BACK);
+		}
+		private function moveLeft(evt:MouseEvent):void {
+			
+		   	lsSendData(MegamipRC.CMD_LEFT);
+		}
+		private function moveRight(evt:MouseEvent):void {
+			
+		   	lsSendData(MegamipRC.CMD_RIGHT);
+		}
 	}
+	
+	
+	
 }
 
 class CustomClient {
