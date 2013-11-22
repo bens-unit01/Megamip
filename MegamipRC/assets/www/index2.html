@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+  <title>Megamip test</title>
+
+<link rel="stylesheet" type="text/css" href="css-js/style.css" />
+
+<!--  jQuery library -->
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>  -->
+<!-- jquery.animate-enhanced.js --> 
+
+<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
+
+<script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
+<script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
+<script type="text/javascript" src="css-js/jquery.transit.js"></script>  
+
+
+  <!-- Fancybox-->
+<script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
+<link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
+
+
+<script src="http://www.youtube.com/player_api"></script>
+
+
+ <style type="text/css">
+ #principal { display:none;}
+ </style>    
+    
+</head>
+<body>
+<button id='b1'>&nbsp;1 fade-out&nbsp;</button>
+<button id='b2'>&nbsp;2 fade-in&nbsp;</button>
+<button id='b3'>&nbsp;3 shrink&nbsp;</button>
+<button id='b4'>&nbsp;4 extend&nbsp;</button>
+<button id='b5'>&nbsp;5 loop&nbsp;</button>
+<button id='b6'>&nbsp;6 transition&nbsp;</button>
+<button id='b7'>&nbsp;7 sequence-01&nbsp;</button>
+<button id='b8'>&nbsp;8 reset &nbsp;</button>
+<button id='b9'>&nbsp;9 sequence-02 &nbsp;</button>
+
+<br><br><br><br>
+<div id='principal-2'>
+    <div id='eyes' class='eyes-state-00 active'></div>
+    <div id='next' class='eyes-state-01 not-active'></div>
+    <div id='notifications' class="eyes-state-08 not-active"></div>
+    <img  src='img/eye001-2.png' id='shrink' class="not-active">
+</div>
+
+<div  id="principal"> 
+    <div  id="results"></div>
+    <div id="output"></div>
+    <div id="loading"></div>
+</div>
+<!--      ....................................            -->
+
+<script>
+var index = 0;
+var selectedItem = null;
+
+  
+
+
+   /*   //$( "#loading" ).show();
+           alert('1111')
+           },
+            ajaxStop: function() { 
+           // $( "#loading" ).slideUp( 200 );  
+           alert('2222')
+           } */   
+
+
+   // document.cookie="VISITOR_INFO1_LIVE=oKckVSqvaGw; path=/; domain=.youtube.com";
+ //  window.location.reload();
+
+$(document).ready(function () { 
+
+     $("body").on({
+
+    ajaxStart:function(){
+
+     $( "#loading" ).show();
+    },
+    ajaxStop:function(){
+
+       $( "#loading" ).slideUp( 200 ); 
+    }
+  });
+ 
+
+
+
+ /*$(document).on('click',function(){
+
+  $.post("/mockjax");
+ })*/
+      
+//  hideCenterPanel();     
+        
+    
+         
+     
+
+});
+
+$('#b1').click(offMode);  // fade out
+
+$('#b2').click(onMode);   // fade in
+
+$('#b3').click(shrink);   
+
+$('#b4').click(extend);
+
+$('#b5').click(function(){
+  loop(5)
+});
+
+$('#b6').click(function(){    // transition 
+
+ var $active = $('#eyes');
+ var $next = $('#notifications');
+
+ 
+// $active.removeClass('eyes-state-01').addClass('eyes-state-00');
+
+ var step = 0;
+ setInterval(function(){
+    
+
+if(step != 0){
+         $active = $('#notifications');
+         $next = $('#eyes');
+         step = 0;
+   }else{
+         $active = $('#eyes');
+         $next = $('#notifications');
+         step = 1;
+   }
+    transition($active, $next);
+      
+     }, 5000);
+
+});
+
+$('#b7').click(function(){
+
+//var $active = $('#eyes');
+//var $next = $('#notifications');
+//$active.removeClass('eyes-state-01').addClass('eyes-state-00');
+shrink(); extend();
+});
+
+$('#b8').click(function(){
+
+//location.reload();
+
+// window.location.reload(true);
+animationInit()
+  });
+
+
+$('#b9').click(function(){    // sequence 2 
+
+ var $active = $('#eyes');
+ var $next = $("#next");
+
+   /*  $next.fadeTo(2000, 0.25);
+     $active.fadeTo(2000, 1);
+     $next.fadeOut();*/
+     transition($next, $active);
+
+       var timerId = setInterval(
+    function(){
+      
+    $active.removeAttr('style');
+    $next.removeAttr('style');
+     shrink();
+      clearInterval(timerId);
+
+    }, 4009);
+   
+
+    });
+
+   
+// ------------------------------------------------- 
+
+function offMode(){
+   $( "#eyes" ).animate({
+    opacity: 0.4
+    }, 1500 );
+}
+function onMode(){
+  $( "#eyes" ).animate({
+  opacity: 1
+  }, 1500 );
+
+}
+function extend(){
+  var $active = $( "#eyes" );
+  var $next  = $("#shrink");
+  //$next.animate({ margin:0, width: "+=140", height: "+=140" }, 1000 );
+  $next.transition({ scale:1});
+}
+
+function shrink(){
+
+ // $.setDisabledByDefault(true);
+   var $active = $( "#eyes" );
+   var $next  = $("#shrink");
+
+   
+   $active.removeClass('eyes-state-01').addClass('eyes-state-09');
+   $next.removeClass('not-active').addClass('active');
+
+   $next.transition({ scale:1.2, delay: 200});
+   $next.transition({ scale:0.5});
+  
+
+}
+
+function animationInit(){
+  $("#eyes").removeAttr('class');
+  $("#eyes").removeAttr('style');
+  $("#next").removeAttr('class');
+  $("#next").removeAttr('style');
+  $("#notifications").removeAttr('class');
+  $("#notifications").removeAttr('style');
+  $("#shrink").removeAttr('class');
+  $("#shrink").removeAttr('style');
+
+  $("#eyes").addClass('active eyes-state-00');
+  $("#next").addClass('not-active eyes-state-01');
+  $("#notifications").addClass('not-active eyes-state-08');
+  $("#shrink").addClass('not-active');
+
+
+}
+
+
+
+function loop(n){
+  var $active = $( "#eyes" );
+  var i=1;var j=0;
+  var timerId = setInterval(function(){
+    j=i; j++;
+   if( i != n){
+      $( "#eyes" ).removeClass("eyes-state-0"+i);
+      $( "#eyes" ).addClass("eyes-state-0"+j);
+      i++;
+
+   }else{
+      $( "#eyes" ).removeClass("eyes-state-0"+i);
+      $( "#eyes" ).addClass("eyes-state-01");
+      i=1; 
+    // clearInterval(timerId);
+    }
+
+    },300);
+}
+function transition( $active, $next){
+
+     $next.fadeTo(2000, 0.25);
+     $active.fadeTo(2000, 1);
+     $next.fadeOut();
+
+
+}
+
+
+
+
+
+
+<!--                           ************                  -->
+
+function next(){
+
+      // unselect the current item 
+     $("[data-wow-index ='"+ index+"']")
+             .removeClass("selected")
+             .addClass("not-selected");
+      // select the next one  
+        index++;
+         index = index %8;
+         
+     $("[data-wow-index ='"+ index+"']")
+             .removeClass("not-selected")
+             .addClass("selected");
+    
+ 
+   
+}
+function show(){
+    
+    selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
+ 
+    
+}
+
+function go(){
+    index = 0;
+   var keyword = $("#txt_input").val();
+   $("#results").empty();
+   googleSearch( keyword);
+     
+}
+
+function clearScreen(){
+    
+    index = 0;
+    $("#results").empty();
+  
+}
+function back(){    
+   $.fancybox.close()    
+}
+
+
+function showEyes(){
+ $("#eyes").slideDown("slow");
+}
+function hideEyes(){
+  $("#eyes").slideUp("slow");   
+}
+function showCenterPanel(){
+     $("#principal").slideDown("slow");   
+}
+function hideCenterPanel() {
+     $("#principal").slideUp("slow");   
+}
+
+function log(displayString){
+    
+    $('#output').empty();
+    $('#output').append(displayString);
+    
+}
+
+
+//--------------------------------------------
+
+
+
+
+function pictureSearch(keyword){
+    
+   
+  
+  var apiURL = 'http://ajax.googleapis.com/ajax/services/search/'+"images"+
+                        '?v=1.0&callback=?';
+ 
+
+  $.getJSON(apiURL,{
+        q : keyword,
+        rsz :8,
+        start : 0
+    },function(data){
+
+    
+    var content = "";
+                var newWidth = 0;
+      for(var i = 0; i < data.responseData.results.length; i++){
+                          //  newWidth = data.responseData.results[i].tbWidth+15;
+      content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
+                                  "<a href='"+data.responseData.results[i].url+"'>"+
+                                  "<img src='"+data.responseData.results[i].tbUrl + "'/>"+
+                                  "</a>"+
+                                  "<p>"+data.responseData.results[i].visibleUrl+"</p><br/>"+
+                                  "<span style='font-weight:bold;' >Size: </span>"+data.responseData.results[i].width+"x"+data.responseData.results[i].height+
+                                  "</div>";
+                          if(i == 3){
+                              content +="<br/>"
+                          }
+                              
+        $('#results').append(content);
+      } 
+                        
+                         //-- select the first item
+                          var s =  $('.pic').first()
+                                  .removeClass("not-selected")
+                                  .addClass("selected");
+                          
+                          //--FancyBox --
+                               $("a").fancybox({
+        'overlayShow' : false,
+        'transitionIn'  : 'elastic',
+        'transitionOut' : 'elastic',
+                                'closeClick':true, 
+                                'closeBtn':false,
+                                padding:0
+      });
+
+                       
+                       
+    }
+  );
+$.post("/mockjax"); // to fire the loading screen 
+}
+
+// video search functions  -------------------------------
+
+
+function videoSearch(keyword){
+    
+   
+  // $( "#loading" ).show().delay(800).slideUp( 200 );   
+  var apiURL = 'http://ajax.googleapis.com/ajax/services/search/'+'video'+
+                        '?v=1.0&callback=?';
+
+  $.getJSON(apiURL,{
+        q : keyword,
+        rsz :8,
+        start : 0
+    },function(data){
+
+         
+                var date;    
+    var content = "";
+                var month, day, year;
+      for(var i = 0; i < data.responseData.results.length; i++){
+                        date = new Date(data.responseData.results[i].published); 
+                        month = date.getMonth()+1;
+                        day = date.getDate();
+                        year = date.getFullYear();
+      content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
+                                  "<a class='fancybox fancybox.iframe' href='"+data.responseData.results[i].playUrl+"'>"+
+                                  "<img src='"+data.responseData.results[i].tbUrl + "'/>"+
+                                  "</a><br/><br/>"+
+                                  "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
+                                  "</div>";
+                          
+        $('#results').append(content);
+      } 
+                        
+                         //-- select the first item
+                          var s =  $('.pic').first()
+                                  .removeClass("not-selected")
+                                  .addClass("selected");
+                          
+                          //--FancyBox --
+                                $("a").fancybox({
+                                'closeClick':true,    
+                                'closeBtn':false,
+                                'padding':0,
+                                   helpers: {
+                                       title : {
+                                           type : 'float'
+                                       }
+                                   }
+                               });
+
+                       
+                       
+    }
+  );
+ $.post("/mockjax"); // to fire the loading screen 
+
+}
+
+//  fire when the player has finnished loading 
+
+function onPlayerReady(event){
+    event.target.playVideo();
+}
+
+function onPlayerStateChange(event){
+    
+    if(event.data === 0){
+        $.fancybox.next();
+    }
+}
+
+
+function onYouTubePlayerAPIReady(){
+    
+    $(document).ready(function(){
+       $(".fancybox")
+       .attr('rel','gallery')
+       .fancybox({
+        openEffect : 'none',
+        closeEffect :'none',
+        nextEffect : 'none',
+        prevEffect : 'none',
+        padding : 0,
+        margin : 50,
+        beforeShow : function(){
+            
+       var id = $.fancybox.inner.find('iframe').attr('id'); 
+     
+        var player = new YT.Player(id, {
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange':onPlayerStateChange
+                        }
+                        })
+        }
+       });
+        
+    });
+    
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+  <title>Megamip test</title>
+
+<link rel="stylesheet" type="text/css" href="css-js/style.css" />
+  <!--  jQuery library -->
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>  -->
+<!-- jquery.animate-enhanced.js --> 
+
+<script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
+
+<script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
+<script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
+<script type="text/javascript" src="css-js/jquery.transit.js"></script>  
+
+
+  <!-- Fancybox-->
+<script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
+<link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
+
+
+<script src="http://www.youtube.com/player_api"></script>
+
+
+
+  </head>
+  <body>
+   
+<h3>Megamip - Notification panel </h3>
+
+<input id='btn1'type='button' style='width:120px; height:24px;' value='getNot...'/><br/><br/>
+<input id='btn2'type='button' style='width:120px; height:24px;' value='reset'/><br/><br/>
+
+<div class="eyes-state-09">
+    <div class="notfct-background">
+    <div id='battery-level'class="notfct-left-00"></div>
+      <div id='signal-level' class="notfct-right-00"></div>
+      <div id='date' class="notfct-date">
+
+        </div>
+        <div id='emails' class="notfct-emails"></div>
+    </div>
+</div>
+<div id="result"></div>
+<script>
+var $divbox =   $( "div.box" );
+var flag = 0;
+
+ var tabNotifications;
+ var newEmails;
+ var wifPct;
+ var batteryPct;
+
+$('#btn1').click(function(){
+
+getNotifications();
+});
+
+
+$('#btn2').click(function(){
+
+  notificationsInit();
+});
+
+
+function getNotifications() {
+
+
+   
+       megaMipJSInterface.getNotifications();
+    
+}
+
+function setNotifications(notifications){
+
+  // decoding the input 
+  tabNotifications = notifications.split(":");
+  newEmails = parseInt(tabNotifications[0]);
+  wifiPct = parseInt(tabNotifications[1]);
+  batteryPct = parseInt(tabNotifications[2]);
+  
+  
+  notificationsInit();
+  displayBatteryAndWifi(batteryPct, wifiPct );
+  displayDate();
+  $emails = $('#emails');
+  $emails.html(newEmails);
+}
+
+
+function notificationsInit(){
+   $battery =$('#battery-level');
+   $wifi =$('#signal-level'); 
+   $('#date').empty();
+   $('#emails').empty();
+
+   $battery.removeAttr('class');
+   $battery.removeAttr('style');
+   $wifi.removeAttr('class');
+   $wifi.removeAttr('style');
+
+   $battery.addClass('notfct-left-00');
+   $wifi.addClass('notfct-right-00');
+
+}
+
+
+
+function displayDate(){
+    var $date =$('#date');
+    $date.empty();
+    var d = new Date();
+
+      var month = d.getMonth()+1;
+      var day = d.getDate();
+      var hours = d.getHours();
+      var minutes = d.getMinutes();
+      var ampm  = "AM";
+      if(hours > 12){
+        ampm = "PM";
+        hours -= 12;
+      }
+      var output1 = (hours<10?'0' : '')+hours+":"+(minutes<10?'0' : '')+minutes+ampm;
+      var output2 = (day<10 ? '0' : '') + day+ '/'+(month<10 ? '0' : '') + month+ '/'+d.getFullYear();
+
+      $date.html(output1+"<br/>"+output2);
+
+      
+  
+}
+
+
+
+
+
+function displayBatteryAndWifi(batteryLevel, signalLevel){
+
+$battery = $("#battery-level");
+$signal = $("#signal-level");
+ // setting the battery charge level
+  
+
+    if( batteryLevel > 80){        // battery level 100%
+         $battery.removeAttr('class').addClass("notfct-left-05");
+
+    }else if( 0 == batteryLevel){   // battery level 0%
+         $battery.removeAttr('class').addClass("notfct-left-00");
+
+    }else if( batteryLevel <= 20){   // battery level 20%
+          $battery.removeAttr('class').addClass("notfct-left-01");
+
+    }else if( batteryLevel <= 40){   // battery level 40%
+          $battery.removeAttr('class').addClass("notfct-left-02");
+
+    }else if( batteryLevel <= 60){   // battery level 60%
+          $battery.removeAttr('class').addClass("notfct-left-03");
+
+    }else{                           // battery level 80%
+          $battery.removeAttr('class').addClass("notfct-left-04");
+    }
+
+
+ // setting the signal strenth level 
+
+   if( signalLevel > 80){        // battery level 100%
+         $signal.removeAttr('class').addClass("notfct-right-05");
+
+    }else if( 0 == signalLevel){   // battery level 0%
+         $signal.removeAttr('class').addClass("notfct-right-00");
+
+    }else if( signalLevel <= 20){   // battery level 20%
+          $signal.removeAttr('class').addClass("notfct-right-01");
+
+    }else if( signalLevel <= 40){   // battery level 40%
+          $signal.removeAttr('class').addClass("notfct-right-02");
+
+    }else if( signalLevel <= 60){   // battery level 60%
+          $signal.removeAttr('class').addClass("notfct-right-03");
+
+    }else{                           // battery level 80%
+          $signal.removeAttr('class').addClass("notfct-right-04");
+    }
+
+
+
+}
+ </script>
+</body>
+</html>
+
+
+

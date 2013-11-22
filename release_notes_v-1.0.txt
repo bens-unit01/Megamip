@@ -1,0 +1,13 @@
+
+
+Megamip version 1.0
+
+In this version we have 2 main modules : 
+
+1. com.megamip.voice : this module provide the main gui of the app and include the following features : 
+  
+            a. picture search
+	    b. video search 
+	    
+2. telepresence : This is a video conference app that allow the user to control megamip remotely through the 
+"TelepresenceUser" app 
