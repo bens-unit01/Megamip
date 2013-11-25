@@ -16,7 +16,7 @@ package  {
 	import org.osmf.media.URLResource;
 	import org.osmf.media.MediaPlayerSprite;
 
-	
+	import flash.events.TouchEvent;
 	import flash.events.MouseEvent;
 	import flash.net.NetConnection;
 	import flash.desktop.NativeApplication;
@@ -339,8 +339,9 @@ package  {
 		    if (camera != null){
 				//camera.setMode(1280, 720, 30, true);
 				//camera.setMode(480, 360, 30, true);
-				camera.setMode(640 , 360, 30, true);
-				camera.setQuality(0, 90);
+				camera.setMode(960 , 540, 15, false);
+				//camera.setQuality(8192, 100);
+				camera.setQuality(0, 100);
 				camera.setKeyFrameInterval(1);
 				camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
 				
@@ -465,6 +466,7 @@ package  {
 		   btnExit.addEventListener(MouseEvent.CLICK, deactivate);	
 		   // btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
 		   btnForward.addEventListener(MouseEvent.CLICK, moveForward);
+		  // btnForward.addEventListener(MouseEvent.MOUSE_DOWN, moveForward);
 		   btnBack.addEventListener(MouseEvent.CLICK, moveBackward);
 		   btnLeft.addEventListener(MouseEvent.CLICK, moveLeft);
 		   btnRight.addEventListener(MouseEvent.CLICK, moveRight);
@@ -659,6 +661,7 @@ package  {
 		private function moveForward(evt:MouseEvent):void {
 			
 		   	lsSendData(MegamipRC.CMD_FORWARD);
+			//trace("moveForward ---");
 		}
 		private function moveBackward(evt:MouseEvent):void {
 			

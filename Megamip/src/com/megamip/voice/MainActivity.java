@@ -43,7 +43,7 @@ public class MainActivity extends DroidGap {
 
 	public static final int USER_MOBILE = 0;
 	public static final int USER_DESKTOP = 1;
-	public static final int INACTIVITY_PERIOD = 40;
+	public static final int INACTIVITY_PERIOD = 21;
 	public static final int BLINK_PERIOD = 7;
 
 	public static Context context; // reference vers l'activité MainActivity
@@ -151,11 +151,16 @@ public class MainActivity extends DroidGap {
 
 		// if(action.equals("picture"))
 		// mCommand = mc.new GuiShow(receiver);
-		if (action.equals("video"))
+		if (action.equals("video")){
 			mCommand = mc.new VideoSearch(receiver, keywords);
-		else
+			mTrgInactivity.resetTimer();
+		}
+		else{
+			
 			// (action.equals("picture"))
 			mCommand = mc.new PictureSearch(receiver, keywords);
+			mTrgInactivity.resetTimer();
+		}
 		// if (action.equals("next"))
 		// mCommand = mc.new GuiNext(receiver);
 		// if (action.equals("home"))
@@ -211,7 +216,7 @@ public class MainActivity extends DroidGap {
 			}
 		}
 
-		Log.d(TAG2, "MainActivity - movementHandler ----- action = " + action);
+		Log.d(TAG2, "MainActivity - movementHandler -- action = " + action+" state: "+invoker.getState());
 
 		invoker.launch(mCommand);
 

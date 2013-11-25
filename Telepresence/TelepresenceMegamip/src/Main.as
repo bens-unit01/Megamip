@@ -110,9 +110,9 @@ package  {
 			 
 			initConnection(null);
 			
-			 megamipLSClient = new MegamipLSClient();
-			 megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
-			  
+			// megamipLSClient = new MegamipLSClient();
+			// megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			 
 		}
 		
 		private function onInvoke2(event:MouseEvent):void
@@ -120,8 +120,8 @@ package  {
 			 
 			  farPeerID =   txtFingerPrint.text
 			  initConnection(null);
-			  megamipLSClient = new MegamipLSClient();
-			  megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			//  megamipLSClient = new MegamipLSClient();
+			//  megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
 			  
 		}
 		private function initSendStream(event:MouseEvent):void{
@@ -155,7 +155,7 @@ package  {
 		private function initRecvStream(event:MouseEvent):void{
 
 			nsRead = new NetStream(nc, farPeerID);
-			nsRead.bufferTime = 3;
+		//	nsRead.bufferTime = 3;
 			nsRead.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			//nsRead.play("media");
 			nsRead.client = this;
@@ -347,11 +347,12 @@ package  {
 		    nsPublish.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
 			nsPublish.client = new CustomClient();*/
 		    
+		
 		    camera = getCamera();
 		    mic = Microphone.getMicrophone();
 		    
 		    if (camera != null){
-				camera.setMode(480, 360, 30, true);
+				camera.setMode(480, 360, 15, true);
 				camera.setQuality(0, 90);
 				camera.setKeyFrameInterval(1);
 				camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
@@ -597,11 +598,11 @@ package  {
 	
 		public function lsReceiveData(event:Event):void{
         
-			var message:String = megamipLSClient.getMessage();
+		/*	var message:String = megamipLSClient.getMessage();
 			 trace("lsReceiveData event:" + event);
 			 trace("lsReceiveData message:" +message);
 			 sendMegamipCMD(message);
-		    
+		    */
 
 		}
 		private function sendMegamipCMD(str:String):void {

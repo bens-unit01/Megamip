@@ -16,7 +16,7 @@ $active = $('#notifications');
 	var timerId = setInterval(function(){
    animationInit();
     clearInterval(timerId);
-	}, 4000);
+	}, 5000);
 
 
 }
