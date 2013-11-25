@@ -100,8 +100,14 @@ public void guiHideMic(){
  
  
  public void guiDisplayNotifications(String notifications){
-	 callJsFunction("setNotifications",notifications);
+	 callJsFunction("showNotifications",notifications);
  }
+ 
+
+public void guiBlink() {
+	callJsFunction("blink","");
+	
+}
  public void speak(){
 	 
 		// TODO Auto-generated method stub
@@ -180,6 +186,7 @@ public void guiHideMic(){
          }
      });
  }
+
 
 
 

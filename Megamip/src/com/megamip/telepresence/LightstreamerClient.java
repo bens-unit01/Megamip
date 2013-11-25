@@ -38,6 +38,7 @@ public class LightstreamerClient {
 	public static final String LS_DATA_ADAPTER ="TELEPRESENCE02";
 	public static final String LS_ADAPTER_SET = "TP02";
 	public static final String LS_SERVER_URL ="http://ec2-107-22-46-148.compute-1.amazonaws.com:8080/";
+	public static final String LS_USER = "megamip01";
     private final String[] items;
     private final String[] fields;
     private final LSClient client;
@@ -58,6 +59,7 @@ public class LightstreamerClient {
         ConnectionInfo connInfo = new ConnectionInfo();
         connInfo.pushServerUrl = pushServerUrl;
         connInfo.adapter = LS_ADAPTER_SET;
+        connInfo.user = LS_USER;
         client.openConnection(connInfo, ls);
         Log.d(TAG3, "LightstreamerClient start()");
     }

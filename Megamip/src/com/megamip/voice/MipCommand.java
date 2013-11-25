@@ -202,7 +202,22 @@ public class GuiDisplayNotifications implements Command{
  
 }	
 
+public class GuiBlink implements Command{
+	
+	 private MipReceiver mipReceiver;
+	  // constructors 
+	 private GuiBlink() {}
+	 public GuiBlink(MipReceiver mipReceiver){
+		 this.mipReceiver = mipReceiver;
+		 
+	}
+	 
+	public void execute(){
+		mipReceiver.guiBlink();
+	}
 
+
+}	
 // Megamip motion classes 
 
 
