@@ -163,8 +163,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="19" language="java" name="com.megamip.voice.SpeakNow" project="Megamip" 
-    file="/Megamip/src/com/megamip/voice/SpeakNow.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="19" language="java" name="com.megamip.view.SpeakNow" project="Megamip" 
+    file="/Megamip/src/com/megamip/view/SpeakNow.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="107" y="420"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      

@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class MegamipLSClient {
 
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String TAG1 = "A1", TAG2 = "A2", TAG5 = "A5";
 	public static final String CMD_LAUNCH = "LAUNCH";
 	public static final String CMD_SEPARATOR = ":";
 	private LsListener lsListener;
@@ -72,7 +72,7 @@ public class MegamipLSClient {
 
 	    public void addMegamipLSClientListener(MegamipLSClientListener megamipLSClientListener) {
 			mListeListeners.add(megamipLSClientListener);
-			Log.d(TAG3, "new Lightstreamer listener added ...");
+			Log.d(TAG5, "new Lightstreamer listener added ...");
 
 		}
 	    
@@ -181,7 +181,7 @@ public class MegamipLSClient {
 			for (MegamipLSClientListener b : mListeListeners) {
 				
 				b.onNotify(new LsServerEvent(this, message));
-				Log.d(TAG3, "MegamipLSClientListener onNotify()  - message: "+message);
+				Log.d(TAG5, "MegamipLSClientListener onNotify()  - message: "+message);
 			}
 			
 		}

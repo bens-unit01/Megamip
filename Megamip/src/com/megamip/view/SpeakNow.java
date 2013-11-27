@@ -1,4 +1,4 @@
-package com.megamip.voice;
+package com.megamip.view;
 
 /*
  * This class is inspired by the android project code at  https://android.googlesource.com/platform/packages/inputmethods/LatinIME/+/0e7cdae045b93e0370ae575072e76b6af91b6b0c/src/com/android/inputmethod/voice/RecognitionView.java
@@ -7,6 +7,11 @@ package com.megamip.voice;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.megamip.voice.R;
+import com.megamip.voice.R.drawable;
+import com.megamip.voice.R.id;
+import com.megamip.voice.R.layout;
 
 import android.app.Dialog;
 import android.content.ContentResolver;

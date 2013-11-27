@@ -9,7 +9,7 @@
 <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 -->
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> -->
 <script type="text/javascript" src="css-js/jquery-1.10.1.min.js"></script>
 <script type="text/javascript" src="css-js/jquery.mobile-1.0a3.min.js"></script>
 <script type="text/javascript" src="css-js/jquery.animate-enhanced.js"></script>  
@@ -18,10 +18,11 @@
   <!-- Fancybox-->
 <script type="text/javascript" src="css-js/jquery.fancybox.js?v=2.1.5"></script>
 <link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
-<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<!-- <script type="text/javascript" charset="utf-8" src="cordova.js"></script>  -->
 
 <script src="http://www.youtube.com/player_api"></script>
-<script type="text/javascript" src="css-js/mip01.js"></script>  
+
+<script type="text/javascript" src="css-js/mip01.js"></script> 
 <script type="text/javascript" src="css-js/mip02.js"></script> 
 
 
@@ -30,7 +31,7 @@
  </style>    
     
 </head>
-<body onload="onLoad()">
+<body>
 
 <div id='container'>
   
@@ -65,35 +66,7 @@ $.support.cors = true;  // support to load cross domain pages - important for Ph
   
 // PhoneGap init methods 
 
-function onLoad() {
-        document.addEventListener("deviceready", onDeviceReady, false);
-    }
 
-    // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
-    //
-    function onDeviceReady() {
-        window.addEventListener("batterystatus", onBatteryStatus, false);
-    }
-
-    // Handle the batterystatus event
-    //
-    function onBatteryStatus(info) {
-        console.log("Level: " + info.level + " isPlugged: " + info.isPlugged); 
-        batteryLevel = info.level;
-    }
-
-
-   /*   //$( "#loading" ).show();
-           alert('1111')
-           },
-            ajaxStop: function() { 
-           // $( "#loading" ).slideUp( 200 );  
-           alert('2222')
-           } */   
-
-
-  //  document.cookie="VISITOR_INFO1_LIVE=oKckVSqvaGw; path=/; domain=.youtube.com";
- //  window.location.reload();
 
 $(document).ready(function () { 
 
@@ -104,7 +77,6 @@ $(document).ready(function () {
   
 
 });
-
 
 
 

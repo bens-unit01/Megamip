@@ -42,6 +42,7 @@ public class DroidGap extends CordovaActivity {
 			super.onCreate(savedInstanceState);
 			super.loadUrl("file:///android_asset/www/index.html");
 			WebSettings settings = appView.getSettings();
+			
 			settings.setUserAgent(USER_DESKTOP);
 			//settings.setPluginState(PluginState.ON); 
 		}

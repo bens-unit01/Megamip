@@ -29,7 +29,7 @@ import com.lightstreamer.ls_client.UpdateInfo;
  */
 class LsHandyTableListener implements HandyTableListener {
 
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String TAG1 = "A1", TAG2 = "A2", TAG5 = "A5";
     private LightstreamerListener listener;
     private int phase;
     
@@ -41,14 +41,14 @@ class LsHandyTableListener implements HandyTableListener {
     @Override
     public void onUpdate(int itemPos, String itemName, UpdateInfo update) {
         listener.onItemUpdate(phase, itemPos, itemName, update);
-    	Log.d(TAG3, "StocklistHandyTableListener onUpdate ");
+    	Log.d(TAG5, "StocklistHandyTableListener onUpdate ");
     }
 
     @Override
     public void onRawUpdatesLost(int itemPos, String itemName,
             int lostUpdates) {
         listener.onLostUpdate(phase, itemPos, itemName, lostUpdates);
-    	Log.d(TAG3, "StocklistHandyTableListener onRawUpdatesLost ");
+    	Log.d(TAG5, "StocklistHandyTableListener onRawUpdatesLost ");
     }
 
     @Override

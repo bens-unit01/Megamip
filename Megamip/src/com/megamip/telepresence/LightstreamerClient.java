@@ -34,7 +34,7 @@ import com.lightstreamer.ls_client.SubscrException;
  */
 public class LightstreamerClient {
 
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String TAG1 = "A1", TAG2 = "A2", TAG5 = "A5";
 	public static final String LS_DATA_ADAPTER ="TELEPRESENCE02";
 	public static final String LS_ADAPTER_SET = "TP02";
 	public static final String LS_SERVER_URL ="http://ec2-107-22-46-148.compute-1.amazonaws.com:8080/";
@@ -61,7 +61,7 @@ public class LightstreamerClient {
         connInfo.adapter = LS_ADAPTER_SET;
         connInfo.user = LS_USER;
         client.openConnection(connInfo, ls);
-        Log.d(TAG3, "LightstreamerClient start()");
+        Log.d(TAG5, "LightstreamerClient start()");
     }
     
     public void subscribe(int phase, LightstreamerListener listener)

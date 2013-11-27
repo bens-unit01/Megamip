@@ -24,7 +24,7 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import com.google.android.youtube.player.YouTubePlayer;
 import com.megamip.telepresence.MegamipLSClient;
 import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
 import com.megamip.util.DroidGap;
@@ -33,6 +33,8 @@ import com.megamip.util.JettyServer.JettyListener;
 import com.megamip.util.JettyServer.ServerEvent;
 import com.megamip.util.MipDeviceManager;
 import com.megamip.util.MipTimer;
+import com.megamip.view.MipVideoPlayer;
+import com.megamip.view.SpeakNow;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
 import com.megamip.voice.MipUsbDevice.UsbListener;
 import com.megamip.telepresence.MegamipLSClient;
@@ -75,6 +77,12 @@ public class MainActivity extends DroidGap {
 	private Object mLock = new Object();
 	private MipDeviceManager mDeviceManager;
 
+	public enum State {
+		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SHOW
+	}
+
+	private State mState = State.STANDBY;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -89,6 +97,9 @@ public class MainActivity extends DroidGap {
 
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
+		//Log.d(TAG1, " User agent: "
+		//		+ webView.getSettings().getUserAgentString());
+		//Log.d(TAG1, " getSettings: " + webView.getSettings().toString());
 		// attach web view to debugging service
 		// DebugServiceClient dbgClient =
 		// DebugServiceClient.attachWebView(webView, this);
@@ -109,6 +120,8 @@ public class MainActivity extends DroidGap {
 
 		// loadPage("index.html");
 		// loadPage("test.html");
+		Log.d(TAG2, "MainActivity onCreate()--- ");
+		
 
 	}
 
@@ -151,12 +164,13 @@ public class MainActivity extends DroidGap {
 
 		// if(action.equals("picture"))
 		// mCommand = mc.new GuiShow(receiver);
-		if (action.equals("video")){
+		mState = State.SEARCH_DISPLAY;
+
+		if (action.equals("video")) {
 			mCommand = mc.new VideoSearch(receiver, keywords);
 			mTrgInactivity.resetTimer();
-		}
-		else{
-			
+		} else {
+
 			// (action.equals("picture"))
 			mCommand = mc.new PictureSearch(receiver, keywords);
 			mTrgInactivity.resetTimer();
@@ -170,6 +184,7 @@ public class MainActivity extends DroidGap {
 		// if (action.equals("back"))
 		// mCommand = mc.new GuiBack(receiver);
 
+		Log.d(TAG1,"VoiceHandler -- mState: "+mState);
 		invoker.launch(mCommand);
 
 	}
@@ -177,46 +192,91 @@ public class MainActivity extends DroidGap {
 	private void movementHandler(MovementInput movementInput) {
 
 		String action = movementInput.getAction();
+		String notifications;
+		
+		// **** Next--------------------
+		if (action.equals("69")) { 
+			if (State.STANDBY == mState) {
+				mState = State.NOTIFICATIONS_DISPLAY;
+				notifications = mDeviceManager.getNotifications();
+				mCommand = mc.new GuiDisplayNotifications(receiver,
+						notifications);
+			}
+			// ----------
+			if (State.SEARCH_DISPLAY == mState) {
+				mCommand = mc.new GuiNext(receiver);
+				synchronized (mLock) {
+					invoker.setState(Invoker.State.PROCESSING);
+					mTrgInactivity.resetTimer();
+				}
+			}
+		}
+		
+		
+		// **** Hold--------------------
 
-		if (action.equals("69")) { // decimal ascii code for "R" - right
-			mCommand = mc.new GuiNext(receiver);
-			synchronized (mLock) {
-				invoker.setState(Invoker.State.PROCESSING);
-				mTrgInactivity.resetTimer();
+		if (action.equals("81")) { 
+			if (State.STANDBY == mState) {
+				mState = State.NOTIFICATIONS_DISPLAY;
+				notifications = mDeviceManager.getNotifications();
+				mCommand = mc.new GuiDisplayNotifications(receiver,
+						notifications);
 			}
-		}
+			// --------------------
+			if (State.NOTIFICATIONS_DISPLAY == mState) {
+				mCommand = mc.new Speak(receiver); // it's a left movement
+				synchronized (mLock) {
+					invoker.setState(Invoker.State.PROCESSING);
+					mTrgInactivity.resetTimer();
+				}
+			}
 
-		if (action.equals("81")) {
-			mCommand = mc.new Speak(receiver); // it's a left movement
-			synchronized (mLock) {
-				invoker.setState(Invoker.State.PROCESSING);
-				mTrgInactivity.resetTimer();
+			if (State.SEARCH_DISPLAY == mState) {
+				mCommand = mc.new GuiShow(receiver);
+				mState = State.SHOW;
+				synchronized (mLock) {
+					invoker.setState(Invoker.State.ACTIVE);
+					mTrgInactivity.resetTimer();
+				}
 			}
 		}
+		
 
-		if (action.equals("82")) {
-			mCommand = mc.new GuiHome(receiver);
-			synchronized (mLock) {
-				invoker.setState(Invoker.State.PROCESSING);
-				mTrgInactivity.resetTimer();
-			}
-		}
-		if (action.equals("84")) {
-			mCommand = mc.new GuiShow(receiver);
-			synchronized (mLock) {
-				invoker.setState(Invoker.State.ACTIVE);
-				mTrgInactivity.resetTimer();
-			}
-		}
+		 // **** Back --------------------
 		if (action.equals("87")) {
-			mCommand = mc.new GuiBack(receiver);
-			synchronized (mLock) {
-				invoker.setState(Invoker.State.PROCESSING);
-				mTrgInactivity.resetTimer();
+			if (State.STANDBY == mState) {
+				mState = State.NOTIFICATIONS_DISPLAY;
+				notifications = mDeviceManager.getNotifications();
+				mCommand = mc.new GuiDisplayNotifications(receiver,
+						notifications);
+			} else {
+				mCommand = mc.new GuiBack(receiver);
+				synchronized (mLock) {
+					invoker.setState(Invoker.State.PROCESSING);
+					mTrgInactivity.resetTimer();
+				}
 			}
 		}
 
-		Log.d(TAG2, "MainActivity - movementHandler -- action = " + action+" state: "+invoker.getState());
+
+		// if (action.equals("82")) {
+		// mCommand = mc.new GuiHome(receiver);
+		// synchronized (mLock) {
+		// invoker.setState(Invoker.State.PROCESSING);
+		// mTrgInactivity.resetTimer();
+		// }
+		// }
+		// if (action.equals("84")) {
+		// mCommand = mc.new GuiShow(receiver);
+		// synchronized (mLock) {
+		// invoker.setState(Invoker.State.ACTIVE);
+		// mTrgInactivity.resetTimer();
+		// }
+		// }
+
+		
+		Log.d(TAG1, "MainActivity - movementHandler -- action = " + action
+				+ " invoker.state: " + invoker.getState()+" mState: "+mState);
 
 		invoker.launch(mCommand);
 
@@ -339,13 +399,17 @@ public class MainActivity extends DroidGap {
 			public void update() {
 
 				if (invoker.getState() != Invoker.State.ACTIVE) {
-					
+
 					invoker.launch(mc.new GuiHome(receiver));
+					mState = State.STANDBY;
 					synchronized (mLock) {
 						invoker.setState(Invoker.State.IDLE);
 					}
 
 				}
+				
+				Log.d(TAG1, "MainActivity - mTrgInactivity#update  -- action = " 
+						+ " invoker.state: " + invoker.getState()+" mState: "+mState);
 
 			}
 		});
@@ -356,7 +420,7 @@ public class MainActivity extends DroidGap {
 			public void update() {
 				if (Invoker.State.IDLE == invoker.getState()) {
 					if ((mBlinkCounter % 3) != 0) {
-						
+
 						invoker.launch(mc.new GuiBlink(receiver));
 						mBlinkCounter++;
 					} else {
@@ -472,25 +536,35 @@ public class MainActivity extends DroidGap {
 
 			case SpeechRecognizer.ERROR_AUDIO:
 				message = "Recording error, please try again ...";
+				break;
 			case SpeechRecognizer.ERROR_CLIENT:
 				message = "Server issue, error no 05";
+				break;
 			case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
 				message = "Server issue, error no 09";
+				break;
 			case SpeechRecognizer.ERROR_NETWORK:
 				message = "Network issue, please try again ...";
+				break;
 			case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
 				message = "Connection to the server timed out.";
+				break;
 			case SpeechRecognizer.ERROR_NO_MATCH:
 				message = "Recognition problem : the system is not able to recognize this word";
+				break;
 			case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
 				message = "Server is busy, please try again later ...";
+				break;
 			case SpeechRecognizer.ERROR_SERVER:
 				message = "Server error";
+				break;
 			case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
 				message = "No speech input";
+				break;
 
 			default:
 				message = "Unknown error";
+				break;
 
 			}
 
@@ -535,7 +609,7 @@ public class MainActivity extends DroidGap {
 		super.onResume();
 		mMegamipLSClient.onResume();
 		Log.d(TAG2, "MainActivity onResume()--- ");
-		
+
 		mTrgInactivity.resetTimer();
 		mTrgBlink.resetTimer();
 	}
@@ -549,10 +623,11 @@ public class MainActivity extends DroidGap {
 			Log.d(TAG3, "MainActivity onPause() block if");
 		}
 
-		mMegamipLSClient.onPause(); // we disconnect from the Lightstreamer server
+		mMegamipLSClient.onPause(); // we disconnect from the Lightstreamer
+									// server
 		mTrgInactivity.stopTimer();
 		mTrgBlink.stopTimer();
-		Log.d(TAG3, "MainActivity onPause()");
+		Log.d(TAG2, "MainActivity onPause()");
 	}
 
 	public void getNotifications() {
@@ -585,6 +660,15 @@ public class MainActivity extends DroidGap {
 		int key = Integer.parseInt(keyCode);
 		byte[] input = { 0, 0, Byte.valueOf(keyCode) };
 		movementHandler(new MovementInput(input));
+
+	}
+
+	public void onLaunchVideo(String url) {
+
+		Intent intent = new Intent(this, MipVideoPlayer.class);
+		intent.setFlags(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE);
+		intent.putExtra("url", url);
+		startActivity(intent);
 
 	}
 

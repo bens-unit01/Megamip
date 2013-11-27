@@ -8,6 +8,7 @@
 var index = 0;
 var selectedItem = null;
 var timerId = null;
+var player = null;
 
 //----------animations 
 
@@ -199,10 +200,18 @@ function next(){
  
    
 }
+
 function show(){
     
-    selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
- 
+   // selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
+   selectedItem = $("[data-wow-index ='"+ index+"'] a");
+   var url = selectedItem.attr("href");
+   console.log('show --- url: '+url);
+   try{  
+     megaMipJSInterface.onLaunchVideo(url);
+      }catch(error){
+        console.log("show() -- bloc catch err: "+error);
+      }
     
 }
 
@@ -377,11 +386,13 @@ function videoSearch(keyword){
 //  fire when the player has finnished loading 
 
 function onPlayerReady(event){
+  console.log("onPlayerReady ---");
     event.target.playVideo();
 }
 
 function onPlayerStateChange(event){
     
+    console.log("onPlayerStateChange  ---");
     if(event.data === 0){
         $.fancybox.next();
     }
@@ -390,6 +401,7 @@ function onPlayerStateChange(event){
 
 function onYouTubePlayerAPIReady(){
     
+    console.log("onYouTubePlayerAPIReady ---");
     $(document).ready(function(){
        $(".fancybox")
        .attr('rel','gallery')
@@ -404,7 +416,7 @@ function onYouTubePlayerAPIReady(){
             
        var id = $.fancybox.inner.find('iframe').attr('id'); 
      
-        var player = new YT.Player(id, {
+      var player = new YT.Player(id, {
                         events: {
                             'onReady': onPlayerReady,
                             'onStateChange':onPlayerStateChange
@@ -425,11 +437,15 @@ function handleKeyboard(evt){
 
 	console.info('key');
 
+if(evt.keyCode != "87"){
 	try{  
      megaMipJSInterface.onKeyBoard(evt.keyCode);
       }catch(error){
         console.log("bloc catch err: "+error);
       }
+    }else{
+         back();
+    }
 }
 
 document.onkeyup = handleKeyboard;
