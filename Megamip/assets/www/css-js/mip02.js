@@ -20,6 +20,25 @@ $active = $('#notifications');
 
 
 }
+function showNotifications(notifications, period){
+
+  setNotifications(notifications);
+
+$next = $('#eyes');
+$active = $('#notifications');
+
+ animationInit();
+  $next.removeClass('active');
+ $next.addClass('not-active');
+ $active.removeClass('not-active');
+ $active.addClass('active');
+  var timerId = setInterval(function(){
+   animationInit();
+    clearInterval(timerId);
+  }, period*1000);
+
+
+}
 function setNotifications(notifications){
 
   // decoding the input 

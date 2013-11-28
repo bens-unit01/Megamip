@@ -51,6 +51,9 @@ public class MainActivity extends DroidGap {
 	public static Context context; // reference vers l'activité MainActivity
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String PICTURE_MODE = "picture";
+	public static final String VIDEO_MODE = "video";
+	private String mMode = PICTURE_MODE;
 	private ImageButton btnSpeak;
 	private TextView textView;
 	private EditText editText1;
@@ -78,7 +81,7 @@ public class MainActivity extends DroidGap {
 	private MipDeviceManager mDeviceManager;
 
 	public enum State {
-		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SHOW
+		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW
 	}
 
 	private State mState = State.STANDBY;
@@ -97,9 +100,9 @@ public class MainActivity extends DroidGap {
 
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
-		//Log.d(TAG1, " User agent: "
-		//		+ webView.getSettings().getUserAgentString());
-		//Log.d(TAG1, " getSettings: " + webView.getSettings().toString());
+		// Log.d(TAG1, " User agent: "
+		// + webView.getSettings().getUserAgentString());
+		// Log.d(TAG1, " getSettings: " + webView.getSettings().toString());
 		// attach web view to debugging service
 		// DebugServiceClient dbgClient =
 		// DebugServiceClient.attachWebView(webView, this);
@@ -121,7 +124,6 @@ public class MainActivity extends DroidGap {
 		// loadPage("index.html");
 		// loadPage("test.html");
 		Log.d(TAG2, "MainActivity onCreate()--- ");
-		
 
 	}
 
@@ -168,23 +170,17 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals("video")) {
 			mCommand = mc.new VideoSearch(receiver, keywords);
+			mMode = VIDEO_MODE;
 			mTrgInactivity.resetTimer();
 		} else {
 
 			// (action.equals("picture"))
+			mMode = PICTURE_MODE;
 			mCommand = mc.new PictureSearch(receiver, keywords);
 			mTrgInactivity.resetTimer();
 		}
-		// if (action.equals("next"))
-		// mCommand = mc.new GuiNext(receiver);
-		// if (action.equals("home"))
-		// mCommand = mc.new GuiHome(receiver);
-		// if (action.equals("show"))
-		// mCommand = mc.new GuiShow(receiver);
-		// if (action.equals("back"))
-		// mCommand = mc.new GuiBack(receiver);
 
-		Log.d(TAG1,"VoiceHandler -- mState: "+mState);
+		Log.d(TAG1, "VoiceHandler -- mState: " + mState);
 		invoker.launch(mCommand);
 
 	}
@@ -192,93 +188,128 @@ public class MainActivity extends DroidGap {
 	private void movementHandler(MovementInput movementInput) {
 
 		String action = movementInput.getAction();
-		String notifications;
-		
+
 		// **** Next--------------------
-		if (action.equals("69")) { 
-			if (State.STANDBY == mState) {
-				mState = State.NOTIFICATIONS_DISPLAY;
-				notifications = mDeviceManager.getNotifications();
-				mCommand = mc.new GuiDisplayNotifications(receiver,
-						notifications);
-			}
-			// ----------
-			if (State.SEARCH_DISPLAY == mState) {
-				mCommand = mc.new GuiNext(receiver);
-				synchronized (mLock) {
-					invoker.setState(Invoker.State.PROCESSING);
-					mTrgInactivity.resetTimer();
-				}
-			}
+		if (action.equals("69")) {
+			onNext();
+
 		}
-		
-		
+
 		// **** Hold--------------------
 
-		if (action.equals("81")) { 
-			if (State.STANDBY == mState) {
-				mState = State.NOTIFICATIONS_DISPLAY;
-				notifications = mDeviceManager.getNotifications();
-				mCommand = mc.new GuiDisplayNotifications(receiver,
-						notifications);
-			}
-			// --------------------
-			if (State.NOTIFICATIONS_DISPLAY == mState) {
-				mCommand = mc.new Speak(receiver); // it's a left movement
-				synchronized (mLock) {
-					invoker.setState(Invoker.State.PROCESSING);
-					mTrgInactivity.resetTimer();
-				}
-			}
-
-			if (State.SEARCH_DISPLAY == mState) {
-				mCommand = mc.new GuiShow(receiver);
-				mState = State.SHOW;
-				synchronized (mLock) {
-					invoker.setState(Invoker.State.ACTIVE);
-					mTrgInactivity.resetTimer();
-				}
-			}
+		if (action.equals("81")) {
+			onHold();
 		}
-		
 
-		 // **** Back --------------------
+		// **** Back --------------------
 		if (action.equals("87")) {
-			if (State.STANDBY == mState) {
-				mState = State.NOTIFICATIONS_DISPLAY;
-				notifications = mDeviceManager.getNotifications();
-				mCommand = mc.new GuiDisplayNotifications(receiver,
-						notifications);
-			} else {
-				mCommand = mc.new GuiBack(receiver);
-				synchronized (mLock) {
-					invoker.setState(Invoker.State.PROCESSING);
-					mTrgInactivity.resetTimer();
-				}
-			}
+			onBack();
+
 		}
 
-
-		// if (action.equals("82")) {
-		// mCommand = mc.new GuiHome(receiver);
-		// synchronized (mLock) {
-		// invoker.setState(Invoker.State.PROCESSING);
-		// mTrgInactivity.resetTimer();
-		// }
-		// }
-		// if (action.equals("84")) {
-		// mCommand = mc.new GuiShow(receiver);
-		// synchronized (mLock) {
-		// invoker.setState(Invoker.State.ACTIVE);
-		// mTrgInactivity.resetTimer();
-		// }
-		// }
-
-		
 		Log.d(TAG1, "MainActivity - movementHandler -- action = " + action
-				+ " invoker.state: " + invoker.getState()+" mState: "+mState);
+				+ " invoker.state: " + invoker.getState() + " mState: "
+				+ mState + " mMode: " + mMode);
 
-		invoker.launch(mCommand);
+	}
+
+	private void onNext() {
+
+		switch (mState) {
+		case STANDBY:
+			mState = State.NOTIFICATIONS_DISPLAY;
+			String notifications = mDeviceManager.getNotifications();
+			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications, 13);
+			delayTriggers();
+			Log.d(TAG3,
+					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
+			invoker.launch(mCommand);
+			break;
+		case SEARCH_DISPLAY:
+			mCommand = mc.new GuiNext(receiver);
+			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiNext ");
+			delayTriggers();
+			invoker.launch(mCommand);
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	private void onHold() {
+
+		switch (mState) {
+		case STANDBY:
+			mState = State.NOTIFICATIONS_DISPLAY;
+			String notifications = mDeviceManager.getNotifications();
+			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications, 13);
+			delayTriggers();
+			Log.d(TAG3,
+					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
+			invoker.launch(mCommand);
+			break;
+		case NOTIFICATIONS_DISPLAY:
+			//mCommand = mc.new Speak(receiver);
+			onSpeak();
+			Log.d(TAG3, "MainActivity#mouvementHandler() - Speak ");
+			delayTriggers();
+			//invoker.launch(mCommand);
+			break;
+		case SEARCH_DISPLAY:
+			mCommand = mc.new GuiShow(receiver, mMode);
+			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiShow ");
+			mState = State.SHOW;
+			delayTriggers();
+			invoker.launch(mCommand);
+			break;
+
+		default:
+			break;
+		}
+
+	}
+
+	private void onBack() {
+
+		switch (mState) {
+		case STANDBY:
+			mState = State.NOTIFICATIONS_DISPLAY;
+			String notifications = mDeviceManager.getNotifications();
+			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications, 13);
+			delayTriggers();
+			Log.d(TAG3,
+					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
+			invoker.launch(mCommand);
+			break;
+		case SEARCH_DISPLAY:
+		case SEARCH_ERROR:
+			mState = State.STANDBY;
+			mCommand = mc.new GuiHome(receiver);
+			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiHome ");
+			delayTriggers();
+			invoker.launch(mCommand);
+			break;
+
+		case SHOW:
+			mState = State.SEARCH_DISPLAY;
+			mCommand = mc.new GuiBack(receiver);
+			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack ");
+			invoker.launch(mCommand);
+			break;
+
+		default:
+			break;
+		}
+
+	}
+
+	private void delayTriggers() {
+
+		synchronized (mLock) {
+			invoker.setState(Invoker.State.PROCESSING);
+			mTrgInactivity.resetTimer();
+		}
 
 	}
 
@@ -407,9 +438,11 @@ public class MainActivity extends DroidGap {
 					}
 
 				}
-				
-				Log.d(TAG1, "MainActivity - mTrgInactivity#update  -- action = " 
-						+ " invoker.state: " + invoker.getState()+" mState: "+mState);
+
+				Log.d(TAG1,
+						"MainActivity - mTrgInactivity#update  -- action = "
+								+ " invoker.state: " + invoker.getState()
+								+ " mState: " + mState);
 
 			}
 		});
@@ -568,6 +601,7 @@ public class MainActivity extends DroidGap {
 
 			}
 
+			mState = State.SEARCH_ERROR;
 			mCommand = mc.new GuiShowMessage(receiver, message);
 			invoker.launch(mCommand);
 
@@ -612,6 +646,12 @@ public class MainActivity extends DroidGap {
 
 		mTrgInactivity.resetTimer();
 		mTrgBlink.resetTimer();
+
+		if (State.SHOW == mState) {
+			mState = State.SEARCH_DISPLAY;
+		} else {
+			mState = State.STANDBY;
+		}
 	}
 
 	@Override

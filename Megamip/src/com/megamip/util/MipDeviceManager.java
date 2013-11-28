@@ -110,7 +110,7 @@ public class MipDeviceManager {
 		            	if (ssid.equals(scanResult.get(i).SSID)) {
 							index = i;
 						}
-		                Log.d(TAG3,"MipHttpClient - bloc try - nework SSID: "+scanResult.get(i).SSID+" strength: "+scanResult.get(i).level);//The db level of signal
+		             //   Log.d(TAG3,"MipHttpClient - bloc try - nework SSID: "+scanResult.get(i).SSID+" strength: "+scanResult.get(i).level);//The db level of signal
 		                
 		            }
                        

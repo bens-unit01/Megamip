@@ -201,17 +201,22 @@ function next(){
    
 }
 
-function show(){
+function show(mMode){
     
    // selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
    selectedItem = $("[data-wow-index ='"+ index+"'] a");
    var url = selectedItem.attr("href");
    console.log('show --- url: '+url);
+   if(mMode == 'video')
+   {
    try{  
      megaMipJSInterface.onLaunchVideo(url);
       }catch(error){
         console.log("show() -- bloc catch err: "+error);
       }
+    }else{
+        selectedItem.trigger("click");
+    }
     
 }
 
@@ -248,7 +253,7 @@ function hideCenterPanel() {
 }
 
 function log(displayString){
-    
+    hideEyes();showCenterPanel();
     $('#output').empty();
     $('#output').append(displayString);
     
@@ -280,6 +285,7 @@ function pictureSearch(keyword){
 
             var content = "";
             var newWidth = 0;
+            animationInit();
             clearScreen();
             hideEyes();
             showCenterPanel();
@@ -339,6 +345,11 @@ function videoSearch(keyword){
   $.getJSON(apiURL,
     function(data){
 
+
+      animationInit();
+      clearScreen();
+      hideEyes();
+      showCenterPanel();
                 var date;    
     var content = "";
                 var month, day, year;
@@ -437,15 +448,13 @@ function handleKeyboard(evt){
 
 	console.info('key');
 
-if(evt.keyCode != "87"){
+
 	try{  
      megaMipJSInterface.onKeyBoard(evt.keyCode);
       }catch(error){
         console.log("bloc catch err: "+error);
       }
-    }else{
-         back();
-    }
+ 
 }
 
 document.onkeyup = handleKeyboard;

@@ -88,9 +88,9 @@ public void guiHideMic(){
 		
 	}
   
- public void guiShow() {
+ public void guiShow(String mMode) {
 	
-	 callJsFunction("show", "");
+	 callJsFunction("show", mMode);
 	}
  
  public void guiShowMessage(String message){
@@ -102,7 +102,14 @@ public void guiHideMic(){
  public void guiDisplayNotifications(String notifications){
 	 callJsFunction("showNotifications",notifications);
  }
- 
+ public void guiDisplayNotifications2(String notifications,int period) {
+		
+
+	 final String callbackFunction = JAVASCRIPT + "showNotifications"+BRC_OPEN+notifications+"', "+period+")" ;
+		Log.d(TAG3 ,callbackFunction);
+		loadURL(callbackFunction); 	 
+		
+ }
 
 public void guiBlink() {
 	callJsFunction("blink","");
@@ -186,6 +193,8 @@ public void guiBlink() {
          }
      });
  }
+
+
 
 
 

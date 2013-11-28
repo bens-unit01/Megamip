@@ -136,14 +136,20 @@ public class GuiHome implements Command{
 public class GuiShow implements Command{
 		
 		private MipReceiver mipReceiver;
+		private String mMode;
 		  // constructors 
 		 private GuiShow() {}
 		 public GuiShow(MipReceiver mipReceiver){
 			 this.mipReceiver = mipReceiver;
+			 mMode = null;
 		}
 		 
+		public GuiShow(MipReceiver mipReceiver, String mMode) {
+			this.mipReceiver = mipReceiver;
+			this.mMode = mMode;
+		}
 		public void execute(){
-			mipReceiver.guiShow();
+			mipReceiver.guiShow(mMode);
 		}
 		 
 	 
@@ -188,15 +194,43 @@ public class GuiDisplayNotifications implements Command{
 	
 		 private MipReceiver mipReceiver;
 		 private String notifications;
+		
 		  // constructors 
 		 private GuiDisplayNotifications() {}
 		 public GuiDisplayNotifications(MipReceiver mipReceiver, String notifications){
 			 this.mipReceiver = mipReceiver;
 			 this.notifications = notifications;
+			
 		}
+		
 		 
 		public void execute(){
 			mipReceiver.guiDisplayNotifications(notifications);
+		}
+ 
+ 
+}	
+
+
+
+public class GuiDisplayNotifications2 implements Command{
+	
+		 private MipReceiver mipReceiver;
+		 private String notifications;
+		 private int period;
+		
+		  // constructors 
+		 private GuiDisplayNotifications2() {}
+		 public GuiDisplayNotifications2(MipReceiver mipReceiver, String notifications,int period){
+			 this.mipReceiver = mipReceiver;
+			 this.notifications = notifications;
+			 this.period = period;
+			
+		}
+		
+		 
+		public void execute(){
+			mipReceiver.guiDisplayNotifications2(notifications, period);
 		}
  
  
