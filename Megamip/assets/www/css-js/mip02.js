@@ -5,24 +5,30 @@
 
 // notifications display methods 
 
-function showNotifications(notifications){
+function showNotifications1(notifications){
 
+if(animationLock){
   setNotifications(notifications);
 
 $next = $('#eyes');
 $active = $('#notifications');
 
   transition( $active, $next);
-	var timerId = setInterval(function(){
+	 timerIdShowNotifications1 = setTimeout(function(){
    animationInit();
-    clearInterval(timerId);
+    console.log('showNotifications1() - end timer: '+timerIdShowNotifications1);
+    //clearTimeout(timerId);
+   
 	}, 5000);
-
+console.log('showNotifications1() - begin timer: '+timerIdShowNotifications1);
+}
 
 }
-function showNotifications(notifications, period){
-
-  setNotifications(notifications);
+function showNotifications2(notifications, period){
+ 
+animationLock = 0;  // we block the other animations 
+resetTimers();
+setNotifications(notifications);
 
 $next = $('#eyes');
 $active = $('#notifications');
@@ -32,11 +38,15 @@ $active = $('#notifications');
  $next.addClass('not-active');
  $active.removeClass('not-active');
  $active.addClass('active');
-  var timerId = setInterval(function(){
+ 
+ timerIdShowNotifications2 = setTimeout(function(){
    animationInit();
-    clearInterval(timerId);
+     console.log('showNotifications2() - end timer: '+timerIdShowNotifications2);
+  //  clearTimeout(timerId);
+    animationLock = 1;   // unblock the other animations
+   
   }, period*1000);
-
+ console.log('showNotifications2() - begin timer: '+timerIdShowNotifications2);
 
 }
 function setNotifications(notifications){
@@ -53,6 +63,7 @@ function setNotifications(notifications){
   displayDate();
   $emails = $('#emails');
   $emails.html(newEmails);
+  console.log('setNotifications');
 }
 
 
@@ -69,7 +80,7 @@ function notificationsInit(){
 
    $battery.addClass('notfct-left-00');
    $wifi.addClass('notfct-right-00');
-
+console.log('notificationsInit');
 }
 
 
@@ -93,7 +104,7 @@ function displayDate(){
 
       $date.html(output1+"<br/>"+output2);
 
-      
+      console.log('displayDate');
   
 }
 
@@ -150,7 +161,7 @@ $signal = $("#signal-level");
     }
 
 
-
+  console.log('displayBatteryAndWifi');
 }
 
 
@@ -158,15 +169,18 @@ $signal = $("#signal-level");
 
 //------------------------------------------------
 function blink(){
-	$next = $('#eyes');
-	$active = $('#next');
+  if(animationLock){
+  	$next = $('#eyes');
+  	$active = $('#next');
 
-  transition( $active, $next);
-	var timerId = setInterval(function(){
-   animationInit();
-    clearInterval(timerId);
-	}, 2200);
-	
+    transition( $active, $next);
+    timerIdBlink = setTimeout(function(){
+     animationInit();
+     console.log('blink end timer: '+timerIdBlink);
+     // clearInterval(timerId);
+  	}, 2200);
+	}
+  console.log('blink begin timer: '+timerIdBlink);
 }
 
 

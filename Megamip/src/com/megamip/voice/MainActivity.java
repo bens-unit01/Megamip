@@ -96,7 +96,7 @@ public class MainActivity extends DroidGap {
 
 		// super.loadUrl("content://jsHybugger.org/file:///android_asset/www/test2.html");
 		super.onCreate(savedInstanceState);
-		// super.loadUrl("file:///android_asset/www/index.html");
+		// super.loadUrl("http://www.accenture.com/ca-en/Pages/index.aspx");
 
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
@@ -162,10 +162,6 @@ public class MainActivity extends DroidGap {
 			keywords += args[i] + " ";
 		}
 
-		Log.d(TAG3, "WebViewActivity launch - call of callJsFunction ");
-
-		// if(action.equals("picture"))
-		// mCommand = mc.new GuiShow(receiver);
 		mState = State.SEARCH_DISPLAY;
 
 		if (action.equals("video")) {
@@ -174,13 +170,12 @@ public class MainActivity extends DroidGap {
 			mTrgInactivity.resetTimer();
 		} else {
 
-			// (action.equals("picture"))
 			mMode = PICTURE_MODE;
 			mCommand = mc.new PictureSearch(receiver, keywords);
 			mTrgInactivity.resetTimer();
 		}
 
-		Log.d(TAG1, "VoiceHandler -- mState: " + mState);
+		Log.d(TAG1, "MainActivity#voiceHandler - mState: " + mState);
 		invoker.launch(mCommand);
 
 	}
@@ -219,7 +214,8 @@ public class MainActivity extends DroidGap {
 		case STANDBY:
 			mState = State.NOTIFICATIONS_DISPLAY;
 			String notifications = mDeviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications, 13);
+			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
+					INACTIVITY_PERIOD);
 			delayTriggers();
 			Log.d(TAG3,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
@@ -243,24 +239,26 @@ public class MainActivity extends DroidGap {
 		case STANDBY:
 			mState = State.NOTIFICATIONS_DISPLAY;
 			String notifications = mDeviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications, 13);
+			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
+					INACTIVITY_PERIOD);
 			delayTriggers();
 			Log.d(TAG3,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
 			invoker.launch(mCommand);
 			break;
 		case NOTIFICATIONS_DISPLAY:
-			//mCommand = mc.new Speak(receiver);
+			// mCommand = mc.new Speak(receiver);
 			onSpeak();
 			Log.d(TAG3, "MainActivity#mouvementHandler() - Speak ");
 			delayTriggers();
-			//invoker.launch(mCommand);
+			// invoker.launch(mCommand);
 			break;
 		case SEARCH_DISPLAY:
 			mCommand = mc.new GuiShow(receiver, mMode);
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiShow ");
 			mState = State.SHOW;
 			delayTriggers();
+			invoker.setState(Invoker.State.ACTIVE);
 			invoker.launch(mCommand);
 			break;
 
@@ -276,7 +274,8 @@ public class MainActivity extends DroidGap {
 		case STANDBY:
 			mState = State.NOTIFICATIONS_DISPLAY;
 			String notifications = mDeviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications, 13);
+			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
+					INACTIVITY_PERIOD);
 			delayTriggers();
 			Log.d(TAG3,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
@@ -284,6 +283,7 @@ public class MainActivity extends DroidGap {
 			break;
 		case SEARCH_DISPLAY:
 		case SEARCH_ERROR:
+		case NOTIFICATIONS_DISPLAY:
 			mState = State.STANDBY;
 			mCommand = mc.new GuiHome(receiver);
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiHome ");
@@ -293,6 +293,7 @@ public class MainActivity extends DroidGap {
 
 		case SHOW:
 			mState = State.SEARCH_DISPLAY;
+			invoker.setState(Invoker.State.PROCESSING);
 			mCommand = mc.new GuiBack(receiver);
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack ");
 			invoker.launch(mCommand);
@@ -420,9 +421,9 @@ public class MainActivity extends DroidGap {
 						pushServerHandler(e.getParams());
 
 					}
-				});
+				}); 
 
-		// triggers
+		// triggers ---------------------------------------------------
 
 		mTrgInactivity.addEventListener(new MipTimer.MipTimerListener() {
 
@@ -430,8 +431,9 @@ public class MainActivity extends DroidGap {
 			public void update() {
 
 				if (invoker.getState() != Invoker.State.ACTIVE) {
-
-					invoker.launch(mc.new GuiHome(receiver));
+					if (mState != State.STANDBY && mState != State.NOTIFICATIONS_DISPLAY) {
+						invoker.launch(mc.new GuiHome(receiver));
+					}
 					mState = State.STANDBY;
 					synchronized (mLock) {
 						invoker.setState(Invoker.State.IDLE);

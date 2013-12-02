@@ -230,7 +230,7 @@ public class GuiDisplayNotifications2 implements Command{
 		
 		 
 		public void execute(){
-			mipReceiver.guiDisplayNotifications2(notifications, period);
+			mipReceiver.guiDisplayNotifications(notifications, period);
 		}
  
  

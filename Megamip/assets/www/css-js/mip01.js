@@ -5,10 +5,14 @@
 
 // var global
 
-var index = 0;
+var index = 0; 
 var selectedItem = null;
-var timerId = null;
+var timerIdShowNotifications1 = null;
+var timerIdShowNotifications2 = null;
+var timerIdBlink = null;
 var player = null;
+var animationLock = 1;
+
 
 //----------animations 
 
@@ -62,7 +66,7 @@ transition($next, $active);
 
     }, 4500);
    
-   
+  // console.log('sequence01 '+timerId1+' '+timerId2+' '+timerId3);
    
     }
 
@@ -84,6 +88,7 @@ function setFrameTo(n){
   $("#next").addClass('not-active eyes-state-01');
   $("#notifications").addClass('not-active eyes-state-08');
   $("#shrink").addClass('not-active');
+ // console.log('setFrameTo');
 
  }
     function shrink(){
@@ -98,6 +103,7 @@ function setFrameTo(n){
 
    $next.transition({ scale:1.2, delay: 200});
    $next.transition({ scale:0.5});
+   console.log('shrink');
    }
 
    function transition( $active, $next){
@@ -105,6 +111,7 @@ function setFrameTo(n){
      $next.fadeTo(2000, 0.25);
      $active.fadeTo(2000, 1);
      $next.fadeOut();
+   //  console.log('transition ');
 
     }
 
@@ -122,6 +129,8 @@ function setFrameTo(n){
         $("#next").addClass('not-active eyes-state-01');
         $("#notifications").addClass('not-active eyes-state-08');
         $("#shrink").addClass('not-active');
+
+    //    console.log('animationInit');
     }
 
 
@@ -141,6 +150,7 @@ function loop(firstFrame,lastFrame){
     }
 
     },300);
+ // console.log('loop()');
 }
    
 //------------------
@@ -152,7 +162,7 @@ $eyes.removeClass("eyes-state-00").addClass("eyes-state-01");
  var $active = $eyes;
  var i=1;var j=0;
 // starting the mic animation 
- timerId = setInterval(function(){
+ var timerId = setInterval(function(){
   j=i; j++;
     if( i != 7){
  $eyes.removeClass("eyes-state-0"+i);
@@ -170,7 +180,7 @@ i++;
   }
 
 },300);
-
+//console.log('showMic() ...');
 }
 
 
@@ -181,6 +191,7 @@ function hideMic(){
     var currentClass = $( "#eyes" ).attr('class');
    $( "#eyes" ).removeClass(currentClass).addClass('eyes-state-00');
    timerId = null;
+  // console.log('hideMic');
  }
 }
 function next(){
@@ -197,7 +208,7 @@ function next(){
              .removeClass("not-selected")
              .addClass("selected");
     
- 
+ //console.log('next');
    
 }
 
@@ -217,7 +228,7 @@ function show(mMode){
     }else{
         selectedItem.trigger("click");
     }
-    
+  //  console.log('show');
 }
 
 function go(){
@@ -225,14 +236,14 @@ function go(){
    var keyword = $("#txt_input").val();
    $("#results").empty();
    googleSearch( keyword);
-     
+ //   console.log('go');
 }
 
 function clearScreen(){
     
     index = 0;
     $("#results").empty();
-  
+ // console.log('clearScreen');
 }
 function back(){    
    $.fancybox.close()    
@@ -241,25 +252,39 @@ function back(){
 
 function showEyes(){
  $("#eyes").slideDown("slow");
+ animationInit();
+ animationLock = 1;
+ console.log("showEyes ");
+ //clearTimeout(timerId);
+resetTimers();
+// console.log('showEyes');
+
 }
 function hideEyes(){
-  $("#eyes").slideUp("slow");   
+  $("#eyes").slideUp("slow"); 
+ // console.log('hideEyes');  
 }
 function showCenterPanel(){
-     $("#principal").slideDown("slow");   
+     $("#principal").slideDown("slow");  
+  //   console.log('showCenterPanel'); 
 }
 function hideCenterPanel() {
      $("#principal").slideUp("slow");   
+  //   console.log('hideCenterPanel');
 }
 
 function log(displayString){
     hideEyes();showCenterPanel();
     $('#output').empty();
     $('#output').append(displayString);
-    
+ //   console.log('log');
 }
 
-
+function resetTimers(){
+ clearTimeout(timerIdBlink);
+ clearTimeout(timerIdShowNotifications1);
+ clearTimeout(timerIdShowNotifications2);
+}
 
 
 //--------------------------------------------
@@ -446,7 +471,7 @@ function onYouTubePlayerAPIReady(){
 
 function handleKeyboard(evt){
 
-	console.info('key');
+	console.info('handleKeyboard() - key: '+evt.keyCode);
 
 
 	try{  

@@ -100,12 +100,12 @@ public void guiHideMic(){
  
  
  public void guiDisplayNotifications(String notifications){
-	 callJsFunction("showNotifications",notifications);
+	 callJsFunction("showNotifications1",notifications);
  }
- public void guiDisplayNotifications2(String notifications,int period) {
+ public void guiDisplayNotifications(String notifications,int period) {
 		
 
-	 final String callbackFunction = JAVASCRIPT + "showNotifications"+BRC_OPEN+notifications+"', "+period+")" ;
+	 final String callbackFunction = JAVASCRIPT + "showNotifications2"+BRC_OPEN+notifications+"', "+period+")" ;
 		Log.d(TAG3 ,callbackFunction);
 		loadURL(callbackFunction); 	 
 		
