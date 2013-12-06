@@ -65,15 +65,7 @@
             android:name="com.megamip.voice.WebViewActivity"
             android:theme="@android:style/Theme.NoTitleBar" />
         
-        <!--  jsHybugger WebView content provider -->
-		<provider android:name="org.jshybugger.DebugContentProvider"
-				  android:exported="false"
-				  android:authorities="jsHybugger.org" />
-		  
-		<!--  jsHybugger debug service -->
-		<service android:name="org.jshybugger.DebugService"
-				 android:exported="false"
-				 android:enabled="true"/>
+       
 		
 		
     </application>

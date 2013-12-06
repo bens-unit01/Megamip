@@ -17,6 +17,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.method.KeyListener;
 import android.util.Log;
@@ -29,10 +30,13 @@ import android.view.ViewGroup.LayoutParams;
 public class MipVideoPlayer extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener, OnKeyListener {
 
 	public final String DEVELOPER_KEY = "AIzaSyBUpZz3SZw6LGRP7Dfwd3K_Zq6VBXccpHI";
-	public static final String TAG3 = "A3";
+	public static final String TAG3 = "A3", TAG6 = "A6";
 	private YouTubePlayerView mYoutubePlayerView;
 	private YouTubePlayer mYoutubePlayer;
 	private String url;
+	private static MipVideoPlayer mMipVideoPlayer;
+	private static Handler mVideoPlayerHandler;
+	
 	
 	
 	@Override
@@ -40,6 +44,8 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements YouTubePlayer
 		// TODO Auto-generated method stub
 		super.onCreate(arg0);
 		this.setContentView(R.layout.mip_video_player);
+		mMipVideoPlayer = this;
+		mVideoPlayerHandler = new Handler();
 		Intent intent = getIntent();
 		url =  getYoutubeVideoId(intent.getStringExtra("url"));
 	
@@ -97,18 +103,61 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements YouTubePlayer
         Log.d(TAG3,"MipVideoPlayer#getYoutubeVideoId video_id: "+video_id);
         return video_id;
     }
+	
+	
+	
+	//---------------------------------------------------------------------
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
 		
+	//	mYoutubePlayer.release();
+	//	Intent i = new Intent(this, MainActivity.class);
+	//	i.setAction(Intent.ACTION_MAIN);
+	//	i.addCategory(Intent.CATEGORY_LAUNCHER);
+	//	startActivity(i);
+		
+		 Log.d(TAG6,"MipVideoPlayer#onKeyDown ");
+		 this.finish();
+		return false;
+	}
+	
+	@Override
+	public void onBackPressed() {
+	// do something on back.
 		mYoutubePlayer.release();
 		Intent i = new Intent(this, MainActivity.class);
 	//	i.setAction(Intent.ACTION_MAIN);
 	//	i.addCategory(Intent.CATEGORY_LAUNCHER);
 		startActivity(i);
 		
-		 Log.d(TAG3,"MipVideoPlayer#onKeyDown ");
+		 Log.d(TAG6,"MipVideoPlayer#onBackPressed ");
 		 this.finish();
-		return false;
+	return;
+	}
+	
+	public static MipVideoPlayer getInstanceMipVideoPlayer(){
+		return mMipVideoPlayer;
+	}
+	
+	public static Handler getInstanceVideoPlayerHandler(){
+		return mVideoPlayerHandler;
+	}
+	public void terminate(){
+		
+		mYoutubePlayer.pause();
+		mYoutubePlayer.release();
+//		Intent i = new Intent(this, MainActivity.class);
+//		i.setAction(Intent.ACTION_MAIN);
+//		i.addCategory(Intent.CATEGORY_LAUNCHER);
+//		startActivity(i);
+		//this.finish();
+//		this.finish();
+//		super.onPause();
+//		super.onDestroy();
+		Intent returnIntent = new Intent();
+		setResult(RESULT_CANCELED, returnIntent);        
+		finish();
+		Log.d(TAG6,"MipVideoPlayer#terminate ");
 	}
 	
 }

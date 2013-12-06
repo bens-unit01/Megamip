@@ -12,6 +12,7 @@ var timerIdShowNotifications2 = null;
 var timerIdBlink = null;
 var player = null;
 var animationLock = 1;
+var mode = 'picture';
 
 
 //----------animations 
@@ -126,7 +127,7 @@ function setFrameTo(n){
         $("#shrink").removeAttr('style');
         
         $("#eyes").addClass('active eyes-state-00');
-        $("#next").addClass('not-active eyes-state-01');
+        $("#next").addClass('not-active eyes-state-10');
         $("#notifications").addClass('not-active eyes-state-08');
         $("#shrink").addClass('not-active');
 
@@ -214,6 +215,7 @@ function next(){
 
 function show(mMode){
     
+    mode = mMode;
    // selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
    selectedItem = $("[data-wow-index ='"+ index+"'] a");
    var url = selectedItem.attr("href");
@@ -246,7 +248,10 @@ function clearScreen(){
  // console.log('clearScreen');
 }
 function back(){    
-   $.fancybox.close()    
+  if(mode = 'picture'){
+   $.fancybox.close() 
+   console.log('fancybox.close');
+   }   
 }
 
 
@@ -265,11 +270,11 @@ function hideEyes(){
  // console.log('hideEyes');  
 }
 function showCenterPanel(){
-     $("#principal").slideDown("slow");  
+     $("#principal-2").slideDown("slow");  
   //   console.log('showCenterPanel'); 
 }
 function hideCenterPanel() {
-     $("#principal").slideUp("slow");   
+     $("#principal-2").slideUp("slow");   
   //   console.log('hideCenterPanel');
 }
 

@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Credentials;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
@@ -50,7 +52,8 @@ public class MainActivity extends DroidGap {
 
 	public static Context context; // reference vers l'activité MainActivity
 	protected static final int RESULT_SPEECH = 1;
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3",
+			TAG6 = "A6";
 	public static final String PICTURE_MODE = "picture";
 	public static final String VIDEO_MODE = "video";
 	private String mMode = PICTURE_MODE;
@@ -79,6 +82,8 @@ public class MainActivity extends DroidGap {
 	private int mBlinkCounter = 1;
 	private Object mLock = new Object();
 	private MipDeviceManager mDeviceManager;
+	private MediaPlayer mMediaPlayer;
+	private Intent mediaplayerIntent;
 
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW
@@ -119,6 +124,8 @@ public class MainActivity extends DroidGap {
 		mDeviceManager = new MipDeviceManager(context);
 		mTrgInactivity = new MipTimer(INACTIVITY_PERIOD, 1);
 		mTrgBlink = new MipTimer(BLINK_PERIOD, 2);
+
+		mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
 		setListeners();
 
 		// loadPage("index.html");
@@ -185,19 +192,28 @@ public class MainActivity extends DroidGap {
 		String action = movementInput.getAction();
 
 		// **** Next--------------------
-		if (action.equals("69")) {
+		if (action.equals("82")) {
+			// if (action.equals("69")) {
+			mMediaPlayer.start();
+			Log.d(TAG6, "onNext");
 			onNext();
 
 		}
 
 		// **** Hold--------------------
 
-		if (action.equals("81")) {
+		if (action.equals("72")) {
+			// if (action.equals("81")) {
+			mMediaPlayer.start();
+			Log.d(TAG6, "onHold");
 			onHold();
 		}
 
 		// **** Back --------------------
-		if (action.equals("87")) {
+		if (action.equals("76")) {
+			// if (action.equals("87")) {
+			mMediaPlayer.start();
+			Log.d(TAG6, "onBack");
 			onBack();
 
 		}
@@ -294,9 +310,30 @@ public class MainActivity extends DroidGap {
 		case SHOW:
 			mState = State.SEARCH_DISPLAY;
 			invoker.setState(Invoker.State.PROCESSING);
-			mCommand = mc.new GuiBack(receiver);
-			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack ");
-			invoker.launch(mCommand);
+			if (mMode.equals(VIDEO_MODE)) {
+				// this.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN,
+				// KeyEvent.KEYCODE_BACK));
+				// this.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,
+				// KeyEvent.KEYCODE_BACK));
+//				MipVideoPlayer.getInstanceVideoPlayerHandler().post(
+//						new Runnable() {
+//
+//							@Override
+//							public void run() {
+//								MipVideoPlayer.getInstanceMipVideoPlayer()
+//										.terminate();
+//
+//							}
+//						});
+
+				finishActivity(1);
+				Log.d(TAG6, "back event fired");
+			} else {
+				mCommand = mc.new GuiBack(receiver);
+				invoker.launch(mCommand);
+			}
+			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "+mState);
+			
 			break;
 
 		default:
@@ -377,18 +414,18 @@ public class MainActivity extends DroidGap {
 
 		// Listener for the usb device
 
-		// mipUsbDevice = MipUsbDevice.getInstance(context);
-		//
-		// mipUsbDevice.addUsbListener(new UsbListener() {
-		//
-		// @Override
-		// public void onNotify(UsbEvent e) {
-		// byte[] data = e.getData();
-		// movementHandler(new MovementInput(data));
-		//
-		// }
-		//
-		// });
+		mipUsbDevice = MipUsbDevice.getInstance(context);
+
+		mipUsbDevice.addUsbListener(new UsbListener() {
+
+			@Override
+			public void onNotify(UsbEvent e) {
+				byte[] data = e.getData();
+				movementHandler(new MovementInput(data));
+				Log.d(TAG3, " GESTURE/USB INPUT  --- data: "+(new String(data)));
+			}
+
+		});
 
 		// Listener for the mic device
 
@@ -421,7 +458,7 @@ public class MainActivity extends DroidGap {
 						pushServerHandler(e.getParams());
 
 					}
-				}); 
+				});
 
 		// triggers ---------------------------------------------------
 
@@ -431,7 +468,8 @@ public class MainActivity extends DroidGap {
 			public void update() {
 
 				if (invoker.getState() != Invoker.State.ACTIVE) {
-					if (mState != State.STANDBY && mState != State.NOTIFICATIONS_DISPLAY) {
+					if (mState != State.STANDBY
+							&& mState != State.NOTIFICATIONS_DISPLAY) {
 						invoker.launch(mc.new GuiHome(receiver));
 					}
 					mState = State.STANDBY;
@@ -479,20 +517,6 @@ public class MainActivity extends DroidGap {
 
 	// onSpeak is called through the javascript interface : megaMipJSInterface
 	public void onSpeak() {
-		// TODO Auto-generated method stub
-		/*
-		 * Intent intent = new Intent(
-		 * RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-		 * 
-		 * intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
-		 * 
-		 * try { startActivityForResult(intent, RESULT_SPEECH);
-		 * 
-		 * } catch (ActivityNotFoundException a) { Toast t =
-		 * Toast.makeText(getApplicationContext(),
-		 * "Ops! Your device doesn't support Speech to Text",
-		 * Toast.LENGTH_SHORT); t.show(); }
-		 */
 
 		handler.post(new Runnable() {
 			public void run() {
@@ -517,16 +541,9 @@ public class MainActivity extends DroidGap {
 	class SpeechListener implements RecognitionListener {
 		public void onReadyForSpeech(Bundle params) {
 
-			/*
-			 * WindowManager.LayoutParams lWindowParams = new
-			 * WindowManager.LayoutParams();
-			 * lWindowParams.copyFrom(getDialog().getWindow.getAttributes());
-			 */
 			mSpeakNowDlg.show();
 			mSpeakNowDlg.showListening();
-			// mCommand = mc.new GuiShowMic(receiver); // we launch the mic
-			// animation on the GUI
-			// invoker.launch(mCommand);
+
 			Log.d(TAG2, "onReadyForSpeech");
 		}
 
@@ -707,10 +724,12 @@ public class MainActivity extends DroidGap {
 
 	public void onLaunchVideo(String url) {
 
-		Intent intent = new Intent(this, MipVideoPlayer.class);
-		intent.setFlags(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE);
-		intent.putExtra("url", url);
-		startActivity(intent);
+		mediaplayerIntent = new Intent(this, MipVideoPlayer.class);
+		mediaplayerIntent
+				.setFlags(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE);
+		mediaplayerIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+		mediaplayerIntent.putExtra("url", url);
+		startActivityForResult(mediaplayerIntent, 1);
 
 	}
 
