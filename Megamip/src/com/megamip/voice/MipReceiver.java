@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.megamip.control.ArduinoCtrl;
 import com.megamip.control.ArduinoCtrlMM;
+import com.megamip.util.JettyServer;
 import com.megamip.voice.MainActivity;
 
 public class MipReceiver {
@@ -150,30 +151,62 @@ public void guiBlink() {
  
  
  // Megamip motion methods 
- 
+ //  drive(speedLeft, speedRight, distanceLeft, distanceRight);
  public void mipMoveForward(){
 		Log.d(TAG2, "MipReceiver moveForward ...");
 	 arduinoCtrl.drive(70, 70, 5, 5);
  }
  
+ public void mipMoveForward(String params) {
+	 String[] input = params.split(JettyServer.SPLIT_CHAR);
+	 int speed = Integer.parseInt(input[2]);
+	 int time = Integer.parseInt(input[3]);
+	 Log.d(TAG2, "MipReceiver moveForward - speed: "+speed+" time: "+time);
+	 arduinoCtrl.drive(speed,speed,time, time);
+}
  
- public void mipMoveBackward(){
+
+
+public void mipMoveBackward(){
 	 arduinoCtrl.drive(-70, -70, 5, 5);
 	 Log.d(TAG2, "MipReceiver moveBackward ...");
  }
- 
+ public void mipMoveBackward(String params) {
+	 String[] input = params.split(JettyServer.SPLIT_CHAR);
+	 int speed = Integer.parseInt(input[2]);
+	 int time = Integer.parseInt(input[3]);
+	 Log.d(TAG2, "MipReceiver moveBackward - speed: "+speed+" time: "+time);
+	 arduinoCtrl.drive(-speed,-speed,time, time);
+	
+		
+}
  
  public void mipMoveLeft(){
 	 arduinoCtrl.drive(-70, 70, 5, 5);
 	 Log.d(TAG2, "MipReceiver moveLeft ...");
  }
  
+ public void mipMoveLeft(String params) {
+	 String[] input = params.split(JettyServer.SPLIT_CHAR);
+	 int speed = Integer.parseInt(input[2]);
+	 int time = Integer.parseInt(input[3]);
+	 Log.d(TAG2, "MipReceiver moveLeft - speed: "+speed+" time: "+time);
+	 arduinoCtrl.drive(-speed,speed,time, time);
+		
+}
  
  public void mipMoveRight(){
 	 arduinoCtrl.drive(70, -70, 5, 5);
 	 Log.d(TAG2, "MipReceiver moveRight ...");
  }
  
+ public void mipMoveRight(String params){
+	 String[] input = params.split(JettyServer.SPLIT_CHAR);
+	 int speed = Integer.parseInt(input[2]);
+	 int time = Integer.parseInt(input[3]);
+	 Log.d(TAG2, "MipReceiver moveRight - speed: "+speed+" time: "+time);
+	 arduinoCtrl.drive(speed,-speed,time, time);
+ }
  // methodes utilitaires
  
  public void callJsFunction(String functionName,String args){
@@ -193,6 +226,12 @@ public void guiBlink() {
          }
      });
  }
+
+
+
+
+
+
 
 
 

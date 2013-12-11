@@ -53,7 +53,7 @@ public class MainActivity extends DroidGap {
 	public static Context context; // reference vers l'activité MainActivity
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3",
-			TAG6 = "A6";
+			TAG6 = "A6",  TAG7 = "A7";
 	public static final String PICTURE_MODE = "picture";
 	public static final String VIDEO_MODE = "video";
 	private String mMode = PICTURE_MODE;
@@ -358,25 +358,29 @@ public class MainActivity extends DroidGap {
 		Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward")) {
-			mCommand = mc.new MipMoveForward(receiver);
+			//mCommand = mc.new MipMoveForward(receiver);
+			mCommand = mc.new MipMoveForward2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveForward");
 		}
 
 		if (input[1].equals("moveBackward")) {
-			mCommand = mc.new MipMoveBackward(receiver);
+			//mCommand = mc.new MipMoveBackward(receiver);
+			mCommand = mc.new MipMoveBackward2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveBackward");
 		}
 
 		if (input[1].equals("moveLeft")) {
-			mCommand = mc.new MipMoveLeft(receiver);
+			//mCommand = mc.new MipMoveLeft(receiver);
+			mCommand = mc.new MipMoveLeft2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveLeft");
 		}
 
 		if (input[1].equals("moveRight")) {
-			mCommand = mc.new MipMoveRight(receiver);
+			//mCommand = mc.new MipMoveRight(receiver);
+			mCommand = mc.new MipMoveRight2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveRight");
 		}
@@ -422,7 +426,7 @@ public class MainActivity extends DroidGap {
 			public void onNotify(UsbEvent e) {
 				byte[] data = e.getData();
 				movementHandler(new MovementInput(data));
-				Log.d(TAG3, " GESTURE/USB INPUT  --- data: "+(new String(data)));
+				Log.d(TAG7, "> "+(new String(data)));
 			}
 
 		});

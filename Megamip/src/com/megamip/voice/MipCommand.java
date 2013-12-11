@@ -272,16 +272,30 @@ public class MipMoveForward implements Command{
 		}
 		 
 }	
-
+public class MipMoveForward2 implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String params;
+	  // constructors 
+	 private MipMoveForward2() {}
+	 public MipMoveForward2(MipReceiver mipReceiver, String params){
+		 this.mipReceiver = mipReceiver;
+		 this.params = params;
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveForward(params);
+	}
+	 
+}	
 public class MipMoveBackward implements Command{
 	
 	 private MipReceiver mipReceiver;
-	 private String message;
 	  // constructors 
 	 private MipMoveBackward() {}
 	 public MipMoveBackward(MipReceiver mipReceiver){
 		 this.mipReceiver = mipReceiver;
-		 
+	
 	}
 	 
 	public void execute(){
@@ -289,7 +303,22 @@ public class MipMoveBackward implements Command{
 	}
 	 
 }	
-
+public class MipMoveBackward2 implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String params;
+	  // constructors 
+	 private MipMoveBackward2() {}
+	 public MipMoveBackward2(MipReceiver mipReceiver, String params){
+		 this.mipReceiver = mipReceiver;
+		 this.params = params;
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveBackward(params);
+	}
+	 
+}	
 
 public class MipMoveLeft implements Command{
 	
@@ -307,7 +336,22 @@ public class MipMoveLeft implements Command{
 	}
 	 
 }	
-
+public class MipMoveLeft2 implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String params;
+	  // constructors 
+	 private MipMoveLeft2() {}
+	 public MipMoveLeft2(MipReceiver mipReceiver, String params){
+		 this.mipReceiver = mipReceiver;
+		 this.params = params;
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveLeft(params);
+	}
+	 
+}	
 
 
 public class MipMoveRight implements Command{
@@ -323,6 +367,22 @@ public class MipMoveRight implements Command{
 	 
 	public void execute(){
 		mipReceiver.mipMoveRight();
+	}
+	 
+}	
+public class MipMoveRight2 implements Command{
+	
+	 private MipReceiver mipReceiver;
+	 private String params;
+	  // constructors 
+	 private MipMoveRight2() {}
+	 public MipMoveRight2(MipReceiver mipReceiver, String params){
+		 this.mipReceiver = mipReceiver;
+		 this.params = params;
+	}
+	 
+	public void execute(){
+		mipReceiver.mipMoveRight(params);
 	}
 	 
 }	
