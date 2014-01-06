@@ -1,6 +1,5 @@
 package com.megamip.voice;
 
-
 // code of this class is partially inspired from :http://code.google.com/p/usb-serial-for-android/source/browse/UsbSerialLibrary/src/com/hoho/android/usbserial/util/SerialInputOutputManager.java
 /**
  * 
@@ -13,20 +12,19 @@ package com.megamip.voice;
  */
 
 import android.content.Context;
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.*;
-import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.*;
-
-
 
 public class MipUsbDevice {
 
@@ -38,75 +36,174 @@ public class MipUsbDevice {
 	private UsbSerialDriver mUsbDriver;
 	private SerialInputOutputManager mSerialIoManager;
 	private static MipUsbDevice mMipUsbDevice = null;
-	
+	private static MipUsbDevice mMipUsbDeviceUno = null;
+	private static MipUsbDevice mMipUsbDeviceNano = null;
+	// public static final String NANO = "nano", UNO = "uno";
+	public static final int NANO_PRODUCT_ID = 24577, UNO_PRODUCT_ID = 67;
+
+	public enum DeviceType {
+		NANO, UNO
+	}
+
 	private final ExecutorService mExecutor = Executors
 			.newSingleThreadExecutor();
-	
-	
-	// constructors 
-	
-       public static MipUsbDevice getInstance(Context context){
-    	   if(null == mMipUsbDevice){
-    		   mMipUsbDevice = new MipUsbDevice(context);
-    	   }
-    	   
-    	 
-    	   
-    	   return mMipUsbDevice;
-       }
-		private MipUsbDevice() {
-			super();
+
+	// constructors
+
+	public static MipUsbDevice getInstance(Context context) {
+		if (null == mMipUsbDevice) {
+			mMipUsbDevice = new MipUsbDevice(context);
 		}
 
-		private MipUsbDevice(Context context) {
-			super();
+		return mMipUsbDevice;
+	}
 
-			mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-			mUsbDriver = UsbSerialProber.acquire(mUsbManager);
-			Log.d(TAG, "MipUsbDevice constructor - before try - mSerialDevice = "+mUsbDriver+" mUsbManager"+mUsbManager);
-			
-			try {
-				mUsbDriver.open();
-				mUsbDriver.setBaudRate(115200);
-				Log.d(TAG,"MipUsbDevice  - driver open - baudrate = 115200");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Log.e(TAG,"MipUsbDevice - constructor - bloc catch ex = "+e.getMessage());
-			}catch(NullPointerException e){
-				
-				e.printStackTrace();
-				Log.e(TAG,"MipUsbDevice - constructor - bloc catch ex = "+e.getMessage());
+	public static MipUsbDevice getInstance(Context context, DeviceType type) {
+
+		MipUsbDevice returnValue = (type == DeviceType.UNO) ? mMipUsbDeviceUno
+				: mMipUsbDeviceNano;
+		if (null == mMipUsbDeviceUno && type == DeviceType.UNO) {
+			mMipUsbDeviceUno = new MipUsbDevice(context, DeviceType.UNO);
+			returnValue = mMipUsbDeviceUno;
+		} else if (null == mMipUsbDeviceNano && type == DeviceType.NANO) {
+			mMipUsbDeviceNano = new MipUsbDevice(context, DeviceType.NANO);
+			returnValue = mMipUsbDeviceNano;
+		}
+
+		return returnValue;
+	}
+
+	private MipUsbDevice() {
+		super();
+	}
+
+	private MipUsbDevice(Context context, DeviceType type) {
+		super();
+
+		mUsbManager = (UsbManager) context
+				.getSystemService(Context.USB_SERVICE);
+		HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
+		UsbDevice usbDevice = null;
+		for (UsbDevice element : deviceList.values()) {
+
+			if (NANO_PRODUCT_ID == element.getProductId()
+					&& type == DeviceType.NANO) {
+				usbDevice = element;
 			}
-		//	stopIoManager();
-			startIoManager();
+
+			if (UNO_PRODUCT_ID == element.getProductId()
+					&& type == DeviceType.UNO) {
+				usbDevice = element;
+			}
 		}
+
+		mUsbDriver = UsbSerialProber.acquire(mUsbManager, usbDevice);
+		// mUsbDriver = UsbSerialProber.acquire(mUsbManager);
+		Log.d(TAG, "MipUsbDevice constructor - before try - mSerialDevice = "
+				+ mUsbDriver + " mUsbManager" + mUsbManager);
+
+		try {
+			mUsbDriver.open();
+			mUsbDriver.setBaudRate(115200);
+			Log.d(TAG, "MipUsbDevice  - driver open - baudrate = 115200");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.e(TAG,
+					"MipUsbDevice - constructor - bloc catch ex = "
+							+ e.getMessage());
+		} catch (NullPointerException e) {
+
+			e.printStackTrace();
+			Log.e(TAG,
+					"MipUsbDevice - constructor - bloc catch ex = "
+							+ e.getMessage());
+		}
+		// stopIoManager();
+		startIoManager();
+	}
+
+	private MipUsbDevice(Context context) {
+		super();
+
+		mUsbManager = (UsbManager) context
+				.getSystemService(Context.USB_SERVICE);
+		UsbAccessory[] a = mUsbManager.getAccessoryList();
+		HashMap<String, UsbDevice> b = mUsbManager.getDeviceList();
+		mUsbDriver = UsbSerialProber.acquire(mUsbManager);
+		Log.d(TAG, "MipUsbDevice constructor - before try - mSerialDevice = "
+				+ mUsbDriver + " mUsbManager" + mUsbManager);
+
+		try {
+			mUsbDriver.open();
+			mUsbDriver.setBaudRate(115200);
+			Log.d(TAG, "MipUsbDevice  - driver open - baudrate = 115200");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.e(TAG,
+					"MipUsbDevice - constructor - bloc catch ex = "
+							+ e.getMessage());
+		} catch (NullPointerException e) {
+
+			e.printStackTrace();
+			Log.e(TAG,
+					"MipUsbDevice - constructor - bloc catch ex = "
+							+ e.getMessage());
+		}
+		// stopIoManager();
+		startIoManager();
+	}
+
+	/*
+	 * this method checks if we have a usb connection to the NANO and the UNO
+	 */
+
+	public static boolean isUSBConnected(Context context) {
+
+		boolean unoConnected = false;
+		boolean nanoConnected = false;
+		UsbManager usbManager = (UsbManager) context
+				.getSystemService(Context.USB_SERVICE);
+
+		HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
+		for (UsbDevice element : deviceList.values()) {
+
+			if (NANO_PRODUCT_ID == element.getProductId()) {
+				nanoConnected = true;
+			}
+
+			if (UNO_PRODUCT_ID == element.getProductId()) {
+				unoConnected = true;
+			}
+		}
+
+		return unoConnected && nanoConnected;
+	}
 
 	private final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
 
 		@Override
 		public void onRunError(Exception e) {
-			Log.d(TAG, "UsbDevice onRunError "+e.getMessage());
+			Log.d(TAG, "UsbDevice onRunError " + e.getMessage());
 		}
 
 		@Override
 		public void onNewData(final byte[] data) {
 
 			// ---- notifyAll
-		   
+
 			Log.d(TAG, "UsbDevice onNewData -----  ");
-			
+
 			for (UsbListener b : mListeListeners) {
-				
+
 				b.onNotify(new UsbEvent(this, data));
 				Log.d(TAG, "UsbDevice  onNewData 2  ");
 			}
 		}
 	};
 
-	
-	
-	// inner interface to implement the Observer design pattern 
+	// inner interface to implement the Observer design pattern
 
 	public interface UsbListener {
 
@@ -114,8 +211,6 @@ public class MipUsbDevice {
 
 	}
 
-	
-	
 	public class UsbEvent {
 		private Object sender;
 		private byte[] data;
@@ -133,8 +228,6 @@ public class MipUsbDevice {
 			// TODO Auto-generated constructor stub
 		}
 
-	
-		
 		public UsbEvent(Object sender, byte[] data) {
 			super();
 			Log.d(TAG, "UsbDevice 3 ");
@@ -146,15 +239,12 @@ public class MipUsbDevice {
 
 	public void addUsbListener(UsbListener usbListener) {
 		mListeListeners.add(usbListener);
-		Log.d(TAG, "UsbDevice 4 mSerialDriver = "+mUsbDriver);
+		Log.d(TAG, "UsbDevice 4 mSerialDriver = " + mUsbDriver);
 
 	}
-	
-	
 
 	//
 
-	
 	private void startIoManager() {
 		if (mUsbDriver != null) {
 			Log.i(TAG, "Starting io manager ..");
@@ -164,67 +254,69 @@ public class MipUsbDevice {
 			Log.d(TAG, "UsbDevice 6");
 		}
 	}
-	
-	 private void stopIoManager() {
-	        if (mSerialIoManager != null) {
-	            Log.i(TAG, "Stopping io manager ..");
-	            mSerialIoManager.stop();
-	            mSerialIoManager = null;
-	        }
-	    }
 
-	 
-	 // public methods 
+	private void stopIoManager() {
+		if (mSerialIoManager != null) {
+			Log.i(TAG, "Stopping io manager ..");
+			mSerialIoManager.stop();
+			mSerialIoManager = null;
+		}
+	}
+
+	// public methods
 	public void pause() {
-		
+
 		stopIoManager();
-		if(mUsbDriver != null)
-			try{
-					mUsbDriver.close( );
-					
-	}catch(IOException e){}
-	
-	mUsbDriver = null;
+		if (mUsbDriver != null)
+			try {
+				mUsbDriver.close();
+
+			} catch (IOException e) {
+			}
+
+		mUsbDriver = null;
 	}
 
 	public void resume() {
-	
-		 mUsbDriver = UsbSerialProber.acquire(mUsbManager);
-	        Log.d(TAG, "Resumed, mSerialDevice=" + mUsbDriver);
-	        if (mUsbDriver == null) {
-	           
-	        } else {
-	            try {
-	                mUsbDriver.open();
-	                mUsbDriver.setBaudRate(115200);
-	            } catch (IOException e) {
-	                Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
-	               
-	                try {
-	                    mUsbDriver.close();
-	                } catch (IOException e2) {
-	                    // Ignore.
-	                }
-	                mUsbDriver = null;
-	                return;
-	            }
-	     
-	        }
+
+		mUsbDriver = UsbSerialProber.acquire(mUsbManager);
+		Log.d(TAG, "Resumed, mSerialDevice=" + mUsbDriver);
+		if (mUsbDriver == null) {
+
+		} else {
+			try {
+				mUsbDriver.open();
+				mUsbDriver.setBaudRate(115200);
+			} catch (IOException e) {
+				Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
+
+				try {
+					mUsbDriver.close();
+				} catch (IOException e2) {
+					// Ignore.
+				}
+				mUsbDriver = null;
+				return;
+			}
+
+		}
 		stopIoManager();
 		startIoManager();
-		
+
 	}
 
-	public void writeAsync(byte[] data){
-		//mSerialIoManager.writeAsync(data);
+	public void writeAsync(byte[] data) {
+		// mSerialIoManager.writeAsync(data);
 		try {
 			mUsbDriver.write(data, 1000);
-			Log.d(TAG,"writeAsync - data:"+data[0]+" "+data[1]);
+			Log.d(TAG, "writeAsync - data:" + data[0] + " " + data[1]);
 		} catch (IOException e) {
-		
-			Log.d(TAG,"MipUsbDevice - writeAsync - block catch ex:"+e.getMessage());
+
+			Log.d(TAG,
+					"MipUsbDevice - writeAsync - block catch ex:"
+							+ e.getMessage());
 		}
-		
+
 	}
 
 }

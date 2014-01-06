@@ -37,6 +37,7 @@ import com.megamip.util.MipDeviceManager;
 import com.megamip.util.MipTimer;
 import com.megamip.view.MipVideoPlayer;
 import com.megamip.view.SpeakNow;
+import com.megamip.voice.MipUsbDevice.DeviceType;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
 import com.megamip.voice.MipUsbDevice.UsbListener;
 import com.megamip.telepresence.MegamipLSClient;
@@ -53,7 +54,7 @@ public class MainActivity extends DroidGap {
 	public static Context context; // reference vers l'activité MainActivity
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3",
-			TAG6 = "A6",  TAG7 = "A7";
+			TAG6 = "A6", TAG7 = "A7";
 	public static final String PICTURE_MODE = "picture";
 	public static final String VIDEO_MODE = "video";
 	private String mMode = PICTURE_MODE;
@@ -64,7 +65,7 @@ public class MainActivity extends DroidGap {
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
-	private MipUsbDevice mipUsbDevice;
+	private MipUsbDevice mipUsbDeviceNano;
 	// private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";
 	private static final String HTML_ROOT = "file:///android_asset/www/";
 	private Command mCommand;
@@ -86,10 +87,10 @@ public class MainActivity extends DroidGap {
 	private Intent mediaplayerIntent;
 
 	public enum State {
-		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW
+		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, STARTING, STARTED
 	}
 
-	private State mState = State.STANDBY;
+	private State mState = State.STARTING;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -112,22 +113,27 @@ public class MainActivity extends DroidGap {
 		// DebugServiceClient dbgClient =
 		// DebugServiceClient.attachWebView(webView, this);
 
-		invoker = new Invoker();
-		receiver = new MipReceiver(handler, webView, this);
-		mc = new MipCommand();
+		if (MipUsbDevice.isUSBConnected(context)) {
+			invoker = new Invoker();
+			receiver = new MipReceiver(handler, webView, this);
+			mc = new MipCommand();
 
-		mJettyServer = new JettyServer();
-		mMegamipLSClient = new MegamipLSClient();
+			mJettyServer = new JettyServer();
+			mMegamipLSClient = new MegamipLSClient();
 
-		mSpeakNowDlg = new SpeakNow("Speak now !!", context);
+			mSpeakNowDlg = new SpeakNow("Speak now !!", context);
 
-		mDeviceManager = new MipDeviceManager(context);
-		mTrgInactivity = new MipTimer(INACTIVITY_PERIOD, 1);
-		mTrgBlink = new MipTimer(BLINK_PERIOD, 2);
+			mDeviceManager = new MipDeviceManager(context);
+			mTrgInactivity = new MipTimer(INACTIVITY_PERIOD, 1);
+			mTrgBlink = new MipTimer(BLINK_PERIOD, 2);
 
-		mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
-		setListeners();
+			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
 
+			Log.d(TAG2, "setting the listeners ... ");
+			setListeners();
+		} else {
+			Log.d(TAG2, "not all usb devices are connected ... ");
+		}
 		// loadPage("index.html");
 		// loadPage("test.html");
 		Log.d(TAG2, "MainActivity onCreate()--- ");
@@ -315,16 +321,16 @@ public class MainActivity extends DroidGap {
 				// KeyEvent.KEYCODE_BACK));
 				// this.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,
 				// KeyEvent.KEYCODE_BACK));
-//				MipVideoPlayer.getInstanceVideoPlayerHandler().post(
-//						new Runnable() {
-//
-//							@Override
-//							public void run() {
-//								MipVideoPlayer.getInstanceMipVideoPlayer()
-//										.terminate();
-//
-//							}
-//						});
+				// MipVideoPlayer.getInstanceVideoPlayerHandler().post(
+				// new Runnable() {
+				//
+				// @Override
+				// public void run() {
+				// MipVideoPlayer.getInstanceMipVideoPlayer()
+				// .terminate();
+				//
+				// }
+				// });
 
 				finishActivity(1);
 				Log.d(TAG6, "back event fired");
@@ -332,8 +338,9 @@ public class MainActivity extends DroidGap {
 				mCommand = mc.new GuiBack(receiver);
 				invoker.launch(mCommand);
 			}
-			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "+mState);
-			
+			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "
+					+ mState);
+
 			break;
 
 		default:
@@ -358,28 +365,28 @@ public class MainActivity extends DroidGap {
 		Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward")) {
-			//mCommand = mc.new MipMoveForward(receiver);
+			// mCommand = mc.new MipMoveForward(receiver);
 			mCommand = mc.new MipMoveForward2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveForward");
 		}
 
 		if (input[1].equals("moveBackward")) {
-			//mCommand = mc.new MipMoveBackward(receiver);
+			// mCommand = mc.new MipMoveBackward(receiver);
 			mCommand = mc.new MipMoveBackward2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveBackward");
 		}
 
 		if (input[1].equals("moveLeft")) {
-			//mCommand = mc.new MipMoveLeft(receiver);
+			// mCommand = mc.new MipMoveLeft(receiver);
 			mCommand = mc.new MipMoveLeft2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveLeft");
 		}
 
 		if (input[1].equals("moveRight")) {
-			//mCommand = mc.new MipMoveRight(receiver);
+			// mCommand = mc.new MipMoveRight(receiver);
 			mCommand = mc.new MipMoveRight2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveRight");
@@ -418,15 +425,15 @@ public class MainActivity extends DroidGap {
 
 		// Listener for the usb device
 
-		mipUsbDevice = MipUsbDevice.getInstance(context);
+		mipUsbDeviceNano = MipUsbDevice.getInstance(context, DeviceType.NANO);
 
-		mipUsbDevice.addUsbListener(new UsbListener() {
+		mipUsbDeviceNano.addUsbListener(new UsbListener() {
 
 			@Override
 			public void onNotify(UsbEvent e) {
 				byte[] data = e.getData();
 				movementHandler(new MovementInput(data));
-				Log.d(TAG7, "> "+(new String(data)));
+				Log.d(TAG7, "> " + (new String(data)));
 			}
 
 		});
@@ -516,6 +523,8 @@ public class MainActivity extends DroidGap {
 
 			}
 		});
+
+		mState = State.STARTED;
 
 	}
 
@@ -664,16 +673,18 @@ public class MainActivity extends DroidGap {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		mMegamipLSClient.onResume();
-		Log.d(TAG2, "MainActivity onResume()--- ");
+		if (State.STARTED == mState) {
+			mMegamipLSClient.onResume();
+			Log.d(TAG2, "MainActivity onResume()--- ");
 
-		mTrgInactivity.resetTimer();
-		mTrgBlink.resetTimer();
+			mTrgInactivity.resetTimer();
+			mTrgBlink.resetTimer();
 
-		if (State.SHOW == mState) {
-			mState = State.SEARCH_DISPLAY;
-		} else {
-			mState = State.STANDBY;
+			if (State.SHOW == mState) {
+				mState = State.SEARCH_DISPLAY;
+			} else {
+				mState = State.STANDBY;
+			}
 		}
 	}
 
