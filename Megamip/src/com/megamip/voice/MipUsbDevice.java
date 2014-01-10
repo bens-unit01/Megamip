@@ -107,7 +107,6 @@ public class MipUsbDevice {
 			mUsbDriver.setBaudRate(115200);
 			Log.d(TAG, "MipUsbDevice  - driver open - baudrate = 115200");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Log.e(TAG,
 					"MipUsbDevice - constructor - bloc catch ex = "
@@ -139,7 +138,6 @@ public class MipUsbDevice {
 			mUsbDriver.setBaudRate(115200);
 			Log.d(TAG, "MipUsbDevice  - driver open - baudrate = 115200");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Log.e(TAG,
 					"MipUsbDevice - constructor - bloc catch ex = "
@@ -225,7 +223,6 @@ public class MipUsbDevice {
 
 		public UsbEvent() {
 			super();
-			// TODO Auto-generated constructor stub
 		}
 
 		public UsbEvent(Object sender, byte[] data) {

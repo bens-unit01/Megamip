@@ -114,7 +114,6 @@ public class JettyServer {
 			Log.i(TAG3,"server started ...");
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Log.i(TAG3,"block catch ...ex: "+e.getMessage());
 		}

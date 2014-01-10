@@ -105,14 +105,12 @@ public class LsListener implements LightstreamerListener {
 	@Override
 	public void onLostUpdate(int phase, int itemPos, String itemName,
 			int lostUpdates) {
-		// TODO Auto-generated method stub
 		  Log.d(TAG5, "onLostUpdate");
 		
 	}
 
 	@Override
 	public void onReconnectRequest(int phase) {
-		// TODO Auto-generated method stub
 		 Log.d(TAG5, "onReconnectRequest");
 		
 	}

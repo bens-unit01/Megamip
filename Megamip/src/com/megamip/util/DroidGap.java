@@ -38,7 +38,6 @@ public class DroidGap extends CordovaActivity {
 	public static final int USER_DESKTOP = 1;
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
-			// TODO Auto-generated method stub
 			super.onCreate(savedInstanceState);
 			super.loadUrl("file:///android_asset/www/index.html");
 			WebSettings settings = appView.getSettings();

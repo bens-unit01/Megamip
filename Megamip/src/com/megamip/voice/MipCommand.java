@@ -386,4 +386,42 @@ public class MipMoveRight2 implements Command{
 	}
 	 
 }	
+
+public class VisorMoveUp implements Command{
+	
+	private MipReceiver mipReceiver;
+	
+	// constructors 
+	private VisorMoveUp(){}
+	public VisorMoveUp(MipReceiver mipReceiver){
+		this.mipReceiver = mipReceiver;
+	}
+
+	@Override
+	public void execute() {
+		 mipReceiver.visorMoveUp();
+		
+	}
+	
+}
+
+public class VisorMoveDown implements Command{
+	
+	private MipReceiver mipReceiver;
+	
+	// constructors 
+	private VisorMoveDown(){}
+	public VisorMoveDown(MipReceiver mipReceiver){
+		this.mipReceiver = mipReceiver;
+	}
+
+	@Override
+	public void execute() {
+		mipReceiver.visorMoveDown();
+		
+	}
+	
+}
+
+
 }

@@ -118,7 +118,7 @@ public void guiBlink() {
 }
  public void speak(){
 	 
-		// TODO Auto-generated method stub
+	 // FIXME  some cleaning here !!
 	/*	Intent intent = new Intent(
 				RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
@@ -227,8 +227,16 @@ public void mipMoveBackward(){
      });
  }
 
+public void visorMoveUp() {
+	// TODO completer visorMoveUp
+	
+}
 
 
+public void visorMoveDown() {
+	// TODO completer visorMoveDown
+	
+}
 
 
 

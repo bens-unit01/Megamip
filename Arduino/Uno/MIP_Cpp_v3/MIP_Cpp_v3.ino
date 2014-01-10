@@ -14,7 +14,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 // Declaring General Variables
 float dt;                              
-const float pi = 3.1415926535;     
+const float pi = 3.1415926535;  
+byte buffer[60];
+float test1 =0.0, test2 =0.0, test3= 0.0;
+int counter =1;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////SETUP//////////////////////////////////////////////
@@ -27,7 +30,7 @@ void setup(){
   Initialize_Estimator(); 
   Initialize_Controller();
   //  Initialize_Arduino_Hard_Reset();
-  Initialize_Bluetooth();              //Comment if not using bluetooth
+ // Initialize_Bluetooth();              //Comment if not using bluetooth
   Initialize_Faster_PWM_Freq();        //Micros() command will not display time correctly when this is initalized
 //  Initialize_2ms_Timer_Interrupt();  //Set timer interrupt (control loop) to 2ms
   Initialize_4ms_Timer_Interrupt();    //Set timer interrupt (control loop) to 4ms
@@ -53,12 +56,31 @@ void loop(){
   Bluetooth_Update();          //Gets new bluetooth commands  
 
 /////Prints debugging outputs for each of the functions.
-//  Bluetooth_Outputs();        
-//  Encoder_Outputs();
-  IMU_Outputs();
-  Serial.println("-");
- // Estimator_Outputs();
-//  RC_Outputs();
- // Controller_Outputs();
+//  Bluetooth_Outputs(); 
+
+//* Encoder_Outputs();
+// IMU_Outputs();
+  //Serial.println("");
+ //* Estimator_Outputs();
+// Serial.println("");
+
+ //* Controller_Outputs();
+/*counter++;
+if(counter % 1000 == 0){
+ RC_Outputs();
+   Serial.println("");
+}
+*/
+
+      
+ 
+ if((test1 != 0.0 || test2 != 0.0)){
+     Serial.print(test1, 5);
+     Serial.print(" - ");
+     Serial.print(test2, 5);
+     Serial.print(" - ");
+     Serial.println(test3);
+ }
+ 
 }
 

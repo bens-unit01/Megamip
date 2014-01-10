@@ -26,43 +26,54 @@ void Initialize_Bluetooth(){
 //Function to update Bluetooth values with new one coming in from device
 void Bluetooth_Update(){
 //Bluetooth Control
-  if (Serial.available()) 
+  if (Serial.available() >= 5) 
   {
-    i=0;
-    Serial.flush();
-    BlueLoop=1;
-    while(Serial.available()){
-        BluetoothData[i] = Serial.read();
-        BlueIntData[i] = float(BluetoothData[i]);
-        if (BluetoothData[0] != 125){
-          Serial.flush();
-          i=0;
-          return;
-        }
-        i++;
-        if (i>5){
-          Serial.flush();
-          i=0;
-          return;
-        }
-    }
+//    i=0;
+//    Serial.flush();
+//    BlueLoop=1;
+//    while(Serial.available()){
+//        BluetoothData[i] = Serial.read();
+//        BlueIntData[i] = float(BluetoothData[i]);
+//        if (BluetoothData[0] != 125){
+//          Serial.flush();
+//          i=0;
+//          return;
+//        }
+//        i++;
+//        if (i>5){
+//          Serial.flush();
+//          i=0;
+//          return;
+//        }
+//    }
+   
+       i = 0; 
+       while(Serial.available()){
+       buffer[i] = Serial.read();
+       i ++;
+       }
+       
+      mipHandler();
+  
   }
   else{return;}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //Translating Bluetooth signal into turn command 
-float get_Turn(){
-  turn = BlueIntData[1]/scaleTurn;
-  return turn;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//Translating Bluetooth signal into driving forward and backward command 
-float get_Forward(){
-  forward = BlueIntData[2]/scaleForward;
-  return forward;
-}
+//float get_Turn(){
+// // turn = BlueIntData[1]/scaleTurn;
+// turn = BlueIntData[1];
+//  return turn;
+//}
+//
+/////////////////////////////////////////////////////////////////////////////////
+////Translating Bluetooth signal into driving forward and backward command 
+//float get_Forward(){
+// // forward = BlueIntData[2]/scaleForward;
+//  forward = BlueIntData[2];
+//  return forward;
+//}
 
 ///////////////////////////////////////////////////////////////////////////////
 //Bluetooth Debugging Outputs

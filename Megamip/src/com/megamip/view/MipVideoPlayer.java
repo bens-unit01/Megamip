@@ -41,7 +41,6 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements YouTubePlayer
 	
 	@Override
 	protected void onCreate(Bundle arg0) {
-		// TODO Auto-generated method stub
 		super.onCreate(arg0);
 		this.setContentView(R.layout.mip_video_player);
 		mMipVideoPlayer = this;

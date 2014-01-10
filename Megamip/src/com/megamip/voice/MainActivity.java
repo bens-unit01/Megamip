@@ -132,7 +132,9 @@ public class MainActivity extends DroidGap {
 			Log.d(TAG2, "setting the listeners ... ");
 			setListeners();
 		} else {
-			Log.d(TAG2, "not all usb devices are connected ... ");
+			Log.d(TAG2, "Not all usb devices are connected ... closing the app ");
+			this.finish();
+			
 		}
 		// loadPage("index.html");
 		// loadPage("test.html");
@@ -198,8 +200,8 @@ public class MainActivity extends DroidGap {
 		String action = movementInput.getAction();
 
 		// **** Next--------------------
-		if (action.equals("82")) {
-			// if (action.equals("69")) {
+		if (action.equals("76")) {
+			// if (action.equals("69")) { // keyboard input ...
 			mMediaPlayer.start();
 			Log.d(TAG6, "onNext");
 			onNext();
@@ -216,7 +218,7 @@ public class MainActivity extends DroidGap {
 		}
 
 		// **** Back --------------------
-		if (action.equals("76")) {
+		if (action.equals("82")) {
 			// if (action.equals("87")) {
 			mMediaPlayer.start();
 			Log.d(TAG6, "onBack");
@@ -413,7 +415,6 @@ public class MainActivity extends DroidGap {
 				intent.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 				startActivity(intent);
 			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -449,7 +450,6 @@ public class MainActivity extends DroidGap {
 
 			@Override
 			public void onNotify(ServerEvent e) {
-				// TODO Auto-generated method stub
 				Log.d(TAG3, " onNotify fired - jettyListener ... 0");
 				jettyHandler(e.getParams());
 
@@ -671,7 +671,6 @@ public class MainActivity extends DroidGap {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		if (State.STARTED == mState) {
 			mMegamipLSClient.onResume();
@@ -718,7 +717,6 @@ public class MainActivity extends DroidGap {
 					"MaintActivity - getNotifications - bloc try - notifications: "
 							+ notifications);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 
 			Log.d(TAG3, "getNewEmails - bloc catch e: " + e.getMessage());
 		}

@@ -29,12 +29,20 @@ void SLC_Control(){
   }
   else if (dt == 0.004){
     rp = rp + get_Forward();
-    float p= 1/1.18; //prescaler
+//    float p= 1/1.18; //prescaler
+//    ep[0] = rp-phi;
+//    rt[0] = (0.24223)*ep[0] + (-0.24178)*ep[1] - (-0.95876)*rt[1];
+//    et[0] = p*rt[0]-theta;
+//    u[0]  = (-81.2181)*et[0] + (159.8679)*et[1] + (-78.6576)*et[2] - (-1.647)*u[1] - (0.64683)*u[2];
+//    ep[1]=ep[0];  et[2]=et[1];  et[1]=et[0];  rt[1]=rt[0];  u[2]=u[1];  u[1]=u[0];   //Saving variables for next run through controls
+float p= 1/1.18; // p= 1/1.25; //prescaler
     ep[0] = rp-phi;
-    rt[0] = (0.24223)*ep[0] + (-0.24178)*ep[1] - (-0.95876)*rt[1];
+    rt[0] = (0.25222)*ep[0] + (-0.25176)*ep[1] - (-0.95876)*rt[1]; //rt[0] = (0.29701)*ep[0] + (-0.29674)*ep[1] - (-0.97916)*rt[1];
     et[0] = p*rt[0]-theta;
-    u[0]  = (-81.2181)*et[0] + (159.8679)*et[1] + (-78.6576)*et[2] - (-1.647)*u[1] - (0.64683)*u[2];
+    u[0] = (-61.592)*et[0] + (121.1771)*et[1] + (-59.5927)*et[2] - (-1.647)*u[1] - (0.64683)*u[2];
+    test3 = u[0]; //u[0]  = (-54.1668)*et[0] + (107.4724)*et[1] + (-53.3068)*et[2] - (-1.8065)*u[1] - (0.80645)*u[2];
     ep[1]=ep[0];  et[2]=et[1];  et[1]=et[0];  rt[1]=rt[0];  u[2]=u[1];  u[1]=u[0];   //Saving variables for next run through controls
+   
   }
   else if (dt == 0.005){
   //No Controller design for 5ms yet

@@ -19,7 +19,6 @@ public class VoiceInput extends MipInput implements Serializable {
 	
 	public VoiceInput() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	
 	public VoiceInput(String input){

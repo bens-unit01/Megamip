@@ -6,13 +6,15 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 // Declaring Variables for Accel
 //USER NEEDS TO CHANGE DEPENDING ON ROBOT
-const float Vref = 5.002;                    
+//const float Vref = 5.002;  
+const float Vref = 4.91; 
 const float AccelSensitivity = 0.8;
-float VxAccelZeroG = 1.592459016;            //Accel Zero Gravity Voltage in y
-float VzAccelZeroG = 1.343147541;            //Accel Zero Gravity Voltage in z
+float VxAccelZeroG = 1.50; //1.592459016;            //Accel Zero Gravity Voltage in y
+float VzAccelZeroG = 1.54; // 1.343147541;            //Accel Zero Gravity Voltage in z
+//float VzAccelZeroG = 2.271142697;
 const float xAccelDir = -1;                  //Accounts for sensor orientation 1 or -1
 const float zAccelDir = 1;                   //Accounts for sensor orientation 1 or -1
-float AccelOffset= 1*pi/180;                 //Makes the vertical zero degrees.
+float AccelOffset= -1*pi/180;                 //Makes the vertical zero degrees.
 
 float xAccel,zAccel;                         
 float xAccelCount = 0;
@@ -21,7 +23,7 @@ float zAccelCount = 0;
 // Declaring Variables for Gyro
 //USER NEEDS TO CHANGE DEPENDING ON ROBOT
 const float GyroSensitivity = 0.002;
-float VyGyroZeroG = 1.236745152;            //Gyro Zero rotation Voltage in y
+float VyGyroZeroG = 1.255; //1.236745152;            //Gyro Zero rotation Voltage in y
 const float yGyroDir = 1;                   //Accounts for sensor orientation 1 or -1
 
 float yGyro;                                
