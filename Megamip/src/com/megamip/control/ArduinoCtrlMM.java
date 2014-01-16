@@ -14,6 +14,7 @@ public class ArduinoCtrlMM implements ArduinoCtrl{
 	public static final String TAG3 = "A3";
 	
 	private MipUsbDevice mipUsbDeviceUno;
+	private MipUsbDevice mipUsbDeviceNano;
 	private Context context;
 	
 	// constructor 
@@ -21,6 +22,7 @@ public class ArduinoCtrlMM implements ArduinoCtrl{
 	public ArduinoCtrlMM(Context context) {
 		super();
 		mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
+		mipUsbDeviceNano =  MipUsbDevice.getInstance(context, DeviceType.NANO);
 		this.context = context;
 	}
 	
@@ -113,6 +115,22 @@ public class ArduinoCtrlMM implements ArduinoCtrl{
 		/*
 		UsbCommunication.removeUsbListener(context);
 		*/
+	}
+	@Override
+	public void engageVisor() {
+		 mipUsbDeviceNano.writeAsync(new byte[]{
+					UsbCommand.START_BYTE,
+					UsbCommand.ENGAGE_VISOR,
+					UsbCommand.END_BYTE});
+		
+	}
+	@Override
+	public void disengageVisor() {
+		 mipUsbDeviceNano.writeAsync(new byte[]{
+					UsbCommand.START_BYTE,
+					UsbCommand.DISENGAGE_VISOR,
+					UsbCommand.END_BYTE});
+		
 	}
 
 }

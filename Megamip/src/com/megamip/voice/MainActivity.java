@@ -87,7 +87,7 @@ public class MainActivity extends DroidGap {
 	private Intent mediaplayerIntent;
 
 	public enum State {
-		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, STARTING, STARTED
+		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
 	}
 
 	private State mState = State.STARTING;
@@ -190,7 +190,7 @@ public class MainActivity extends DroidGap {
 			mTrgInactivity.resetTimer();
 		}
 
-		Log.d(TAG1, "MainActivity#voiceHandler - mState: " + mState);
+		Log.d(TAG6, "MainActivity#voiceHandler - mState: " + mState);
 		invoker.launch(mCommand);
 
 	}
@@ -226,7 +226,7 @@ public class MainActivity extends DroidGap {
 
 		}
 
-		Log.d(TAG1, "MainActivity - movementHandler -- action = " + action
+		Log.d(TAG6, "action = " + action
 				+ " invoker.state: " + invoker.getState() + " mState: "
 				+ mState + " mMode: " + mMode);
 
@@ -281,6 +281,15 @@ public class MainActivity extends DroidGap {
 			mCommand = mc.new GuiShow(receiver, mMode);
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiShow ");
 			mState = State.SHOW;
+			delayTriggers();
+			invoker.setState(Invoker.State.ACTIVE);
+			invoker.launch(mCommand);
+			break;
+			
+		case SHOW:
+			mCommand = mc.new VisorMoveUp(receiver);
+			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveUp ");
+			mState = State.PROJECTING;
 			delayTriggers();
 			invoker.setState(Invoker.State.ACTIVE);
 			invoker.launch(mCommand);
@@ -343,6 +352,15 @@ public class MainActivity extends DroidGap {
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "
 					+ mState);
 
+			break;
+			
+		case PROJECTING:
+			mState = State.SHOW;			
+			mCommand = mc.new VisorMoveDown(receiver);
+			delayTriggers();
+			Log.d(TAG3,
+					"MainActivity#mouvementHandler() - VisorMoveDown ");
+			invoker.launch(mCommand);
 			break;
 
 		default:

@@ -31,6 +31,8 @@ public int reportEncoders(int refreshRate);
 public void listen();
 
 public void stopListen();
+public void engageVisor();
+public void disengageVisor();
 
 
 
