@@ -210,7 +210,7 @@ public class MipReceiver {
 		arduinoCtrl.drive(speed, -speed, time, time);
 	}
 
-	// methodes utilitaires
+	// methodes utilitaires    
 
 	public void callJsFunction(String functionName, String args) {
 		String json = "";

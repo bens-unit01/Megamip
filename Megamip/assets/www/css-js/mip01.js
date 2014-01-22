@@ -203,7 +203,7 @@ function next(){
              .addClass("not-selected");
       // select the next one  
         index++;
-         index = index %8;
+         index = index %6;
          
      $("[data-wow-index ='"+ index+"']")
              .removeClass("not-selected")
@@ -322,16 +322,15 @@ function pictureSearch(keyword){
 
       
           
-            for(var i = 0; i < json.responseData.results.length; i++){
+            for(var i = 0; i < 6; i++){
                            
                  content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
                                           "<a href='"+json.responseData.results[i].url+"'>"+
                                           "<img src='"+json.responseData.results[i].tbUrl + "'/>"+
                                           "</a>"+
-                                          "<p>"+json.responseData.results[i].visibleUrl+"</p><br/>"+
-                           "<span style='font-weight:bold;' >Size: </span>"+json.responseData.results[i].width+"x"+json.responseData.results[i].height+
+                                     
                                           "</div>";
-                                  if(i == 3){
+                                  if(i == 2){
                                       content +="<br/>"
                                   }
                                       
@@ -383,16 +382,15 @@ function videoSearch(keyword){
                 var date;    
     var content = "";
                 var month, day, year;
-      for(var i = 0; i < data.feed.entry.length; i++){
+      for(var i = 0; i < 6; i++){
                         date = new Date(data.feed.entry[i].published.$t); 
                         month = date.getMonth()+1;
                         day = date.getDate();
                         year = date.getFullYear();
       content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
                                   "<a class='fancybox fancybox.iframe' href='"+data.feed.entry[i].media$group.media$content[0].url+"'>"+
-                                  "<img src='"+data.feed.entry[i].media$group.media$thumbnail[2].url + "'/>"+"</a><br/><br/>"+
-                                    "<p>Published: "+day+"-"+month+"-"+year+"</p><br/></div>";
-                                  ;
+                                  "<img src='"+data.feed.entry[i].media$group.media$thumbnail[2].url + "'/>"+"</a></div>";
+                                  
                                //   "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
                                 
                           

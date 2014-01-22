@@ -437,6 +437,8 @@ public class MainActivity extends DroidGap {
 			}
 
 		}
+		
+		Log.d(TAG3, " pushServerHandler args: "+params[0]);
 
 	}
 

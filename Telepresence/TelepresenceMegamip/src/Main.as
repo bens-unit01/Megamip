@@ -110,8 +110,9 @@ package  {
 			 
 			initConnection(null);
 			
-			// megamipLSClient = new MegamipLSClient();
-			// megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			 megamipLSClient = new MegamipLSClient();
+			 megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			 
 			 
 		}
 		
@@ -120,8 +121,8 @@ package  {
 			 
 			  farPeerID =   txtFingerPrint.text
 			  initConnection(null);
-			//  megamipLSClient = new MegamipLSClient();
-			//  megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			  megamipLSClient = new MegamipLSClient();
+			  megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
 			  
 		}
 		private function initSendStream(event:MouseEvent):void{
@@ -598,11 +599,11 @@ package  {
 	
 		public function lsReceiveData(event:Event):void{
         
-		/*	var message:String = megamipLSClient.getMessage();
+			var message:String = megamipLSClient.getMessage();
 			 trace("lsReceiveData event:" + event);
 			 trace("lsReceiveData message:" +message);
 			 sendMegamipCMD(message);
-		    */
+		    
 
 		}
 		private function sendMegamipCMD(str:String):void {
