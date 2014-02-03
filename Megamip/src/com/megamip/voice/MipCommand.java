@@ -425,6 +425,25 @@ public class MipCommand {
 
 	}
 
+	public class MipStop implements Command {
+
+		private MipReceiver mipReceiver;
+
+		// constructors
+		private MipStop() {
+		}
+
+		public MipStop(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
+
+		}
+
+		public void execute() {
+			mipReceiver.mipStop();
+		}
+
+	}
+
 	public class VisorMoveUp implements Command {
 
 		private MipReceiver mipReceiver;

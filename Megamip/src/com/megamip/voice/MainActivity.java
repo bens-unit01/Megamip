@@ -26,6 +26,8 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.youtube.player.YouTubePlayer;
 import com.megamip.telepresence.MegamipLSClient;
 import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
@@ -113,7 +115,9 @@ public class MainActivity extends DroidGap {
 		// DebugServiceClient dbgClient =
 		// DebugServiceClient.attachWebView(webView, this);
 
-		if (MipUsbDevice.isUSBConnected(context)) {
+		if (MipUsbDevice.isUSBConnected(context)) { // we confirm that the
+													// Arduino Nano and Uno are
+													// both connected
 			invoker = new Invoker();
 			receiver = new MipReceiver(handler, webView, this);
 			mc = new MipCommand();
@@ -131,10 +135,16 @@ public class MainActivity extends DroidGap {
 
 			Log.d(TAG2, "setting the listeners ... ");
 			setListeners();
+			mState = State.STARTED;
 		} else {
-			Log.d(TAG2, "Not all usb devices are connected ... closing the app ");
+			Log.d(TAG2,
+					"Not all usb devices are connected ... closing the app ");
+			Toast warning = Toast.makeText(context,
+					"Not all usb connections are plugged in !!",
+					Toast.LENGTH_LONG);
+			warning.show();
 			this.finish();
-			
+
 		}
 		// loadPage("index.html");
 		// loadPage("test.html");
@@ -226,9 +236,9 @@ public class MainActivity extends DroidGap {
 
 		}
 
-		Log.d(TAG6, "action = " + action
-				+ " invoker.state: " + invoker.getState() + " mState: "
-				+ mState + " mMode: " + mMode);
+		Log.d(TAG6,
+				"action = " + action + " invoker.state: " + invoker.getState()
+						+ " mState: " + mState + " mMode: " + mMode);
 
 	}
 
@@ -285,7 +295,7 @@ public class MainActivity extends DroidGap {
 			invoker.setState(Invoker.State.ACTIVE);
 			invoker.launch(mCommand);
 			break;
-			
+
 		case SHOW:
 			mCommand = mc.new VisorMoveUp(receiver);
 			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveUp ");
@@ -353,13 +363,12 @@ public class MainActivity extends DroidGap {
 					+ mState);
 
 			break;
-			
+
 		case PROJECTING:
-			mState = State.SHOW;			
+			mState = State.SHOW;
 			mCommand = mc.new VisorMoveDown(receiver);
 			delayTriggers();
-			Log.d(TAG3,
-					"MainActivity#mouvementHandler() - VisorMoveDown ");
+			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveDown ");
 			invoker.launch(mCommand);
 			break;
 
@@ -385,31 +394,38 @@ public class MainActivity extends DroidGap {
 		Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward")) {
-			// mCommand = mc.new MipMoveForward(receiver);
+
 			mCommand = mc.new MipMoveForward2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveForward");
 		}
 
 		if (input[1].equals("moveBackward")) {
-			// mCommand = mc.new MipMoveBackward(receiver);
+
 			mCommand = mc.new MipMoveBackward2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveBackward");
 		}
 
 		if (input[1].equals("moveLeft")) {
-			// mCommand = mc.new MipMoveLeft(receiver);
+
 			mCommand = mc.new MipMoveLeft2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveLeft");
 		}
 
 		if (input[1].equals("moveRight")) {
-			// mCommand = mc.new MipMoveRight(receiver);
+
 			mCommand = mc.new MipMoveRight2(receiver, params);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveRight");
+		}
+
+		if (input[1].equals("stop")) {
+
+			mCommand = mc.new MipStop(receiver);
+			invoker.launch(mCommand);
+			Log.d(TAG2, "jettHandler triggered stop");
 		}
 
 	}
@@ -437,8 +453,8 @@ public class MainActivity extends DroidGap {
 			}
 
 		}
-		
-		Log.d(TAG3, " pushServerHandler args: "+params[0]);
+
+		Log.d(TAG3, " pushServerHandler args: " + params[0]);
 
 	}
 
@@ -543,8 +559,6 @@ public class MainActivity extends DroidGap {
 
 			}
 		});
-
-		mState = State.STARTED;
 
 	}
 
@@ -692,9 +706,8 @@ public class MainActivity extends DroidGap {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (State.STARTED == mState) {
+		if (mState != State.STARTING) {
 			mMegamipLSClient.onResume();
-			Log.d(TAG2, "MainActivity onResume()--- ");
 
 			mTrgInactivity.resetTimer();
 			mTrgBlink.resetTimer();
@@ -705,6 +718,8 @@ public class MainActivity extends DroidGap {
 				mState = State.STANDBY;
 			}
 		}
+
+		Log.d(TAG2, "MainActivity onResume()--- mState: " + mState);
 	}
 
 	@Override

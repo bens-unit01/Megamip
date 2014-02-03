@@ -209,6 +209,12 @@ public class MipReceiver {
 				+ time);
 		arduinoCtrl.drive(speed, -speed, time, time);
 	}
+	
+	public void mipStop() {
+		
+		Log.d(TAG2, "MipReceiver mipStop" );
+		arduinoCtrl.stop();
+	}
 
 	// methodes utilitaires    
 

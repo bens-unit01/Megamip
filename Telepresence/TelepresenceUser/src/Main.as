@@ -548,23 +548,23 @@ package  {
 	
 		 btnForward = new PushButton(rightPanel, 20, 60);
 		 btnForward.label = "Forward";
-		 btnForward.width = 70;
-		 btnForward.height = 35;
+		 btnForward.width = 90;
+		 btnForward.height = 70;
 		 
 		 btnLeft = new PushButton(rightPanel, 20, 60);
 		 btnLeft.label = "Left";
-		 btnLeft.width = 70;
-		 btnLeft.height = 35;
+		 btnLeft.width = 90;
+		 btnLeft.height = 70;
 		 
 		 btnRight  = new PushButton(rightPanel, 20, 60);
 		 btnRight.label = "Right";
-		 btnRight.width = 70;
-		 btnRight.height = 35;
+		 btnRight.width = 90;
+		 btnRight.height = 70;
 		 
 		 btnBack  = new PushButton(rightPanel, 20, 60);
 		 btnBack.label = "Back";
-		 btnBack.width = 70;
-		 btnBack.height = 35;
+		 btnBack.width = 90;
+		 btnBack.height = 70;
 		 
 		 var vbox:VBoxUI= new VBoxUI(rightPanel, 120,330);
 		vbox.backgroundColor = 0x133300;
@@ -576,11 +576,11 @@ package  {
 	
 		
 		
-		var hbox1:HBoxUI = new HBoxUI(vbox, 150,40);
+		var hbox1:HBoxUI = new HBoxUI(vbox, 200,75);
 		hbox1.backgroundColor = 0x8FF30B;
 		hbox1.backgroundAlpha = 0.4;
 	   //box.ratio = ElementUI.RATIO_IN;
-		hbox1.childrenGap = new GapUI(5, 5);
+		hbox1.childrenGap = new GapUI(15, 15);
 		hbox1.childrenPadding = new PaddingUI(2, 2, 2, 2);
 		hbox1.addChild(btnLeft);
 		hbox1.addChild(btnRight);

@@ -6,7 +6,7 @@ public class UsbCommand {
 	
 	// commands 
 	
-	    public static final byte START_BYTE		  = (byte) 0xFE;
+	    public static final byte START_BYTE		  = (byte) 0x7D;
 	    public static final byte END_BYTE		  = (byte) 0xFF;
 		public static final byte DRIVE			  = 0x10;
 		public static final byte DRIVE_QUEUE 	  = 0x11;
