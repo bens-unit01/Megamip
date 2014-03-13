@@ -569,6 +569,7 @@ package  {
 		 var vbox:VBoxUI= new VBoxUI(rightPanel, 120,330);
 		vbox.backgroundColor = 0x133300;
 		vbox.backgroundAlpha = 0.4;
+		vbox.
 		vbox.ratio = ElementUI.RATIO_IN;
 		vbox.childrenGap = new GapUI(5, 5);
 		vbox.childrenPadding = new PaddingUI(5, 5, 5, 10);

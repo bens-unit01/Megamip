@@ -35,23 +35,7 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 
 		final int sl = speedL;
 		final int sr = speedR;
-		/*
-		 * byte turn = 0x00; turn = (speedL > speedR) ? (byte) 0x5A : (byte)
-		 * 0xA6;
-		 * 
-		 * if (speedL == speedR){ turn = (byte) 0x00; if (speedL > 0) { //
-		 * forward speedL = (byte) 0x2B; } else { // backward speedL = (byte)
-		 * 0xD8; } }
-		 * 
-		 * byte[] packet = new byte[] { UsbCommand.START_BYTE, //
-		 * UsbCommand.DRIVE, turn, new Integer(sl).byteValue(), new
-		 * Integer(sl).byteValue(), new Integer(sl).byteValue(), new
-		 * Integer(sl).byteValue() }; mipUsbDeviceUno.writeAsync(packet);
-		 * mipUsbDeviceUno.writeAsync(packet);
-		 * mipUsbDeviceUno.writeAsync(packet);
-		 * mipUsbDeviceUno.writeAsync(packet);
-		 */
-
+	
 		new Thread(new Runnable() {
 
 			@Override
@@ -59,26 +43,41 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 
 				byte turn = 0x00;
 				turn = (sl > sr) ? (byte) 0x5A : (byte) 0xA6;
-				int speed = 0;
+				int speed = (byte) 0x2B;
+				int initSpeed = 0;
 				if (sl == sr) {
 					turn = (byte) 0x00;
 					if (sl > 0) { // forward
-						speed = (byte) 0x2B;
+						//speed = (byte) 0x2B;
+						initSpeed = (byte) 0x01;
 					} else { // backward
 						speed = (byte) 0xD8;
+						initSpeed = (byte) 0xFF;
 					}
 				}
 				byte[] packet = new byte[] {
-						UsbCommand.START_BYTE,
+						0x7D,
 						// UsbCommand.DRIVE,
-						turn, new Integer(speed).byteValue(),
-						new Integer(speed).byteValue(),
-						new Integer(speed).byteValue(),
-						new Integer(speed).byteValue() };
-				for (int i = 0; i < 4; i++) {
+						turn, new Integer(initSpeed).byteValue(),
+						new Integer(initSpeed).byteValue(),
+						new Integer(initSpeed).byteValue(),
+						new Integer(initSpeed).byteValue() };
+				for (int i = 0; i < 50; i++) {
 					mipUsbDeviceUno.writeAsync(packet);
 					try {
-						Thread.sleep(20);
+						Thread.sleep(10);
+						int j = (initSpeed >0)? initSpeed++: initSpeed--;
+						Log.d(TAG3, " initSpeed: "+initSpeed+" speed: "+speed);
+						if (Math.abs(initSpeed) >= Math.abs(speed)) {
+							break;
+						}
+						packet =new byte[] {
+								0x7D,
+								// UsbCommand.DRIVE,
+								turn, new Integer(initSpeed).byteValue(),
+								new Integer(initSpeed).byteValue(),
+								new Integer(initSpeed).byteValue(),
+								new Integer(initSpeed).byteValue() };
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -123,19 +122,15 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 	@Override
 	public int stop() {
 
-		byte[] packet = new byte[] { UsbCommand.START_BYTE, 0, 0, 0, 0, 0 };
-		mipUsbDeviceUno.writeAsync(packet);
-		mipUsbDeviceUno.writeAsync(packet);
-		mipUsbDeviceUno.writeAsync(packet);
-		mipUsbDeviceUno.writeAsync(packet);
+		
 
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				byte[] packet = new byte[] { UsbCommand.START_BYTE, 0, 0, 0, 0,
+				byte[] packet = new byte[] { 0x7D, 0, 0, 0, 0,
 						0 };
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 9; i++) {
 					mipUsbDeviceUno.writeAsync(packet);
 					try {
 						Thread.sleep(20);

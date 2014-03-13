@@ -50,13 +50,13 @@ public class MainActivity extends DroidGap {
 
 	public static final int USER_MOBILE = 0;
 	public static final int USER_DESKTOP = 1;
-	public static final int INACTIVITY_PERIOD = 21;
+	public static final int INACTIVITY_PERIOD = 180;  // inactivity period in seconds 
 	public static final int BLINK_PERIOD = 7;
 
 	public static Context context; // reference vers l'activité MainActivity
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3",
-			TAG6 = "A6", TAG7 = "A7";
+			TAG6 = "A6", TAG7 = "A7", TAG8 = "A8";
 	public static final String PICTURE_MODE = "picture";
 	public static final String VIDEO_MODE = "video";
 	private String mMode = PICTURE_MODE;
@@ -108,12 +108,7 @@ public class MainActivity extends DroidGap {
 
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
-		// Log.d(TAG1, " User agent: "
-		// + webView.getSettings().getUserAgentString());
-		// Log.d(TAG1, " getSettings: " + webView.getSettings().toString());
-		// attach web view to debugging service
-		// DebugServiceClient dbgClient =
-		// DebugServiceClient.attachWebView(webView, this);
+		
 
 		if (MipUsbDevice.isUSBConnected(context)) { // we confirm that the
 													// Arduino Nano and Uno are
@@ -213,7 +208,7 @@ public class MainActivity extends DroidGap {
 		if (action.equals("76")) {
 			// if (action.equals("69")) { // keyboard input ...
 			mMediaPlayer.start();
-			Log.d(TAG6, "onNext");
+			Log.d(TAG6, "onNext --------------");
 			onNext();
 
 		}
@@ -223,7 +218,7 @@ public class MainActivity extends DroidGap {
 		if (action.equals("72")) {
 			// if (action.equals("81")) {
 			mMediaPlayer.start();
-			Log.d(TAG6, "onHold");
+			Log.d(TAG6, "onHold --------------");
 			onHold();
 		}
 
@@ -231,14 +226,15 @@ public class MainActivity extends DroidGap {
 		if (action.equals("82")) {
 			// if (action.equals("87")) {
 			mMediaPlayer.start();
-			Log.d(TAG6, "onBack");
+			Log.d(TAG6, "onBack --------------");
 			onBack();
 
 		}
 
-		Log.d(TAG6,
+		/* Log.d(TAG6,
 				"action = " + action + " invoker.state: " + invoker.getState()
 						+ " mState: " + mState + " mMode: " + mMode);
+						*/
 
 	}
 

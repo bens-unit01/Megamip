@@ -172,7 +172,7 @@ body{
   height:100%;
   background: transparent url(../img/eye005-right-00.png) no-repeat 0 0;
   background-size: 100%;
-  z-index: 3; 
+  z-index: 2; 
 }
 
 .notfct-left-00 {
@@ -244,7 +244,7 @@ body{
   height:100%;
   background: transparent url(../img/eye005-right-01.png) no-repeat 0 0;
   background-size: 100%;
-  z-index: 3;
+  z-index: 0;
 
   
 }
@@ -256,7 +256,7 @@ body{
   height:100%;
   background: transparent url(../img/eye005-right-02.png) no-repeat 0 0;
   background-size: 100%;
-  z-index: 3;
+  z-index: 0;
 
   
 }
@@ -268,7 +268,7 @@ body{
   height:100%;
   background: transparent url(../img/eye005-right-03.png) no-repeat 0 0;
   background-size: 100%;
-  z-index: 3;
+  z-index: 0;
 
   
 }
@@ -280,7 +280,7 @@ body{
   height:100%;
   background: transparent url(../img/eye005-right-04.png) no-repeat 0 0;
   background-size: 100%;
-  z-index: 3;
+  z-index: 0;
 
   
 }
@@ -293,7 +293,7 @@ body{
   height:100%;
   background: transparent url(../img/eye005-right-05.png) no-repeat 0 0;
   background-size: 100%;
-  z-index: 3;
+  z-index: 0;
 
   
 }
@@ -308,7 +308,7 @@ position: absolute;
 top:117px;
 left: 100px;
 color:#00FFFF;
-z-index: 100;
+z-index: 0;
 font-size: 1.9em;
 text-decoration: none;
 font-family: sans-serif, verdana; 
@@ -323,7 +323,7 @@ position: absolute;
 top:222px;
 left: 174px;
 color:#3a3a3a;
-z-index: 100;
+z-index: 2;
 font-size: 0.85em;
 text-decoration: none;
 font-family: verdana;
