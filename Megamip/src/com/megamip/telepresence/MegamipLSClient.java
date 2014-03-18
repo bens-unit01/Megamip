@@ -160,6 +160,7 @@ public class MegamipLSClient {
 	         * before hiding it, do not start it back once it's back
 	         * visible.
 	         */
+	    	Log.d(TAG5, "Lightstreamer onResume() ...");
 	        if (!userDisconnect) {
 	            start(phase.get());
 	        }
@@ -169,6 +170,7 @@ public class MegamipLSClient {
 	    public void onPause() {
 	      
 	        // disconnect when application is paused
+	    	Log.d(TAG5, "Lightstreamer onPause() ...");
 	        stop(phase.get());
 	    }
 

@@ -80,15 +80,11 @@ package  {
 		public function Main() {
 		   
 			
-			// addEventListener(Event.ENTER_FRAME, initHandler);
-			//addEventListener(InvokeEvent, onInvoke);
+
 			NativeApplication.nativeApplication.addEventListener(
-					InvokeEvent.INVOKE, onInvoke);
+			InvokeEvent.INVOKE, onInvoke);
 			initGui();
-			initListeners();
-			//----------- tests 
-			
-		//	txtFingerPrint.text = "publisherID"+NativeApplication.nativeApplication.publisherID;
+
 		}
 		//-------------------------------------------------------------------------------------------------------
 		
@@ -344,10 +340,7 @@ package  {
 		 *  publish it to the local server
 		 */
         private function publishLiveStream():void {
-		  /*  nsPublish = new NetStream(nc, NetStream.CONNECT_TO_FMS);
-		    nsPublish.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
-			nsPublish.client = new CustomClient();*/
-		    
+		  
 		
 		    camera = getCamera();
 		    mic = Microphone.getMicrophone();
@@ -358,25 +351,12 @@ package  {
 				camera.setKeyFrameInterval(1);
 				camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
 			    
-			/*	videoPublish = new Video();
-				videoPublish.height = 120;
-				videoPublish.width = 120;
-				videoPublish.x = 370;
-				videoPublish.y = 15;
-				videoPublish.attachCamera(camera);
-			*/	
-				// display the publishing stream 
-				
-				//videoElementPublish.resource = resource;
+	
 				videoPublish.attachCamera(camera);
 				
 				nsPublish.attachCamera(camera);
 				nsPublish.bufferTime = 3;
-			/*	var settings:H264VideoStreamSettings = new H264VideoStreamSettings();
-			    settings.setProfileLevel(H264Profile.BASELINE, H264Level.LEVEL_4);*/
-			//	nsPublish.videoStreamSettings = settings ;
-                
-            //   addChild(videoPublish);
+			
 			}
 			
 			if (mic != null) {
@@ -391,9 +371,7 @@ package  {
 			    nsPublish.publish("media", "live");
 				
 				 var metaData:Object = new Object();
-           // metaData.codec = nsPublish.videoStreamSettings.codec;
-           // metaData.profile =  settings.profile;
-           //metaData.level = settings.level;
+
             metaData.fps = camera.fps;
             metaData.bandwith = camera.bandwidth;
             metaData.height = camera.height;
@@ -416,20 +394,10 @@ package  {
 			
 			
 			
-		//	var mediaPlayerSprite:MediaPlayerSprite = new MediaPlayerSprite();
-		//	var videoElement:VideoElement = new VideoElement();
-
-			//videoElementRead.resource = new StreamingURLResource("rtmp://dL6fny.cloud.influxis.com/Telepresence1/_definst_/user01", StreamType.LIVE);
-		//videoElementRead.resource =  nsRead.re;
-		
 		
 		videoRead.attachNetStream(nsRead);
 		nsRead.play("media");
-		/*	mediaPlayerSprite.media = videoElement;
-			mediaPlayerSprite.width = 640; 
-            mediaPlayerSprite.height = 360; 
-			addChild(mediaPlayerSprite);
-			*/
+
 			
 		// we start publishing ... 	
 		  initSendStream(null); 
@@ -470,12 +438,7 @@ package  {
 		 return returnValue;
 		}
 		
-		private function initListeners():void {
-			
-			btnConnect.addEventListener(MouseEvent.CLICK, onInvoke2);
-			btnPublish.addEventListener(MouseEvent.CLICK, initSendStream);	
-		    btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
-		}
+
 		
 		private function initGui():void {
 			
@@ -508,33 +471,7 @@ package  {
 		  videoRead = new Video();
 		  videoRead.scaleX = 3;
 		  videoRead.scaleY = 3;
-	//	  var screenRectangle:Rectangle = new Rectangle(videoRead.x, videoRead.y, videoRead.width, videoRead.height); 
-	//	  stage.fullScreenSourceRect = screenRectangle; 
-		   
-			//me1.resource = resource;
-		//	me2.resource = resource;
-			
-		//	player1.media = me1;
-		//	player2.media = me2;
-		/*	container1.addMediaElement(me1);
-			container1.width = 210;
-			container1.height = 210;
-		*/
-			/*videoElementRead = new VideoElement();
-			videoElementRead.resource = resource;
-			player2.media = videoElementRead;
-			container2.addMediaElement(videoElementRead);
-			
-			
-			container2.width = stage.stageWidth;
-			container2.height = stage.stageHeight;*/
-			
-			
-		/*   var element3:ElementUI = baseUI.add(videoPublish); // positioning of the small screen 
-		   element3.top = 10;
-		   element3.right = 3;
-		
-		   */
+
 		  
 		//------ -----------  panels	
 	
@@ -545,19 +482,6 @@ package  {
 		element5.right = 3;
 		element5.bottom = 3;
 
-		//------------connection buttons  
-		
-		btnConnect = new PushButton(bottomPanel, 20, 60);
-		 btnConnect.label = "Connect";
-		 btnConnect.width = 100;
-		
-		btnPublish = new PushButton(bottomPanel, 20, 60);
-		 btnPublish.label = "Publish";
-		 btnPublish.width = 100;
-		 
-		btnRead = new PushButton(bottomPanel, 20, 60);
-		 btnRead.label = "Read";
-		 btnRead.width = 100;
 		
 		txtFingerPrint = new TextField();
 		txtFingerPrint.type = TextFieldType.INPUT;
@@ -580,16 +504,11 @@ package  {
 		hbox2.childrenGap = new GapUI(5, 5);
 		hbox2.childrenPadding = new PaddingUI(15,15, 15, 15);
 		hbox2.childrenAlign = HBoxUI.ALIGN_CENTER_LEFT;
-		hbox2.addChild(btnConnect);
-		hbox2.addChild(btnPublish);
-		hbox2.addChild(btnRead);
+	
 		hbox2.addChild(txtFingerPrint);
 		
 		hbox2.addChild(videoPublish);
 		hbox2.refresh();
-	
-
-	//    addChild(container2);
         addChild(videoRead); 
 		addChild(hbox2);	
 		

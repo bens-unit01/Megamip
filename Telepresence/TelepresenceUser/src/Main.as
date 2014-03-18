@@ -55,11 +55,14 @@ package  {
 		// members 
 		private var txtFingerPrint:TextField;
 		private var btnStart:PushButton;
-		private var btnForward:PushButton;
-		private var btnLeft:PushButton;
-		private var btnRight:PushButton;
-		private var btnBack:PushButton;
-		private var btnExit:PushButton;
+		private var btnForward:CustomButton;
+	    private var btnBack:CustomButton;
+		private var btnLeft:CustomButton;
+		private var btnRight:CustomButton;
+		private var btnConnect:CustomButton;
+		private var btnExit:CustomButton;
+
+        private var ctnDPadBackground:CustomButton;
 		private var btnRead:PushButton;
 		
 		private var ncRead:NetConnection;
@@ -91,7 +94,7 @@ package  {
 		private function initSendStream(event:MouseEvent):void{
 			
 		trace("initSendStream");
-		txtFingerPrint.appendText("\n Connected !!\n Publishing ...");
+		//txtFingerPrint.appendText("\n Connected !!\n Publishing ...");
 
 		nsPublish = new NetStream(nc, NetStream.DIRECT_CONNECTIONS);
 		nsPublish.addEventListener(NetStatusEvent.NET_STATUS, netStatusPublishHandler);
@@ -125,7 +128,7 @@ package  {
 			//  +------------------### log ###-------------------+
 			trace("connected to stream nc farID: " + nc.farID + " nearID: " + nc.nearID);
 			trace("nsRead  farID: " + nsRead.farID);
-			txtFingerPrint.appendText("\n Reading stream from Megamip ...");
+			//txtFingerPrint.appendText("\n Reading stream from Megamip ...");
 		   readLiveStream();
 		}
 
@@ -167,9 +170,9 @@ package  {
 			*/
 			
 			//             +----------### log ###----------+ 
-			txtFingerPrint.appendText( "--------------\n Connecting ...");
+			//txtFingerPrint.appendText( "--------------\n Connecting ...");
 			
-			
+			trace("initConnection() ...");
 			nc = new NetConnection();
 			nc.addEventListener(NetStatusEvent.NET_STATUS, ncStatusHandler);
 			nc.connect(SERVER_ADRESS, DEVELOPER_KEY);
@@ -462,7 +465,9 @@ package  {
 		}
 		
 		private function initListeners():void {
-		   btnStart.addEventListener(MouseEvent.CLICK, initConnection);
+			
+			
+		   btnConnect.addEventListener(MouseEvent.CLICK, initConnection);
 		   btnExit.addEventListener(MouseEvent.CLICK, deactivate);	
 		   // btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
 		   btnForward.addEventListener(MouseEvent.CLICK, moveForward);
@@ -471,178 +476,112 @@ package  {
 		   btnLeft.addEventListener(MouseEvent.CLICK, moveLeft);
 		   btnRight.addEventListener(MouseEvent.CLICK, moveRight);
 		}
+		//--------------- GUI initialisation 
+		
 		private function initGui():void {
-			
+		
 			this.stage.align = StageAlign.TOP_LEFT;
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.addEventListener(Event.DEACTIVATE, deactivate);
-			var container1:MediaContainer = new MediaContainer();
-			var container2:MediaContainer = new MediaContainer();
-			var player1:MediaPlayer = new MediaPlayer();
-			var player2:MediaPlayerSprite = new MediaPlayerSprite();
-			
-			
-			
-			var resource:URLResource = new URLResource("http://mediapm.edgesuite.net/strobe/content/test/AFaerysTale_sylviaApostol_640_500_short.flv");
+			var baseUI:BaseUI = new BaseUI(stage);
+
+	    //-------------- videos display 
+		   
+		   var container1:MediaContainer = new MediaContainer();
+		   var container2:MediaContainer = new MediaContainer();
+		   var player1:MediaPlayer = new MediaPlayer();
+		   var player2:MediaPlayerSprite = new MediaPlayerSprite();
+
 		    videoElementPublish = new VideoElement();
 			videoElementRead = new VideoElement();
-			
-			
-			
-			
-			
-			var baseUI:BaseUI = new BaseUI(stage);
-			
-			
-		 //-------------- videos display 
-		//	videoElementPublish.resource = resource;
+	
+	
 			videoPublish = new Video();
 			videoPublish.scaleX = 0.5;
 			videoPublish.scaleY = 0.5;
-		//	videoPublish.height = 120;
-		//	videoPublish.width = 120;
 	
-		videoRead = new Video();
-		videoRead.scaleX = 1.5;
-		videoRead.scaleY = 1.5;
-			
-		//	videoElementRead.resource = resource;
-			
-			//player1.media = videoPublish;    //-----------------
-			
-		//	player2.media = videoElementRead;
-			//container1.addMediaElement(videoPublish);
-			//container1.width = 210;
-			//container1.height = 210;
-	//		container2.addMediaElement(videoElementRead);
-			
-			
-			container2.width = 1100;
+	
+			videoRead = new Video();
+		    videoRead.width = 1280;
+			videoRead.height = 720;
+		    container2.width = 1100;
 			container2.height = 600;
-			
-			
-		   var element3:ElementUI = baseUI.add(videoPublish); // positioning of the small screen 
-		   element3.top = 30;
-		   element3.right = 10;
 		
+		    var element3:ElementUI = baseUI.add(videoPublish); // positioning of the small screen 
+		    element3.top = 30;
+		    element3.right = 10;
 		   
-		  
-		//------ -----------  panels	
-		var rightPanel:Panel = new Panel(this);
-		rightPanel.setSize(250, 700);
-		var element2:ElementUI = baseUI.add(rightPanel);
-		element2.right = 3;
-		element2.bottom = 3;
+		 //----------- displaying the DPad background
+		   
+		   ctnDPadBackground = new CustomButton(CustomButton.DPadBackground);
+		   var dPadBkgDisplay:ElementUI = baseUI.add(ctnDPadBackground); // positioning of the small screen 
+		   dPadBkgDisplay.bottom = 30;
+		   dPadBkgDisplay.right = 10;
+		   dPadBkgDisplay.refresh();
 		
-		
-		var bottomPanel:Panel = new Panel(this);
-		bottomPanel.setSize(1100, 150);
-	    var element5:ElementUI = baseUI.add(bottomPanel);
-		element5.right = 3;
-		element5.bottom = 3;
-		
-		
-		
-		//------------  remote control buttons 
-		
+         //----------------------- displaying RC  buttons  
+           
 	
-		 btnForward = new PushButton(rightPanel, 20, 60);
-		 btnForward.label = "Forward";
-		 btnForward.width = 90;
-		 btnForward.height = 70;
+		 btnForward = new CustomButton(CustomButton.ButtonForward);
+         btnBack = new CustomButton(CustomButton.ButtonBackward);
+		 btnLeft = new CustomButton(CustomButton.ButtonLeft);
+		 btnRight = new CustomButton(CustomButton.ButtonRight);
+
+		 var ctnLeftRight:HBoxUI = new HBoxUI(this, 180, 56);
+		 ctnLeftRight.backgroundColor = 0x251010;
+		 ctnLeftRight.backgroundAlpha = 0;
+		 ctnLeftRight.addChild(btnLeft);
+		 ctnLeftRight.addChild(btnRight);
+		 ctnLeftRight.childrenGap = new GapUI(40, 0);
 		 
-		 btnLeft = new PushButton(rightPanel, 20, 60);
-		 btnLeft.label = "Left";
-		 btnLeft.width = 90;
-		 btnLeft.height = 70;
+		 var ctnForward:VBoxUI = new VBoxUI(this, 180, 56);
+		 ctnForward.backgroundColor = 0x251010;
+		 ctnForward.backgroundAlpha = 0;
+		 ctnForward.addChild(btnForward);
+		 ctnForward.childrenAlign = VBoxUI.ALIGN_TOP_CENTER;
+		
+         var ctnPrincipalRC:VBoxUI = new VBoxUI(this, 190, 300);
+         ctnPrincipalRC.backgroundColor = 0xFF0000;
+         ctnPrincipalRC.backgroundAlpha = 0;
+		 ctnPrincipalRC.childrenPadding = new PaddingUI(18, 2, 2, 2);
+		 ctnPrincipalRC.childrenAlign = VBoxUI.ALIGN_BOTTOM_CENTER;
+		 ctnPrincipalRC.addChild(btnBack);
+		 ctnPrincipalRC.addChild(ctnLeftRight);
+		 ctnPrincipalRC.addChild(ctnForward);
+		 var vboxContainerRight:ElementUI = baseUI.add(ctnPrincipalRC);
+		 vboxContainerRight.bottom = 37;
+		 vboxContainerRight.right = 15;
+		 vboxContainerRight.refresh();
 		 
-		 btnRight  = new PushButton(rightPanel, 20, 60);
-		 btnRight.label = "Right";
-		 btnRight.width = 90;
-		 btnRight.height = 70;
+		 //----------- Displaying the connect button 
 		 
-		 btnBack  = new PushButton(rightPanel, 20, 60);
-		 btnBack.label = "Back";
-		 btnBack.width = 90;
-		 btnBack.height = 70;
+		 btnConnect = new CustomButton(CustomButton.ButtonConnect);
+	     var ctnBtnConnect:ElementUI = baseUI.add(btnConnect); 
+	     ctnBtnConnect.bottom = 30;
+	     ctnBtnConnect.left = 10;
+	     ctnBtnConnect.refresh();
 		 
-		 var vbox:VBoxUI= new VBoxUI(rightPanel, 120,330);
-		vbox.backgroundColor = 0x133300;
-		vbox.backgroundAlpha = 0.4;
-		vbox.
-		vbox.ratio = ElementUI.RATIO_IN;
-		vbox.childrenGap = new GapUI(5, 5);
-		vbox.childrenPadding = new PaddingUI(5, 5, 5, 10);
-		vbox.childrenAlign = VBoxUI.ALIGN_BOTTOM_CENTER;
-	
+	     btnExit = new CustomButton(CustomButton.ButtonExit);
+	     var ctnBtnExit:ElementUI = baseUI.add(btnExit); 
+	     ctnBtnExit.bottom = 30;
+	     ctnBtnExit.left = 75;
+	     ctnBtnExit.refresh();
+		 //--------------------------------------------------------------
+		 	
+		  	
+
+		  addChild(videoRead); 
+	      addChild(container1);
+          addChild(container2);
+		  addChild(ctnDPadBackground);
+		  addChild(ctnPrincipalRC);
+		  addChild(btnConnect);
+		  addChild(btnExit);
+      
 		
-		
-		var hbox1:HBoxUI = new HBoxUI(vbox, 200,75);
-		hbox1.backgroundColor = 0x8FF30B;
-		hbox1.backgroundAlpha = 0.4;
-	   //box.ratio = ElementUI.RATIO_IN;
-		hbox1.childrenGap = new GapUI(15, 15);
-		hbox1.childrenPadding = new PaddingUI(2, 2, 2, 2);
-		hbox1.addChild(btnLeft);
-		hbox1.addChild(btnRight);
-		vbox.addChild(btnBack);
-	    vbox.addChild(hbox1);
-		vbox.addChild(btnForward);
-		
-		
-		//------------connection buttons  
-		
-		 btnStart = new PushButton(bottomPanel, 20, 60);
-		 btnStart.label = "Start";
-		 btnStart.width = 100;
-		 btnStart.height = 35;
-		 
-		 
-		
-		 btnExit = new PushButton(bottomPanel, 20, 60);
-		 btnExit.label = "Exit";
-		 btnExit.width = 100;
-		 btnExit.height = 35;
-		 
-		 btnRead  = new PushButton(bottomPanel, 20, 60);
-		 btnRead.label = "--";
-		 btnRead.width = 100;
-		 btnRead.height = 35;
-		 
-		
-		var txtFormat:TextFormat = new TextFormat();
-		txtFingerPrint = new TextField();
-		txtFingerPrint.type = TextFieldType.INPUT;
-		txtFingerPrint.width = 300;
-		txtFingerPrint.height = 50;
-		txtFingerPrint.multiline = false;
-		txtFingerPrint.background = true;
-		txtFormat.font = "Verdana";
-		txtFingerPrint.defaultTextFormat = txtFormat;
-		txtFingerPrint.backgroundColor = 0xF5F5DC;
-		txtFingerPrint.text = "FingerPrint ...";
-		
-		var hbox2:HBoxUI = new HBoxUI(bottomPanel, 300,35);
-		hbox2.backgroundColor = 0x868686;
-		hbox2.backgroundAlpha = 0.4;
-		hbox2.ratio = ElementUI.RATIO_IN;
-		hbox2.childrenGap = new GapUI(5, 5);
-		hbox2.childrenPadding = new PaddingUI(15,15, 15, 15);
-		hbox2.childrenAlign = HBoxUI.ALIGN_CENTER_LEFT;
-		hbox2.addChild(btnStart);
-		hbox2.addChild(btnExit);
-		hbox2.addChild(btnRead);
-		hbox2.addChild(txtFingerPrint);
-		hbox2.refresh();
-	
-		addChild(videoRead); 
-	    addChild(hbox2);
-	    addChild(vbox);
-		addChild(container1);
-	    addChild(container2);
 	
 		
 		}
+		
 		
 		
 		
