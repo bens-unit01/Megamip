@@ -306,7 +306,7 @@ public class MipUsbDevice {
 		// mSerialIoManager.writeAsync(data);
 		try {
 			mUsbDriver.write(data, 1000);
-			Log.d(TAG3, "writeAsync - data:" + data[0] + " " + data[1]);
+			// Log.d(TAG3, "writeAsync - data:" + data[0] + " " + data[1]);
 		} catch (IOException e) {
 
 			Log.d(TAG3,

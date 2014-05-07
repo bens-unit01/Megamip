@@ -47,7 +47,7 @@ public class MipTimer {
     	}
     	timer = new Timer();
     	timer.schedule(new MipTimerTask(), period*1000);
-    	System.out.println("MipReminder - resetReminder() timerID: "+id);
+    	//System.out.println("MipReminder - resetReminder() timerID: "+id);
     	
     }
     

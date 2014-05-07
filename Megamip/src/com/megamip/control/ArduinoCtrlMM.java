@@ -35,55 +35,20 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 
 		final int sl = speedL;
 		final int sr = speedR;
-	
+		final int time = distanceL;
+
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 
-				byte turn = 0x00;
-				turn = (sl > sr) ? (byte) 0x5A : (byte) 0xA6;
-				int speed = (byte) 0x2B;
-				int initSpeed = 0;
-				if (sl == sr) {
-					turn = (byte) 0x00;
-					if (sl > 0) { // forward
-						//speed = (byte) 0x2B;
-						initSpeed = (byte) 0x01;
-					} else { // backward
-						speed = (byte) 0xD8;
-						initSpeed = (byte) 0xFF;
-					}
-				}
-				byte[] packet = new byte[] {
-						0x7D,
-						// UsbCommand.DRIVE,
-						turn, new Integer(initSpeed).byteValue(),
-						new Integer(initSpeed).byteValue(),
-						new Integer(initSpeed).byteValue(),
-						new Integer(initSpeed).byteValue() };
-				for (int i = 0; i < 50; i++) {
-					mipUsbDeviceUno.writeAsync(packet);
-					try {
-						Thread.sleep(10);
-						int j = (initSpeed >0)? initSpeed++: initSpeed--;
-						Log.d(TAG3, " initSpeed: "+initSpeed+" speed: "+speed);
-						if (Math.abs(initSpeed) >= Math.abs(speed)) {
-							break;
-						}
-						packet =new byte[] {
-								0x7D,
-								// UsbCommand.DRIVE,
-								turn, new Integer(initSpeed).byteValue(),
-								new Integer(initSpeed).byteValue(),
-								new Integer(initSpeed).byteValue(),
-								new Integer(initSpeed).byteValue() };
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				byte[] packet = new byte[] { UsbCommand.START_BYTE,
+						UsbCommand.DRIVE, new Integer(sl).byteValue(),
+						new Integer(sr).byteValue(),
+						new Integer(time).byteValue(),
+						new Integer(time).byteValue(), UsbCommand.END_BYTE };
+				mipUsbDeviceUno.writeAsync(packet);
 
-				}
 				Log.d(TAG3, "ArduinoCtrlMM - send  cmd:" + packet[0] + " "
 						+ packet[1] + " " + packet[2] + " " + packet[3] + " "
 						+ packet[4] + " " + packet[5]);
@@ -122,14 +87,11 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 	@Override
 	public int stop() {
 
-		
-
-		new Thread(new Runnable() {
+		/*new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				byte[] packet = new byte[] { 0x7D, 0, 0, 0, 0,
-						0 };
+				byte[] packet = new byte[] { 0x7D, 0, 0, 0, 0, 0 };
 				for (int i = 0; i < 9; i++) {
 					mipUsbDeviceUno.writeAsync(packet);
 					try {
@@ -146,6 +108,8 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 
 			}
 		}).start();
+		
+		*/
 		return 0;
 	}
 
@@ -183,6 +147,33 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 	public void disengageVisor() {
 		mipUsbDeviceNano.writeAsync(new byte[] { UsbCommand.START_BYTE,
 				UsbCommand.DISENGAGE_VISOR, UsbCommand.END_BYTE });
+
+	}
+
+	@Override
+	public void moveProjectorTo(Position pos) {
+
+		int position;
+		switch (pos) {
+		case PROJECTOR_POSITION_1:
+			position = 80;
+			break;
+		case PROJECTOR_POSITION_2:
+			position = 175;
+			break;
+		case PROJECTOR_POSITION_3:
+			position = 120;
+			break;
+
+		default:
+			position = 0;
+			break;
+		}
+
+		byte[] packet = new byte[] { UsbCommand.START_BYTE,
+				UsbCommand.ENGAGE_VISOR, new Integer(position).byteValue(),
+				UsbCommand.END_BYTE };
+		mipUsbDeviceNano.writeAsync(packet);
 
 	}
 

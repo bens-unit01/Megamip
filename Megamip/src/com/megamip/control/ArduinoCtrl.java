@@ -3,10 +3,14 @@ package com.megamip.control;
 import android.content.Context;
 import android.widget.EditText;
 
-public interface ArduinoCtrl {
+public interface ArduinoCtrl{
 	
 	
-	
+public static enum Position {
+	PROJECTOR_POSITION_1,
+	PROJECTOR_POSITION_2,
+	PROJECTOR_POSITION_3
+};	
 	
 	/*
 	 * Immediately Drive as described
@@ -33,7 +37,7 @@ public void listen();
 public void stopListen();
 public void engageVisor();
 public void disengageVisor();
-
+public void moveProjectorTo(Position pos);
 
 
 

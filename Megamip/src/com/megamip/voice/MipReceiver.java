@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.megamip.control.ArduinoCtrl;
+import com.megamip.control.ArduinoCtrl.Position;
 import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.util.JettyServer;
 import com.megamip.voice.MainActivity;
@@ -24,6 +25,7 @@ public class MipReceiver {
 	private static final String BRC_CLOSE = "')";
 	private static final String Q = "?";
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";
+	public static final int SPEED = 30, TIME = 3;
 
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
 
@@ -154,8 +156,8 @@ public class MipReceiver {
 	// Megamip motion methods
 	// drive(speedLeft, speedRight, distanceLeft, distanceRight);
 	public void mipMoveForward() {
-		Log.d(TAG2, "MipReceiver moveForward ...");
-		arduinoCtrl.drive(70, 70, 5, 5);
+		//Log.d(TAG2, "MipReceiver moveForward ...");
+		arduinoCtrl.drive(SPEED, SPEED, TIME, TIME);
 	}
 
 	public void mipMoveForward(String params) {
@@ -168,8 +170,8 @@ public class MipReceiver {
 	}
 
 	public void mipMoveBackward() {
-		arduinoCtrl.drive(-70, -70, 5, 5);
-		Log.d(TAG2, "MipReceiver moveBackward ...");
+		arduinoCtrl.drive(-SPEED, -SPEED, TIME, TIME);
+		//Log.d(TAG2, "MipReceiver moveBackward ...");
 	}
 
 	public void mipMoveBackward(String params) {
@@ -183,8 +185,8 @@ public class MipReceiver {
 	}
 
 	public void mipMoveLeft() {
-		arduinoCtrl.drive(-70, 70, 5, 5);
-		Log.d(TAG2, "MipReceiver moveLeft ...");
+		arduinoCtrl.drive(-SPEED, SPEED, TIME/2, TIME/2);
+		//Log.d(TAG2, "MipReceiver moveLeft ...");
 	}
 
 	public void mipMoveLeft(String params) {
@@ -197,8 +199,8 @@ public class MipReceiver {
 	}
 
 	public void mipMoveRight() {
-		arduinoCtrl.drive(70, -70, 5, 5);
-		Log.d(TAG2, "MipReceiver moveRight ...");
+		arduinoCtrl.drive(SPEED, -SPEED, TIME/2, TIME/2);
+		//Log.d(TAG2, "MipReceiver moveRight ...");
 	}
 
 	public void mipMoveRight(String params) {
@@ -209,14 +211,14 @@ public class MipReceiver {
 				+ time);
 		arduinoCtrl.drive(speed, -speed, time, time);
 	}
-	
+
 	public void mipStop() {
-		
-		Log.d(TAG2, "MipReceiver mipStop" );
+
+		Log.d(TAG2, "MipReceiver mipStop");
 		arduinoCtrl.stop();
 	}
 
-	// methodes utilitaires    
+	// methodes utilitaires
 
 	public void callJsFunction(String functionName, String args) {
 		String json = "";
@@ -243,9 +245,29 @@ public class MipReceiver {
 	}
 
 	public void visorMoveDown() {
-		
+
 		arduinoCtrl.disengageVisor();
 
+	}
+
+	public void moveProjectorTo(int position) {
+
+		Position pos = Position.PROJECTOR_POSITION_1;
+		switch (position) {
+		case 1:
+			pos = Position.PROJECTOR_POSITION_1;
+			break;
+		case 2:
+			pos = Position.PROJECTOR_POSITION_2;
+			break;
+		case 3:
+			pos = Position.PROJECTOR_POSITION_3;
+			break;
+		default:
+			break;
+		}
+		Log.d(TAG2, "MipReceiver moveProjectorTo pos: "+pos.toString());
+		arduinoCtrl.moveProjectorTo(pos);
 	}
 
 }

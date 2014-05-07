@@ -46,14 +46,14 @@ public class JettyServer {
 			try
 			{
 				//How to get Query String/
-				Log.i(TAG3, "Query string: "+target);
+				//Log.i(TAG3, "Query string: "+target);
 				
 
 				
 				for (JettyListener b : mListeListeners) {
 					
 					b.onNotify(new ServerEvent(this, target));
-					Log.d(TAG3, "JettyServer  onNotify   ");
+					//Log.d(TAG3, "JettyServer  onNotify   ");
 				}
 //				
 				
@@ -62,30 +62,32 @@ public class JettyServer {
 				//http://127.0.0.1:1234/Function/para1/para2
 				
 				//Http Request Type: GET/POST/PUT/DELETE
-				Log.i(TAG3, "HTTP Verb: "+MainRequestObject.getMethod());
+				//Log.i(TAG3, "HTTP Verb: "+MainRequestObject.getMethod());
 				
-				BufferedReader in = new BufferedReader(new InputStreamReader(MainRequestObject.getInputStream()));
+			/*	BufferedReader in = new BufferedReader(new InputStreamReader(MainRequestObject.getInputStream()));
 				String line = null;
 				                   
 				StringBuilder PostedData = new StringBuilder();
 				
 				while ((line = in.readLine()) != null)
 				{    							
-					Log.i(TAG3,"Received Message Line by Line"+line);
+					//Log.i(TAG3,"Received Message Line by Line"+line);
 					PostedData.append(line);					
-				}				
+				}	
+				*/			
 				
 				//Http Request Data Type
-				Log.i(TAG3,"Posted Data Type"+ MainRequestObject.getContentType());
+				//Log.i(TAG3,"Posted Data Type"+ MainRequestObject.getContentType());
 				
 				//Http Request Type: GET/POST/PUT/DELETE
-				Log.i("Posted Data", PostedData.toString());
+				//Log.i("Posted Data", PostedData.toString());
 				
 				//How To Send Responce Back
-				response.setContentType("text/html");
+				/*response.setContentType("text/html");
 	            response.setStatus(HttpServletResponse.SC_OK);
 	            response.getWriter().println("<h1>Hello</h1>");
-	            ((Request)MainRequestObject).setHandled(true);				
+	            ((Request)MainRequestObject).setHandled(true);	
+	            */			
 			}
         	catch (Exception ex)
         	{

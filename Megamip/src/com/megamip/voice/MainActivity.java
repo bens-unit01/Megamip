@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubePlayer;
+import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.telepresence.MegamipLSClient;
 import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
 import com.megamip.util.DroidGap;
@@ -50,7 +51,8 @@ public class MainActivity extends DroidGap {
 
 	public static final int USER_MOBILE = 0;
 	public static final int USER_DESKTOP = 1;
-	public static final int INACTIVITY_PERIOD = 180;  // inactivity period in seconds 
+	public static final int INACTIVITY_PERIOD = 180; // inactivity period in
+														// seconds
 	public static final int BLINK_PERIOD = 7;
 
 	public static Context context; // reference vers l'activité MainActivity
@@ -108,7 +110,6 @@ public class MainActivity extends DroidGap {
 
 		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
-		
 
 		if (MipUsbDevice.isUSBConnected(context)) { // we confirm that the
 													// Arduino Nano and Uno are
@@ -118,6 +119,7 @@ public class MainActivity extends DroidGap {
 			mc = new MipCommand();
 
 			mJettyServer = new JettyServer();
+
 			mMegamipLSClient = new MegamipLSClient();
 
 			mSpeakNowDlg = new SpeakNow("Speak now !!", context);
@@ -231,10 +233,10 @@ public class MainActivity extends DroidGap {
 
 		}
 
-		/* Log.d(TAG6,
-				"action = " + action + " invoker.state: " + invoker.getState()
-						+ " mState: " + mState + " mMode: " + mMode);
-						*/
+		/*
+		 * Log.d(TAG6, "action = " + action + " invoker.state: " +
+		 * invoker.getState() + " mState: " + mState + " mMode: " + mMode);
+		 */
 
 	}
 
@@ -387,34 +389,46 @@ public class MainActivity extends DroidGap {
 
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 
-		Log.d(TAG2, "jettHandler cmd: " + input[1]);
+		ArduinoCtrlMM arduinoCtrl = new ArduinoCtrlMM(this);
+		int speed = MipReceiver.SPEED;
+		int time = MipReceiver.TIME;
+		int turnTime = MipReceiver.TIME/2;
+
+		//Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward")) {
 
-			mCommand = mc.new MipMoveForward2(receiver, params);
-			invoker.launch(mCommand);
-			Log.d(TAG2, "jettHandler triggered moveForward");
+			// mCommand = mc.new MipMoveForward(receiver);
+			// invoker.launch(mCommand);
+			// Log.d(TAG2, "jettHandler triggered moveForward");
+			// optimized code
+			arduinoCtrl.drive(speed, speed, time, time);
 		}
 
 		if (input[1].equals("moveBackward")) {
 
-			mCommand = mc.new MipMoveBackward2(receiver, params);
-			invoker.launch(mCommand);
-			Log.d(TAG2, "jettHandler triggered moveBackward");
+			// mCommand = mc.new MipMoveBackward(receiver);
+			// invoker.launch(mCommand);
+			// Log.d(TAG2, "jettHandler triggered moveBackward");
+			// optimized code
+			arduinoCtrl.drive(-speed, -speed, time, time);
 		}
 
 		if (input[1].equals("moveLeft")) {
 
-			mCommand = mc.new MipMoveLeft2(receiver, params);
-			invoker.launch(mCommand);
-			Log.d(TAG2, "jettHandler triggered moveLeft");
+			// mCommand = mc.new MipMoveLeft(receiver);
+			// invoker.launch(mCommand);
+			// Log.d(TAG2, "jettHandler triggered moveLeft");
+			// optimized code
+			arduinoCtrl.drive(-speed, speed, turnTime, turnTime);
 		}
 
 		if (input[1].equals("moveRight")) {
 
-			mCommand = mc.new MipMoveRight2(receiver, params);
-			invoker.launch(mCommand);
-			Log.d(TAG2, "jettHandler triggered moveRight");
+			// mCommand = mc.new MipMoveRight(receiver);
+			// invoker.launch(mCommand);
+			// Log.d(TAG2, "jettHandler triggered moveRight");
+			arduinoCtrl.drive(speed, -speed, turnTime, turnTime);
 		}
 
 		if (input[1].equals("stop")) {
@@ -422,6 +436,14 @@ public class MainActivity extends DroidGap {
 			mCommand = mc.new MipStop(receiver);
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered stop");
+		}
+
+		if (input[1].equals("moveProjectorTo")) {
+
+			mCommand = mc.new MoveProjectorTo(receiver, input[2]);
+			invoker.launch(mCommand);
+			Log.d(TAG2, "jettHandler triggered moveProjectorTo params: "
+					+ input[2]);
 		}
 
 	}
@@ -482,10 +504,21 @@ public class MainActivity extends DroidGap {
 
 			@Override
 			public void onNotify(ServerEvent e) {
-				Log.d(TAG3, " onNotify fired - jettyListener ... 0");
-				jettyHandler(e.getParams());
+				Log.d(TAG3, " onNotify fired - jettyListener ... ");
 
-				Log.d(TAG3, " onNotify fired - jettyListener ... 1");
+				delayTriggers();
+				final String params = e.getParams();
+
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						jettyHandler(params);
+
+					}
+				}).start();
+
+				// Log.d(TAG3, " onNotify fired - jettyListener ... 1");
 			}
 
 		});
@@ -537,14 +570,28 @@ public class MainActivity extends DroidGap {
 				if (Invoker.State.IDLE == invoker.getState()) {
 					if ((mBlinkCounter % 3) != 0) {
 
-						invoker.launch(mc.new GuiBlink(receiver));
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								invoker.launch(mc.new GuiBlink(receiver));
+
+							}
+						}).start();
+
 						mBlinkCounter++;
 					} else {
 
-						String notifications = mDeviceManager
-								.getNotifications();
-						invoker.launch(mc.new GuiDisplayNotifications(receiver,
-								notifications));
+						new Thread(new Runnable() {
+
+							@Override
+							public void run() {
+								String notifications = mDeviceManager
+										.getNotifications();
+								invoker.launch(mc.new GuiDisplayNotifications(
+										receiver, notifications));
+
+							}
+						}).start();
 						mBlinkCounter++;
 
 						if (mBlinkCounter > 1000) {

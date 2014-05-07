@@ -1,5 +1,7 @@
 package com.megamip.voice;
 
+import android.util.Log;
+
 public class MipCommand {
 
 	public class GuiShowMic implements Command {
@@ -467,6 +469,7 @@ public class MipCommand {
 	public class VisorMoveDown implements Command {
 
 		private MipReceiver mipReceiver;
+	
 
 		// constructors
 		private VisorMoveDown() {
@@ -479,6 +482,33 @@ public class MipCommand {
 		@Override
 		public void execute() {
 			mipReceiver.visorMoveDown();
+
+		}
+
+	}
+	
+	public class MoveProjectorTo implements Command {
+
+		private MipReceiver mipReceiver;
+		private String params;
+		// constructors
+		private MoveProjectorTo() {
+		}
+
+		public MoveProjectorTo(MipReceiver mipReceiver, String params) {
+			this.mipReceiver = mipReceiver;
+			this.params = params;
+		}
+
+		@Override
+		public void execute() {
+			try {
+				Log.d("A3", "bloc try MoveProjectorTo - MipCommand params: "+params);
+				mipReceiver.moveProjectorTo(Integer.parseInt(params));
+			} catch (Exception e) {
+				Log.d("A3", "bloc catch MoveProjectorTo - MipCommand e: "+e.toString());
+			}
+			
 
 		}
 
