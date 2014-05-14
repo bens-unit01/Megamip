@@ -38,11 +38,16 @@ public class MipUsbDevice {
 	private static MipUsbDevice mMipUsbDevice = null;
 	private static MipUsbDevice mMipUsbDeviceUno = null;
 	private static MipUsbDevice mMipUsbDeviceNano = null;
+	private static MipUsbDevice mMipUsbDeviceMicro = null;
 	// public static final String NANO = "nano", UNO = "uno";
-	public static final int NANO_PRODUCT_ID = 24577, UNO_PRODUCT_ID = 67;
+	// public static final int NANO_PRODUCT_ID = 24577, UNO_PRODUCT_ID = 67;
+	// test avec le Sparkfun pro micro
+
+	public static final int MICRO_PRODUCT_ID = 37380, UNO_PRODUCT_ID = 67,
+			NANO_PRODUCT_ID = 24577;
 
 	public enum DeviceType {
-		NANO, UNO
+		NANO, UNO, MICRO
 	}
 
 	private final ExecutorService mExecutor = Executors
@@ -60,14 +65,24 @@ public class MipUsbDevice {
 
 	public static MipUsbDevice getInstance(Context context, DeviceType type) {
 
-		MipUsbDevice returnValue = (type == DeviceType.UNO) ? mMipUsbDeviceUno
-				: mMipUsbDeviceNano;
+		MipUsbDevice returnValue = null;
+		
+		if (type == DeviceType.UNO)
+			returnValue = mMipUsbDeviceUno;
+		if (type == DeviceType.NANO)
+			returnValue = mMipUsbDeviceNano;
+		if (type == DeviceType.MICRO)
+			returnValue = mMipUsbDeviceMicro;
+
 		if (null == mMipUsbDeviceUno && type == DeviceType.UNO) {
 			mMipUsbDeviceUno = new MipUsbDevice(context, DeviceType.UNO);
 			returnValue = mMipUsbDeviceUno;
 		} else if (null == mMipUsbDeviceNano && type == DeviceType.NANO) {
 			mMipUsbDeviceNano = new MipUsbDevice(context, DeviceType.NANO);
 			returnValue = mMipUsbDeviceNano;
+		} else if (null == mMipUsbDeviceMicro && type == DeviceType.MICRO) {
+			mMipUsbDeviceMicro = new MipUsbDevice(context, DeviceType.MICRO);
+			returnValue = mMipUsbDeviceMicro;
 		}
 
 		return returnValue;
@@ -95,6 +110,11 @@ public class MipUsbDevice {
 					&& type == DeviceType.UNO) {
 				usbDevice = element;
 			}
+			
+			if (MICRO_PRODUCT_ID == element.getProductId()
+					&& type == DeviceType.MICRO) {
+				usbDevice = element;
+			}
 		}
 
 		mUsbDriver = UsbSerialProber.acquire(mUsbManager, usbDevice);
@@ -103,8 +123,12 @@ public class MipUsbDevice {
 				+ mUsbDriver + " mUsbManager" + mUsbManager);
 
 		try {
+
 			mUsbDriver.open();
-			mUsbDriver.setBaudRate(115200);
+			// mUsbDriver.setBaudRate(115200);
+			mUsbDriver.setParameters(115200, UsbSerialDriver.DATABITS_8,
+					UsbSerialDriver.STOPBITS_1, UsbSerialDriver.PARITY_NONE);
+			mUsbDriver.setDTR(true);
 			Log.d(TAG3, "MipUsbDevice  - driver open - baudrate = 115200");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -135,7 +159,9 @@ public class MipUsbDevice {
 
 		try {
 			mUsbDriver.open();
-			mUsbDriver.setBaudRate(115200);
+			// mUsbDriver.setBaudRate(115200);
+			mUsbDriver.setParameters(115200, UsbSerialDriver.DATABITS_8,
+					UsbSerialDriver.STOPBITS_1, UsbSerialDriver.PARITY_NONE);
 			Log.d(TAG3, "MipUsbDevice  - driver open - baudrate = 115200");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -283,7 +309,11 @@ public class MipUsbDevice {
 		} else {
 			try {
 				mUsbDriver.open();
-				mUsbDriver.setBaudRate(115200);
+				// mUsbDriver.setBaudRate(115200);
+				mUsbDriver
+						.setParameters(115200, UsbSerialDriver.DATABITS_8,
+								UsbSerialDriver.STOPBITS_1,
+								UsbSerialDriver.PARITY_NONE);
 			} catch (IOException e) {
 				Log.e(TAG3, "Error setting up device: " + e.getMessage(), e);
 

@@ -2,6 +2,9 @@ package com.megamip.voice;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+
+import org.apache.cordova.CordovaWebView;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -32,12 +35,12 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.telepresence.MegamipLSClient;
 import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
-import com.megamip.util.DroidGap;
 import com.megamip.util.JettyServer;
 import com.megamip.util.JettyServer.JettyListener;
 import com.megamip.util.JettyServer.ServerEvent;
 import com.megamip.util.MipDeviceManager;
 import com.megamip.util.MipTimer;
+import com.megamip.view.DroidGap;
 import com.megamip.view.MipVideoPlayer;
 import com.megamip.view.SpeakNow;
 import com.megamip.voice.MipUsbDevice.DeviceType;
@@ -49,10 +52,11 @@ import com.megamip.telepresence.MegamipLSClient.MegamipLSClientListener;
 
 public class MainActivity extends DroidGap {
 
+	// ---
 	public static final int USER_MOBILE = 0;
 	public static final int USER_DESKTOP = 1;
-	public static final int INACTIVITY_PERIOD = 180; // inactivity period in
-														// seconds
+	public static final int INACTIVITY_PERIOD = 25; // inactivity period in
+													// seconds
 	public static final int BLINK_PERIOD = 7;
 
 	public static Context context; // reference vers l'activité MainActivity
@@ -65,11 +69,12 @@ public class MainActivity extends DroidGap {
 	private ImageButton btnSpeak;
 	private TextView textView;
 	private EditText editText1;
-	private WebView webView;
+	private CordovaWebView webView;
 	private String accountType = null;
 	private String accountName = null;
 	private Handler handler = null;
 	private MipUsbDevice mipUsbDeviceNano;
+	private MipUsbDevice mipUsbDeviceMicro;
 	// private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";
 	private static final String HTML_ROOT = "file:///android_asset/www/";
 	private Command mCommand;
@@ -100,40 +105,38 @@ public class MainActivity extends DroidGap {
 	public void onCreate(Bundle savedInstanceState) {
 
 		// setContentView(R.layout.activity_main);
-
+		super.onCreate(savedInstanceState);
 		context = this;
 		handler = new Handler();
 
 		// super.loadUrl("content://jsHybugger.org/file:///android_asset/www/test2.html");
-		super.onCreate(savedInstanceState);
+		// setContentView(R.layout.activity_main);
 		// super.loadUrl("http://www.accenture.com/ca-en/Pages/index.aspx");
+		webView = super.getWebView();
 
-		webView = super.appView;
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
 
 		if (MipUsbDevice.isUSBConnected(context)) { // we confirm that the
 													// Arduino Nano and Uno are
-													// both connected
-			invoker = new Invoker();
+			invoker = new Invoker(); // both connected
 			receiver = new MipReceiver(handler, webView, this);
 			mc = new MipCommand();
-
 			mJettyServer = new JettyServer();
 
 			mMegamipLSClient = new MegamipLSClient();
-
 			mSpeakNowDlg = new SpeakNow("Speak now !!", context);
-
 			mDeviceManager = new MipDeviceManager(context);
 			mTrgInactivity = new MipTimer(INACTIVITY_PERIOD, 1);
+
 			mTrgBlink = new MipTimer(BLINK_PERIOD, 2);
-
 			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
-
 			Log.d(TAG2, "setting the listeners ... ");
 			setListeners();
+
 			mState = State.STARTED;
+
 		} else {
+
 			Log.d(TAG2,
 					"Not all usb devices are connected ... closing the app ");
 			Toast warning = Toast.makeText(context,
@@ -143,6 +146,7 @@ public class MainActivity extends DroidGap {
 			this.finish();
 
 		}
+
 		// loadPage("index.html");
 		// loadPage("test.html");
 		Log.d(TAG2, "MainActivity onCreate()--- ");
@@ -158,6 +162,7 @@ public class MainActivity extends DroidGap {
 	}
 
 	private void loadURL(final String in) {
+		
 		handler.post(new Runnable() {
 			public void run() {
 				webView.loadUrl(in);
@@ -392,9 +397,9 @@ public class MainActivity extends DroidGap {
 		ArduinoCtrlMM arduinoCtrl = new ArduinoCtrlMM(this);
 		int speed = MipReceiver.SPEED;
 		int time = MipReceiver.TIME;
-		int turnTime = MipReceiver.TIME/2;
+		int turnTime = MipReceiver.TIME / 2;
 
-		//Log.d(TAG2, "jettHandler cmd: " + input[1]);
+		// Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward")) {
 
@@ -441,6 +446,15 @@ public class MainActivity extends DroidGap {
 		if (input[1].equals("moveProjectorTo")) {
 
 			mCommand = mc.new MoveProjectorTo(receiver, input[2]);
+
+			// adjusting the screen orientation : landscape or reversed
+			// landscape
+
+			if (input[2].equals("1") || input[2].equals("2")) {
+				super.setScreenOrientation(ScreenOrientation.POSITION_180);
+			} else {
+				super.setScreenOrientation(ScreenOrientation.POSITION_0);
+			}
 			invoker.launch(mCommand);
 			Log.d(TAG2, "jettHandler triggered moveProjectorTo params: "
 					+ input[2]);
@@ -488,7 +502,20 @@ public class MainActivity extends DroidGap {
 			public void onNotify(UsbEvent e) {
 				byte[] data = e.getData();
 				movementHandler(new MovementInput(data));
-				Log.d(TAG7, "> " + (new String(data)));
+				Log.d(TAG7, "> mipUsbDeviceNano " + (new String(data)));
+			}
+
+		});
+		
+		mipUsbDeviceMicro = MipUsbDevice.getInstance(context, DeviceType.MICRO);
+		
+		mipUsbDeviceMicro.addUsbListener(new UsbListener() {
+
+			@Override
+			public void onNotify(UsbEvent e) {
+				byte[] data = e.getData();
+				movementHandler(new MovementInput(data));
+				Log.d(TAG7, "> mipUsbDeviceMicro " + (new String(data)));
 			}
 
 		});
