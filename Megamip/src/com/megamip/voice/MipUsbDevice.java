@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 
 import com.hoho.android.usbserial.driver.*;
 import com.hoho.android.usbserial.util.*;
+import com.megamip.util.UsbCommand;
 
 public class MipUsbDevice {
 
@@ -39,6 +40,21 @@ public class MipUsbDevice {
 	private static MipUsbDevice mMipUsbDeviceUno = null;
 	private static MipUsbDevice mMipUsbDeviceNano = null;
 	private static MipUsbDevice mMipUsbDeviceMicro = null;
+
+	private class PartialResult {
+		public byte[] buffer;
+		public boolean flag;
+		public int lastIndex;
+
+		public PartialResult() {
+			flag = false;
+			buffer = new byte[10];
+			lastIndex = 0;
+		}
+	}
+
+	private PartialResult partialResult;
+
 	// public static final String NANO = "nano", UNO = "uno";
 	// public static final int NANO_PRODUCT_ID = 24577, UNO_PRODUCT_ID = 67;
 	// test avec le Sparkfun pro micro
@@ -66,7 +82,7 @@ public class MipUsbDevice {
 	public static MipUsbDevice getInstance(Context context, DeviceType type) {
 
 		MipUsbDevice returnValue = null;
-		
+
 		if (type == DeviceType.UNO)
 			returnValue = mMipUsbDeviceUno;
 		if (type == DeviceType.NANO)
@@ -90,10 +106,14 @@ public class MipUsbDevice {
 
 	private MipUsbDevice() {
 		super();
+
 	}
 
 	private MipUsbDevice(Context context, DeviceType type) {
 		super();
+
+		partialResult = new PartialResult();
+		
 
 		mUsbManager = (UsbManager) context
 				.getSystemService(Context.USB_SERVICE);
@@ -110,7 +130,7 @@ public class MipUsbDevice {
 					&& type == DeviceType.UNO) {
 				usbDevice = element;
 			}
-			
+
 			if (MICRO_PRODUCT_ID == element.getProductId()
 					&& type == DeviceType.MICRO) {
 				usbDevice = element;
@@ -148,6 +168,9 @@ public class MipUsbDevice {
 
 	private MipUsbDevice(Context context) {
 		super();
+
+		partialResult = new PartialResult();
+	
 
 		mUsbManager = (UsbManager) context
 				.getSystemService(Context.USB_SERVICE);
@@ -218,14 +241,52 @@ public class MipUsbDevice {
 			// ---- notifyAll
 
 			Log.d(TAG3, "UsbDevice onNewData -----  ");
+			if (partialResult.flag) {
 
-			for (UsbListener b : mListeListeners) {
+				int j = partialResult.lastIndex;
+				for (int i = 0; i < data.length; i++) {
+					partialResult.buffer[j + i] = data[i];
 
-				b.onNotify(new UsbEvent(this, data));
-				Log.d(TAG3, "UsbDevice  onNewData 2  ");
+				}
+				partialResult.lastIndex = 0;
+				partialResult.flag = false;
+				for (UsbListener b : mListeListeners) {
+
+					b.onNotify(new UsbEvent(this, partialResult.buffer));
+					Log.d(TAG3, "UsbDevice  onNewData 1  ");
+				}
+				
+              
+			}else if (includeValue(data, UsbCommand.END_BYTE)
+					&& (data.length > 3)) {
+				for (UsbListener b : mListeListeners) {
+
+					b.onNotify(new UsbEvent(this, data));
+					Log.d(TAG3, "UsbDevice  onNewData 2  ");
+				}
+			} else { // we dont have the whole data, we save the data we just
+						// got
+
+				for (int i = 0; i < data.length; i++) {
+					partialResult.buffer[i] = data[i];
+					partialResult.lastIndex = i;
+				}
+				partialResult.lastIndex++;
+				partialResult.flag = true;
 			}
 		}
+
 	};
+
+	private boolean includeValue(byte[] data, int value) {
+		boolean returnValue = false;
+		for (byte b : data) {
+			if (b == value) {
+				returnValue = true;
+			}
+		}
+		return returnValue;
+	}
 
 	// inner interface to implement the Observer design pattern
 

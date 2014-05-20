@@ -78,6 +78,10 @@ public class MipReceiver {
 	public void guiNext() {
 		callJsFunction("next", "");
 	}
+	
+	public void guiPrev() {
+		callJsFunction("prev", "");
+	}
 
 	public void guiBack() {
 

@@ -42,6 +42,8 @@ public class MipCommand {
 
 	public class PictureSearch implements Command {
 
+		
+
 		private MipReceiver mipReceiver;
 		private String keywords;
 
@@ -54,6 +56,16 @@ public class MipCommand {
 			this.mipReceiver = mipReceiver;
 			this.keywords = keywords;
 		}
+		
+		public PictureSearch(MipReceiver mipReceiver) {
+
+			this.mipReceiver = mipReceiver;
+			
+		}
+		
+		public void setKeywords(String keywords) {
+			this.keywords = keywords;
+		}
 
 		public void execute() {
 
@@ -63,6 +75,10 @@ public class MipCommand {
 	}
 
 	public class VideoSearch implements Command {
+
+		public void setKeywords(String keywords) {
+			this.keywords = keywords;
+		}
 
 		private MipReceiver mipReceiver;
 		private String keywords;
@@ -74,6 +90,10 @@ public class MipCommand {
 		public VideoSearch(MipReceiver mipReceiver, String keywords) {
 			this.mipReceiver = mipReceiver;
 			this.keywords = keywords;
+		}
+		
+		public VideoSearch(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
 		}
 
 		@Override
@@ -98,6 +118,24 @@ public class MipCommand {
 
 		public void execute() {
 			mipReceiver.guiNext();
+		}
+
+	}
+	
+	public class GuiPrev implements Command {
+
+		private MipReceiver mipReceiver;
+
+		// constructors
+		private GuiPrev() {
+		}
+
+		public GuiPrev(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
+		}
+
+		public void execute() {
+			mipReceiver.guiPrev();
 		}
 
 	}
@@ -140,6 +178,7 @@ public class MipCommand {
 
 	public class GuiShow implements Command {
 
+		
 		private MipReceiver mipReceiver;
 		private String mMode;
 
@@ -156,6 +195,11 @@ public class MipCommand {
 			this.mipReceiver = mipReceiver;
 			this.mMode = mMode;
 		}
+		
+		public void setmMode(String mMode) {
+			this.mMode = mMode;
+		}
+
 
 		public void execute() {
 			mipReceiver.guiShow(mMode);
@@ -183,6 +227,8 @@ public class MipCommand {
 
 	public class GuiShowMessage implements Command {
 
+		
+
 		private MipReceiver mipReceiver;
 		private String message;
 
@@ -194,6 +240,15 @@ public class MipCommand {
 			this.mipReceiver = mipReceiver;
 			this.message = message;
 		}
+		
+		public GuiShowMessage(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
+		}
+		
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
 
 		public void execute() {
 			mipReceiver.guiShowMessage(message);
@@ -202,6 +257,10 @@ public class MipCommand {
 	}
 
 	public class GuiDisplayNotifications implements Command {
+
+		public void setNotifications(String notifications) {
+			this.notifications = notifications;
+		}
 
 		private MipReceiver mipReceiver;
 		private String notifications;
@@ -216,6 +275,9 @@ public class MipCommand {
 			this.notifications = notifications;
 
 		}
+		public GuiDisplayNotifications(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
+        }
 
 		public void execute() {
 			mipReceiver.guiDisplayNotifications(notifications);
@@ -223,7 +285,15 @@ public class MipCommand {
 
 	}
 
-	public class GuiDisplayNotifications2 implements Command {
+	  public class GuiDisplayNotifications2 implements Command {
+
+      public void setNotifications(String notifications) {
+			this.notifications = notifications;
+		}
+      
+      public void setPeriod(int period) {
+			this.period = period;
+		}
 
 		private MipReceiver mipReceiver;
 		private String notifications;
@@ -239,6 +309,10 @@ public class MipCommand {
 			this.notifications = notifications;
 			this.period = period;
 
+		}
+
+		public GuiDisplayNotifications2(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
 		}
 
 		public void execute() {
@@ -469,7 +543,6 @@ public class MipCommand {
 	public class VisorMoveDown implements Command {
 
 		private MipReceiver mipReceiver;
-	
 
 		// constructors
 		private VisorMoveDown() {
@@ -486,11 +559,14 @@ public class MipCommand {
 		}
 
 	}
-	
+
 	public class MoveProjectorTo implements Command {
+
+	
 
 		private MipReceiver mipReceiver;
 		private String params;
+
 		// constructors
 		private MoveProjectorTo() {
 		}
@@ -499,16 +575,25 @@ public class MipCommand {
 			this.mipReceiver = mipReceiver;
 			this.params = params;
 		}
-
+		
+		public MoveProjectorTo(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
+		}
+		
+		public void setParams(String params) {
+			this.params = params;
+		}
 		@Override
 		public void execute() {
 			try {
-				Log.d("A3", "bloc try MoveProjectorTo - MipCommand params: "+params);
+				Log.d("A3", "bloc try MoveProjectorTo - MipCommand params: "
+						+ params);
 				mipReceiver.moveProjectorTo(Integer.parseInt(params));
 			} catch (Exception e) {
-				Log.d("A3", "bloc catch MoveProjectorTo - MipCommand e: "+e.toString());
+				Log.d("A3",
+						"bloc catch MoveProjectorTo - MipCommand e: "
+								+ e.toString());
 			}
-			
 
 		}
 

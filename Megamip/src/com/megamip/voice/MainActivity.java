@@ -80,7 +80,6 @@ public class MainActivity extends DroidGap {
 	private Command mCommand;
 	private Invoker invoker;
 	private MipReceiver receiver;
-	private MipCommand mc;
 	private SpeakNow mSpeakNowDlg;
 
 	private SpeechRecognizer mSpeechRecognizer;
@@ -94,7 +93,25 @@ public class MainActivity extends DroidGap {
 	private MipDeviceManager mDeviceManager;
 	private MediaPlayer mMediaPlayer;
 	private Intent mediaplayerIntent;
-
+	
+	
+	// Megamip commands 
+	private MipCommand.GuiDisplayNotifications2 mGuidDisplayNotifications2;
+	private MipCommand.GuiDisplayNotifications  mGuidDisplayNotifications;
+	private MipCommand.VideoSearch  mVideoSearch;
+	private MipCommand.PictureSearch  mPictureSearch;
+	private MipCommand.GuiShow mGuiShow;
+    private MipCommand.GuiNext mGuiNext;
+    private MipCommand.GuiPrev mGuiPrev;
+    private MipCommand.MoveProjectorTo mMoveProjectorTo;
+    private MipCommand.GuiShowMessage mGuiShowMessage;
+    private MipCommand.VisorMoveUp mVisorMoveUp;
+    private MipCommand.VisorMoveDown mVisorMoveDown;
+    private MipCommand.GuiHome mGuiHome;
+    private MipCommand.GuiBack mGuiBack;
+    private MipCommand.GuiBlink mGuiBlink;
+   
+    
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
 	}
@@ -120,7 +137,7 @@ public class MainActivity extends DroidGap {
 													// Arduino Nano and Uno are
 			invoker = new Invoker(); // both connected
 			receiver = new MipReceiver(handler, webView, this);
-			mc = new MipCommand();
+//			mc = new MipCommand();
 			mJettyServer = new JettyServer();
 
 			mMegamipLSClient = new MegamipLSClient();
@@ -131,6 +148,7 @@ public class MainActivity extends DroidGap {
 			mTrgBlink = new MipTimer(BLINK_PERIOD, 2);
 			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
 			Log.d(TAG2, "setting the listeners ... ");
+			commandsInit();
 			setListeners();
 
 			mState = State.STARTED;
@@ -153,6 +171,8 @@ public class MainActivity extends DroidGap {
 
 	}
 
+	
+
 	public void loadPage(String in) {
 		final String url = HTML_ROOT + in;
 
@@ -162,7 +182,7 @@ public class MainActivity extends DroidGap {
 	}
 
 	private void loadURL(final String in) {
-		
+
 		handler.post(new Runnable() {
 			public void run() {
 				webView.loadUrl(in);
@@ -192,13 +212,18 @@ public class MainActivity extends DroidGap {
 		mState = State.SEARCH_DISPLAY;
 
 		if (action.equals("video")) {
-			mCommand = mc.new VideoSearch(receiver, keywords);
+			
+//			mCommand = mc.new VideoSearch(receiver, keywords);
+			mVideoSearch.setKeywords(keywords);
+			mCommand = mVideoSearch;
 			mMode = VIDEO_MODE;
 			mTrgInactivity.resetTimer();
 		} else {
 
 			mMode = PICTURE_MODE;
-			mCommand = mc.new PictureSearch(receiver, keywords);
+//			mCommand = mc.new PictureSearch(receiver, keywords);
+			mPictureSearch.setKeywords(keywords);
+			mCommand = mPictureSearch;
 			mTrgInactivity.resetTimer();
 		}
 
@@ -211,8 +236,10 @@ public class MainActivity extends DroidGap {
 
 		String action = movementInput.getAction();
 
+		// Gestures handling : Next, Hold, Back
+
 		// **** Next--------------------
-		if (action.equals("76")) {
+		if (action.equals(MovementInput.NEXT_GESTURE)) {
 			// if (action.equals("69")) { // keyboard input ...
 			mMediaPlayer.start();
 			Log.d(TAG6, "onNext --------------");
@@ -222,7 +249,7 @@ public class MainActivity extends DroidGap {
 
 		// **** Hold--------------------
 
-		if (action.equals("72")) {
+		if (action.equals(MovementInput.HOLD_GESTURE)) {
 			// if (action.equals("81")) {
 			mMediaPlayer.start();
 			Log.d(TAG6, "onHold --------------");
@@ -230,7 +257,7 @@ public class MainActivity extends DroidGap {
 		}
 
 		// **** Back --------------------
-		if (action.equals("82")) {
+		if (action.equals(MovementInput.BACK_GESTURE)) {
 			// if (action.equals("87")) {
 			mMediaPlayer.start();
 			Log.d(TAG6, "onBack --------------");
@@ -238,10 +265,91 @@ public class MainActivity extends DroidGap {
 
 		}
 
-		/*
-		 * Log.d(TAG6, "action = " + action + " invoker.state: " +
-		 * invoker.getState() + " mState: " + mState + " mMode: " + mMode);
-		 */
+		// touch-screen input handling : left_swipe, right_swipe, up_swipe,
+		// down_swipe, simple_touch
+
+		if (action.equals(MovementInput.LEFT_SWIPE)) {
+
+			Log.d(TAG6, "left_swipe --------------");
+		    delayTriggers();
+			invoker.launch(mGuiPrev);
+		}
+
+		if (action.equals(MovementInput.RIGHT_SWIPE)) {
+
+			Log.d(TAG6, "right_swipe --------------");
+			 delayTriggers();
+			 invoker.launch(mGuiNext);
+		}
+
+		if (action.equals(MovementInput.UP_SWIPE)) {
+
+			Log.d(TAG6, "up_swipe --------------");
+		}
+
+		if (action.equals(MovementInput.DOWN_SWIPE)) {
+
+			Log.d(TAG6, "down_swipe --------------");
+		}
+
+		if (action.equals(MovementInput.SIMPLE_TOUCH)) {
+
+			handleSimpleTouch(movementInput);
+
+			Log.d(TAG6, "simple_touch --------------");
+		}
+
+		// Log.d(TAG6, "action:"+action);
+	}
+
+	private void handleSimpleTouch(MovementInput movementInput) {
+		String[] args = movementInput.getArgs();
+
+		// calculating the push coordinates
+		int arg1 = 0;
+		int arg2 = 0;
+		int arg3 = 0;
+		
+		try {
+			arg1 = Integer.parseInt(args[0]);
+			arg2 = Integer.parseInt(args[1]);
+			arg3 = Integer.parseInt(args[2]);
+		} catch (Exception e) {
+			Log.d(TAG3, " bloc catch: ex: "+e.getMessage());
+		}
+
+		int x = ((arg1 << 4) | (arg3 >> 4) & 0xf);
+		int y = (arg2 << 4) | ((arg3 & 0xf));
+		Log.d(TAG3, " x: " + x + " y: " + y);
+		
+		// mic button 
+		if(x >= 9 && y >= 3650 && x <= 506 && y <= 4095){
+			Log.d(TAG3,"handleSimpleTouch , speak-now ");
+			delayTriggers();
+			onSpeak();
+			
+		}
+		
+		// close button 
+		if(x >= 3489 && y >= 3773 && x <= 4030 && y <= 4095){
+			
+			Log.d(TAG3,"handleSimpleTouch , close ");
+//			mState = State.STANDBY;
+//            delayTriggers();
+//			invoker.launch(mGuiHome);
+			onBack();
+		}
+		
+		// video play 
+		
+		if (x >= 914 && y >= 1317 && x <= 2927 && y <= 2868) {
+			mGuiShow.setmMode(mMode);
+			mCommand = mGuiShow;
+			mState = State.SHOW;
+			delayTriggers();
+			invoker.setState(Invoker.State.ACTIVE);
+			invoker.launch(mCommand);
+		}
 
 	}
 
@@ -251,15 +359,19 @@ public class MainActivity extends DroidGap {
 		case STANDBY:
 			mState = State.NOTIFICATIONS_DISPLAY;
 			String notifications = mDeviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
-					INACTIVITY_PERIOD);
+//			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
+//					INACTIVITY_PERIOD);
+			mGuidDisplayNotifications2.setNotifications(notifications);
+			mGuidDisplayNotifications2.setPeriod(INACTIVITY_PERIOD);
+			mCommand = mGuidDisplayNotifications2;
 			delayTriggers();
 			Log.d(TAG3,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
 			invoker.launch(mCommand);
 			break;
 		case SEARCH_DISPLAY:
-			mCommand = mc.new GuiNext(receiver);
+//			mCommand = mc.new GuiNext(receiver);
+			mCommand = mGuiNext;
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiNext ");
 			delayTriggers();
 			invoker.launch(mCommand);
@@ -276,8 +388,11 @@ public class MainActivity extends DroidGap {
 		case STANDBY:
 			mState = State.NOTIFICATIONS_DISPLAY;
 			String notifications = mDeviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
-					INACTIVITY_PERIOD);
+//			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
+//					INACTIVITY_PERIOD);
+			mGuidDisplayNotifications2.setNotifications(notifications);
+			mGuidDisplayNotifications2.setPeriod(INACTIVITY_PERIOD);
+			mCommand = mGuidDisplayNotifications2;
 			delayTriggers();
 			Log.d(TAG3,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
@@ -291,7 +406,9 @@ public class MainActivity extends DroidGap {
 			// invoker.launch(mCommand);
 			break;
 		case SEARCH_DISPLAY:
-			mCommand = mc.new GuiShow(receiver, mMode);
+//			mCommand = mc.new GuiShow(receiver, mMode);
+			mGuiShow.setmMode(mMode);
+			mCommand = mGuiShow;
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiShow ");
 			mState = State.SHOW;
 			delayTriggers();
@@ -300,7 +417,8 @@ public class MainActivity extends DroidGap {
 			break;
 
 		case SHOW:
-			mCommand = mc.new VisorMoveUp(receiver);
+//			mCommand = mc.new VisorMoveUp(receiver);
+			mCommand = mVisorMoveUp;
 			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveUp ");
 			mState = State.PROJECTING;
 			delayTriggers();
@@ -317,11 +435,14 @@ public class MainActivity extends DroidGap {
 	private void onBack() {
 
 		switch (mState) {
-		case STANDBY:
+		case STANDBY:  
 			mState = State.NOTIFICATIONS_DISPLAY;
 			String notifications = mDeviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
-					INACTIVITY_PERIOD);
+//			mCommand = mc.new GuiDisplayNotifications2(receiver, notifications,
+//					INACTIVITY_PERIOD);
+			mGuidDisplayNotifications2.setNotifications(notifications);
+			mGuidDisplayNotifications2.setPeriod(INACTIVITY_PERIOD);
+			mCommand = mGuidDisplayNotifications2;
 			delayTriggers();
 			Log.d(TAG3,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
@@ -331,7 +452,8 @@ public class MainActivity extends DroidGap {
 		case SEARCH_ERROR:
 		case NOTIFICATIONS_DISPLAY:
 			mState = State.STANDBY;
-			mCommand = mc.new GuiHome(receiver);
+//			mCommand = mc.new GuiHome(receiver);
+			mCommand = mGuiHome;
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiHome ");
 			delayTriggers();
 			invoker.launch(mCommand);
@@ -359,7 +481,8 @@ public class MainActivity extends DroidGap {
 				finishActivity(1);
 				Log.d(TAG6, "back event fired");
 			} else {
-				mCommand = mc.new GuiBack(receiver);
+//				mCommand = mc.new GuiBack(receiver);
+				mCommand = mGuiBack;
 				invoker.launch(mCommand);
 			}
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "
@@ -369,7 +492,8 @@ public class MainActivity extends DroidGap {
 
 		case PROJECTING:
 			mState = State.SHOW;
-			mCommand = mc.new VisorMoveDown(receiver);
+//			mCommand = mc.new VisorMoveDown(receiver);
+			mCommand = mVisorMoveDown;
 			delayTriggers();
 			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveDown ");
 			invoker.launch(mCommand);
@@ -433,19 +557,22 @@ public class MainActivity extends DroidGap {
 			// mCommand = mc.new MipMoveRight(receiver);
 			// invoker.launch(mCommand);
 			// Log.d(TAG2, "jettHandler triggered moveRight");
+			// optimized code
 			arduinoCtrl.drive(speed, -speed, turnTime, turnTime);
 		}
 
 		if (input[1].equals("stop")) {
 
-			mCommand = mc.new MipStop(receiver);
-			invoker.launch(mCommand);
-			Log.d(TAG2, "jettHandler triggered stop");
+//			mCommand = mc.new MipStop(receiver);
+//			invoker.launch(mCommand);
+//			Log.d(TAG2, "jettHandler triggered stop");
 		}
 
 		if (input[1].equals("moveProjectorTo")) {
 
-			mCommand = mc.new MoveProjectorTo(receiver, input[2]);
+//			mCommand = mc.new MoveProjectorTo(receiver, input[2]);
+			mMoveProjectorTo.setParams(input[2]);
+			mCommand = mMoveProjectorTo;
 
 			// adjusting the screen orientation : landscape or reversed
 			// landscape
@@ -489,10 +616,38 @@ public class MainActivity extends DroidGap {
 		Log.d(TAG3, " pushServerHandler args: " + params[0]);
 
 	}
+	
+	
+	private void commandsInit() {
+		MipCommand mc = new MipCommand();
+		
+		 mGuidDisplayNotifications2 = mc.new GuiDisplayNotifications2(receiver);
+		 mGuidDisplayNotifications = mc.new GuiDisplayNotifications(receiver);
+		 mVideoSearch = mc.new VideoSearch(receiver);
+		 mPictureSearch = mc.new PictureSearch(receiver);
+		 
+		 mGuiShow = mc.new GuiShow(receiver);
+		 mGuiNext = mc.new GuiNext(receiver);
+		 mGuiPrev = mc.new GuiPrev(receiver);
+		 mMoveProjectorTo = mc.new MoveProjectorTo(receiver);
+		 mGuiShowMessage = mc.new GuiShowMessage(receiver);
+		 
+		 mVisorMoveUp = mc.new VisorMoveUp(receiver);
+		 mVisorMoveDown = mc.new VisorMoveDown(receiver);
+		 mGuiHome = mc.new GuiHome(receiver);
+		 mGuiBack = mc.new GuiBack(receiver);
+		 
+		 mGuiBlink = mc.new GuiBlink(receiver);
+		
+		 
+		
+	}
 
 	private void setListeners() {
 
-		// Listener for the usb device
+		// Listener for the usb devices
+		// the arduino Nano controls the gesture sensor and the 2 projector
+		// servos ( focus and rotation )
 
 		mipUsbDeviceNano = MipUsbDevice.getInstance(context, DeviceType.NANO);
 
@@ -506,9 +661,10 @@ public class MainActivity extends DroidGap {
 			}
 
 		});
-		
+
+		// the Sparkfun pro micro controls the touch-screen
 		mipUsbDeviceMicro = MipUsbDevice.getInstance(context, DeviceType.MICRO);
-		
+
 		mipUsbDeviceMicro.addUsbListener(new UsbListener() {
 
 			@Override
@@ -573,7 +729,7 @@ public class MainActivity extends DroidGap {
 				if (invoker.getState() != Invoker.State.ACTIVE) {
 					if (mState != State.STANDBY
 							&& mState != State.NOTIFICATIONS_DISPLAY) {
-						invoker.launch(mc.new GuiHome(receiver));
+						invoker.launch(mGuiShow);
 					}
 					mState = State.STANDBY;
 					synchronized (mLock) {
@@ -600,7 +756,8 @@ public class MainActivity extends DroidGap {
 						new Thread(new Runnable() {
 							@Override
 							public void run() {
-								invoker.launch(mc.new GuiBlink(receiver));
+//								invoker.launch(mc.new GuiBlink(receiver));
+								invoker.launch(mGuiBlink);
 
 							}
 						}).start();
@@ -614,8 +771,8 @@ public class MainActivity extends DroidGap {
 							public void run() {
 								String notifications = mDeviceManager
 										.getNotifications();
-								invoker.launch(mc.new GuiDisplayNotifications(
-										receiver, notifications));
+								mGuidDisplayNotifications.setNotifications(notifications);
+								invoker.launch(mGuidDisplayNotifications);
 
 							}
 						}).start();
@@ -738,7 +895,9 @@ public class MainActivity extends DroidGap {
 			}
 
 			mState = State.SEARCH_ERROR;
-			mCommand = mc.new GuiShowMessage(receiver, message);
+//		    mCommand = mc.new GuiShowMessage(receiver, message);
+			mGuiShowMessage.setMessage(message);
+			mCommand = mGuiShowMessage;
 			invoker.launch(mCommand);
 
 		}
@@ -816,8 +975,8 @@ public class MainActivity extends DroidGap {
 		MipDeviceManager deviceManager = new MipDeviceManager(context);
 		try {
 			String notifications = deviceManager.getNotifications();
-			mCommand = mc.new GuiDisplayNotifications(receiver, notifications);
-			invoker.launch(mCommand);
+			mGuidDisplayNotifications.setNotifications(notifications);
+			invoker.launch(mGuidDisplayNotifications);
 			Log.d(TAG3,
 					"MaintActivity - getNotifications - bloc try - notifications: "
 							+ notifications);

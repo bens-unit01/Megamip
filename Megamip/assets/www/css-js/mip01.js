@@ -197,19 +197,17 @@ function hideMic(){
 }
 function next(){
 
-      // unselect the current item 
-     $("[data-wow-index ='"+ index+"']")
-             .removeClass("selected")
-             .addClass("not-selected");
-      // select the next one  
-        index++;
-         index = index %6;
-         
-     $("[data-wow-index ='"+ index+"']")
-             .removeClass("not-selected")
-             .addClass("selected");
-    
- //console.log('next');
+    if(baseRef != null){
+         baseRef.buttonNext.trigger('touchend.owlControls');
+    }
+   
+}
+
+function prev(){
+
+    if(baseRef != null){
+         baseRef.buttonPrev.trigger('touchend.owlControls');
+    }
    
 }
 
@@ -217,13 +215,15 @@ function show(mMode){
     
     mode = mMode;
    // selectedItem = $("[data-wow-index ='"+ index+"'] a").trigger("click");
-   selectedItem = $("[data-wow-index ='"+ index+"'] a");
-   var url = selectedItem.attr("href");
+   selectedItem = $("[data-wow-"+baseRef.currentItem+"] ");
+   var url = selectedItem.attr("data-wow-"+baseRef.currentItem);
    console.log('show --- url: '+url);
    if(mMode == 'video')
    {
    try{  
-     megaMipJSInterface.onLaunchVideo(url);
+     
+      megaMipJSInterface.onLaunchVideo(url);
+     
       }catch(error){
         console.log("show() -- bloc catch err: "+error);
       }
@@ -311,46 +311,78 @@ function pictureSearch(keyword){
         type:"GET",
         dataType : "JSON",
         data: params
-       , success: function(json){
+        , success: function(json){
 
-            var content = "";
-            var newWidth = 0;
-            animationInit();
-            clearScreen();
-            hideEyes();
-            showCenterPanel();
+          var content = "";
+          var newWidth = 0;
+         animationInit();
+         clearScreen();
+          hideEyes();     
+          showCenterPanel();
+          var $results =  $('#results');
+         
+          if(baseRef != null){
+           var items = baseRef.itemsAmount;
 
-      
+           for(var i=0 ; i < items; i++){
+              $results.data('owlCarousel').removeItem();
+            }
+
+          }else{
+             $results.owlCarousel({
+             stopOnHover : true,
+             navigation:true,
+             paginationSpeed : 1000,
+             goToFirstSpeed : 2000,
+             singleItem : true,
+             transitionStyle:"fade"
+
+              // navigation : true, // Show next and prev buttons
+              // slideSpeed : 300,
+              // paginationSpeed : 400,
+              // singleItem:true
+          });
+
+           }
           
-            for(var i = 0; i < 6; i++){
-                           
-                 content = "<div class='pic not-selected' data-wow-index='"+i+"'  >"+
-                                          "<a href='"+json.responseData.results[i].url+"'>"+
-                                          "<img src='"+json.responseData.results[i].tbUrl + "'/>"+
-                                          "</a>"+
-                                     
-                                          "</div>";
-                                  if(i == 2){
-                                      content +="<br/>"
-                                  }
-                                      
-                      $('#results').append(content);
-               } 
-                        
+        //  $results.trigger('destroy.owl');
+          // $results.empty();
+          // $results.removeAttr('style');
+          //  $results.removeClass('owl-theme');
+
+
+         // content = "<div id='owl-demo' class='owl-carousel'></div>"
+         // $results.append(content);
+
+          for(var i = 0; i < 6; i++){
+
+             content = "<div><img src='"+json.responseData.results[i].url + "'/></div>";
+             //$results.append(content);
+              $results.data('owlCarousel').addItem(content);
+
+           } 
+          
+       
+          
+         
+
+         //"<div><img src='"+json.responseData.results[i].tbUrl + "'/></div>";
+
+                        //  "<a href='"+json.responseData.results[i].url+"'>"+
                          //-- select the first item
-                          var s =  $('.pic').first()
-                                  .removeClass("not-selected")
-                                  .addClass("selected");
+                          // var s =  $('.pic').first()
+                          //         .removeClass("not-selected")
+                          //         .addClass("selected");
                           
                           //--FancyBox --
-                               $("a").fancybox({
-                                  'overlayShow' : false,
-                                  'transitionIn'  : 'elastic',
-                                  'transitionOut' : 'elastic',
-                                  'closeClick':true, 
-                                  'closeBtn':false,
-                                  padding:0
-                              });
+                              //  $("a").fancybox({
+                              //     'overlayShow' : false,
+                              //     'transitionIn'  : 'elastic',
+                              //     'transitionOut' : 'elastic',
+                              //     'closeClick':true, 
+                              //     'closeBtn':false,
+                              //     padding:0
+                              // });
 
                        
      
@@ -382,37 +414,64 @@ function videoSearch(keyword){
                 var date;    
     var content = "";
                 var month, day, year;
-      for(var i = 0; i < 6; i++){
-                        date = new Date(data.feed.entry[i].published.$t); 
-                        month = date.getMonth()+1;
-                        day = date.getDate();
-                        year = date.getFullYear();
-      content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
-                                  "<a class='fancybox fancybox.iframe' href='"+data.feed.entry[i].media$group.media$content[0].url+"'>"+
-                                  "<img src='"+data.feed.entry[i].media$group.media$thumbnail[2].url + "'/>"+"</a></div>";
+
+
+                //------------------------
+
+ var $results =  $('#results');
+         
+          if(baseRef != null){
+           var items = baseRef.itemsAmount;
+
+           for(var i=0 ; i < items; i++){
+              $results.data('owlCarousel').removeItem();
+            }
+            
+          }else{
+             $results.owlCarousel({
+             stopOnHover : true,
+             navigation:true,
+             paginationSpeed : 1000,
+             goToFirstSpeed : 2000,
+             singleItem : true,
+             transitionStyle:"fade"
+
+              // navigation : true, // Show next and prev buttons
+              // slideSpeed : 300,
+              // paginationSpeed : 400,
+              // singleItem:true
+          });
+
+           }
+
+            for(var i = 0; i < 6; i++){
+
+             content = "<div><img src='"+ data.feed.entry[i].media$group.media$thumbnail[0].url   
+             + "' data-wow-"+i+"='"+ data.feed.entry[i].media$group.media$content[0].url +"'/></div>";
+             //$results.append(content);
+              $results.data('owlCarousel').addItem(content);
+
+           } 
+          
+
+
+                //-------------------
+      // for(var i = 0; i < 6; i++){
+      //                   date = new Date(data.feed.entry[i].published.$t); 
+      //                   month = date.getMonth()+1;
+      //                   day = date.getDate();
+      //                   year = date.getFullYear();
+      // content = "<div class='pic not-selected' data-wow-index='"+i+"' >"+
+      //                             "<a class='fancybox fancybox.iframe' href='"+data.feed.entry[i].media$group.media$content[0].url+"'>"+
+      //                             "<img src='"+data.feed.entry[i].media$group.media$thumbnail[2].url + "'/>"+"</a></div>";
                                   
-                               //   "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
+      //                          //   "<p>Published: "+day+"-"+month+"-"+year+"</p><br/>"+
                                 
                           
-        $('#results').append(content);
-      } 
+      //   $('#results').append(content);
+      // } 
                         
-                         //-- select the first item
-                          var s =  $('.pic').first()
-                                  .removeClass("not-selected")
-                                  .addClass("selected");
-                          
-                          //--FancyBox --
-                                $("a").fancybox({
-                                'closeClick':true,    
-                                'closeBtn':false,
-                                'padding':0,
-                                   helpers: {
-                                       title : {
-                                           type : 'float'
-                                       }
-                                   }
-                               });
+                      
 
                        
                        

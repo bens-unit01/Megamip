@@ -20,13 +20,32 @@
 <link rel="stylesheet" type="text/css" href="css-js/jquery.fancybox.css?v=2.1.5" media="screen" />
 <!-- <script type="text/javascript" charset="utf-8" src="cordova.js"></script>  -->
 
+<!-- OWL Carousel -->
+<link href="css-js/owl-carousel/owl.carousel.css" rel="stylesheet">
+<link href="css-js/owl-carousel/owl.theme.css" rel="stylesheet">
+<link href="css-js/owl-carousel/owl.transitions.css" rel="stylesheet">
+<script type="text/javascript" src="css-js/owl-carousel/owl.carousel.js"></script>
+
+
 <script src="http://www.youtube.com/player_api"></script>
 
 <script type="text/javascript" src="css-js/mip01.js"></script> 
 <script type="text/javascript" src="css-js/mip02.js"></script> 
 
 
-
+<style>
+#results .owl-item div{
+  padding:5px;
+}
+#results .owl-item img{
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+</style>
     
 </head>
 <body>
@@ -50,7 +69,9 @@
   </div>
 
   <div  id="principal-2"> 
-      <div  id="results"></div>
+
+           <div  id="results" class='owl-carousel'></div>
+
       <div id="output"></div>
   </div>
 
@@ -69,7 +90,7 @@ $.support.cors = true;  // support to load cross domain pages - important for Ph
 $(document).ready(function () { 
 
     
-
+//videoSearch('golf gti');
 
 
   
