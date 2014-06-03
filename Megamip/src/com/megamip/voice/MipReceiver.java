@@ -98,6 +98,7 @@ public class MipReceiver {
 
 	public void guiShow(String mMode) {
 
+		// the callback method for mMode == 'video' will be MainActivity#onLaunchVideo(url)
 		callJsFunction("show", mMode);
 	}
 
@@ -256,16 +257,16 @@ public class MipReceiver {
 
 	public void moveProjectorTo(int position) {
 
-		Position pos = Position.PROJECTOR_POSITION_1;
+		Position pos = Position.PROJECTOR_POSITION_WALL;
 		switch (position) {
 		case 1:
-			pos = Position.PROJECTOR_POSITION_1;
+			pos = Position.PROJECTOR_POSITION_WALL;
 			break;
 		case 2:
-			pos = Position.PROJECTOR_POSITION_2;
+			pos = Position.PROJECTOR_POSITION_CEILING;
 			break;
 		case 3:
-			pos = Position.PROJECTOR_POSITION_3;
+			pos = Position.PROJECTOR_POSITION_SCREEN;
 			break;
 		default:
 			break;

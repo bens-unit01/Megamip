@@ -228,7 +228,7 @@ function show(mMode){
         console.log("show() -- bloc catch err: "+error);
       }
     }else{
-        selectedItem.trigger("click");
+        //selectedItem.trigger("click");
     }
   //  console.log('show');
 }
@@ -332,8 +332,8 @@ function pictureSearch(keyword){
              $results.owlCarousel({
              stopOnHover : true,
              navigation:true,
-             paginationSpeed : 1000,
-             goToFirstSpeed : 2000,
+             paginationSpeed : 200,
+             goToFirstSpeed : 200,
              singleItem : true,
              transitionStyle:"fade"
 
@@ -431,8 +431,8 @@ function videoSearch(keyword){
              $results.owlCarousel({
              stopOnHover : true,
              navigation:true,
-             paginationSpeed : 1000,
-             goToFirstSpeed : 2000,
+             paginationSpeed : 200,
+             goToFirstSpeed : 200,
              singleItem : true,
              transitionStyle:"fade"
 
@@ -481,51 +481,6 @@ function videoSearch(keyword){
 
 }
 
-//  fire when the player has finnished loading 
-
-function onPlayerReady(event){
-  console.log("onPlayerReady ---");
-    event.target.playVideo();
-}
-
-function onPlayerStateChange(event){
-    
-    console.log("onPlayerStateChange  ---");
-    if(event.data === 0){
-        $.fancybox.next();
-    }
-}
-
-
-function onYouTubePlayerAPIReady(){
-    
-    console.log("onYouTubePlayerAPIReady ---");
-    $(document).ready(function(){
-       $(".fancybox")
-       .attr('rel','gallery')
-       .fancybox({
-        openEffect : 'none',
-        closeEffect :'none',
-        nextEffect : 'none',
-        prevEffect : 'none',
-        padding : 0,
-        margin : 50,
-        beforeShow : function(){
-            
-       var id = $.fancybox.inner.find('iframe').attr('id'); 
-     
-      var player = new YT.Player(id, {
-                        events: {
-                            'onReady': onPlayerReady,
-                            'onStateChange':onPlayerStateChange
-                        }
-                        })
-        }
-       });
-        
-    });
-    
-}
 
 
 ///---------- tests -- module clavier 

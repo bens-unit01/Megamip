@@ -16,16 +16,19 @@ import com.megamip.voice.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.method.KeyListener;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 
 public class MipVideoPlayer extends YouTubeBaseActivity implements
 		YouTubePlayer.OnInitializedListener, OnKeyListener {
@@ -36,21 +39,30 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements
 	private YouTubePlayer mYoutubePlayer;
 	private String url;
 	private static MipVideoPlayer mActivity;
+	private Handler handler;
+	private MipVideoGui mipVideoGui;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
         mActivity = this;
-		this.setContentView(R.layout.mip_video_player);
+	//	this.setContentView(R.layout.mip_video_player);
+        handler = new Handler();
+        mipVideoGui = new MipVideoGui(this);
+        setContentView(mipVideoGui);
 		Intent intent = getIntent();
 		url = getYoutubeVideoId(intent.getStringExtra("url"));
 
+		
+		
 		mYoutubePlayerView = (YouTubePlayerView) findViewById(R.id.youtubeplayer);
+	
 		mYoutubePlayerView.setPadding(20, 20, 20, 20);
-		mYoutubePlayerView.setFocusable(true);
+	//	mYoutubePlayerView.setFocusable(true);
 		mYoutubePlayerView.setOnKeyListener(this);
 		mYoutubePlayerView.initialize(DEVELOPER_KEY, this);
+		
 
 	}
 
@@ -62,15 +74,38 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements
 	}
 
 	@Override
-	public void onInitializationSuccess(Provider arg0, YouTubePlayer player,
+	public void onInitializationSuccess(Provider provider, YouTubePlayer player,
 			boolean arg2) {
+	
 		mYoutubePlayer = player;
+		
 		mYoutubePlayer.setPlayerStateChangeListener(new PlayerStateChangeListener() {
 					
 					@Override
 					public void onVideoStarted() {
 						// TODO Auto-generated method stub
 						Log.d(TAG3, "videoStarted ...");
+                     handler.post(new Runnable() {
+							
+							@Override
+							public void run() {
+								mYoutubePlayer.setFullscreenControlFlags( YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+								//mipVideoGui.setRotation(180);
+								//mYoutubePlayerView.invalidate();
+								mYoutubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+								mYoutubePlayerView.setRotation(180);
+						
+								Log.d(TAG3, "view rotated 180 ...");
+								  Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+									
+								  Log.d(TAG3, " orientation: "+display.getOrientation());
+								  setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+								 display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+									
+								  Log.d(TAG3, " orientation: "+display.getOrientation());
+								  mYoutubePlayerView.invalidate();
+							}
+						});
 						
 					}
 					
@@ -105,6 +140,7 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements
 						
 						mYoutubePlayer.loadVideo(url);
 						
+						
 					}
 					
 					@Override
@@ -112,16 +148,21 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements
 						// TODO Auto-generated method stub
 						Log.d(TAG3, "onAdStarted...");
 						
+						
+						
 					}
 				});
 
-		mYoutubePlayer.loadVideo(url, 1);
 	
+		mYoutubePlayer.loadVideo(url, 1);
+		//mYoutubePlayerView.setRotation(180);
+		
 
 	}
 
 	private static String getYoutubeVideoId(String youtubeUrl) {
 		String video_id = "";
+		Log.d(TAG3, "MipVideoPlayer#getYoutubeVideoId url: " + youtubeUrl);
 		if (youtubeUrl != null && youtubeUrl.trim().length() > 0
 				&& youtubeUrl.startsWith("http")) {
 
@@ -150,7 +191,7 @@ public class MipVideoPlayer extends YouTubeBaseActivity implements
 		
 		super.onPause();
 		mYoutubePlayer.release();
-		this.finish();
+	//	this.finish();
 		
 		
 	}

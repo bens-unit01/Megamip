@@ -155,14 +155,14 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 
 		int position;
 		switch (pos) {
-		case PROJECTOR_POSITION_1:
-			position = 80;
+		case PROJECTOR_POSITION_WALL:
+			position = 0xA0;
 			break;
-		case PROJECTOR_POSITION_2:
-			position = 175;
+		case PROJECTOR_POSITION_CEILING:
+			position = 0x5A;
 			break;
-		case PROJECTOR_POSITION_3:
-			position = 120;
+		case PROJECTOR_POSITION_SCREEN:
+			position = 0x31;
 			break;
 
 		default:
@@ -173,7 +173,7 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 		byte[] packet = new byte[] { UsbCommand.START_BYTE,
 				UsbCommand.ENGAGE_VISOR, new Integer(position).byteValue(),
 				UsbCommand.END_BYTE };
-		mipUsbDeviceNano.writeAsync(packet);
+		mipUsbDeviceUno.writeAsync(packet);
 
 	}
 
