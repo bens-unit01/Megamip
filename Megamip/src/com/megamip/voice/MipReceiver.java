@@ -25,8 +25,8 @@ public class MipReceiver {
 	private static final String BRC_CLOSE = "')";
 	private static final String Q = "?";
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";
+//	public static final int SPEED = 30, TIME = 3;
 	public static final int SPEED = 30, TIME = 3;
-
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
 
 	// actors
@@ -119,6 +119,15 @@ public class MipReceiver {
 		loadURL(callbackFunction);
 
 	}
+	
+	public void guiDisplayNotificationsPanel() {
+
+		callJsFunction("showNotifications3", "");
+
+	}
+	
+	
+
 
 	public void guiBlink() {
 		callJsFunction("blink", "");
@@ -273,6 +282,15 @@ public class MipReceiver {
 		}
 		Log.d(TAG2, "MipReceiver moveProjectorTo pos: "+pos.toString());
 		arduinoCtrl.moveProjectorTo(pos);
+	}
+
+	public void moveProjectorTo(String params) {
+		
+		String[] input = params.split(JettyServer.SPLIT_CHAR);
+		
+		callJsFunction("flipText", input[1]);
+		
+		moveProjectorTo(Integer.parseInt(input[0]));
 	}
 
 }

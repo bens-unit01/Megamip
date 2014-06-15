@@ -47,8 +47,12 @@ public class MainActivity extends DroidGap {
 	protected static final int RESULT_SPEECH = 1;
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3",
 			TAG6 = "A6", TAG7 = "A7", TAG8 = "A8";
+
 	public static final String PICTURE_MODE = "picture";
 	public static final String VIDEO_MODE = "video";
+	public static final String LOCAL_VIDEO_MODE = "local_video";
+	public static final int LOCAL_VIDEO_REQUEST_CODE = 123;
+
 	private String mMode = PICTURE_MODE;
 	private ScreenOrientation mScreenOrientation = ScreenOrientation.POSITION_0;
 	private CordovaWebView webView;
@@ -72,7 +76,6 @@ public class MainActivity extends DroidGap {
 	private Object mLock = new Object();
 	private MipDeviceManager mDeviceManager;
 	private MediaPlayer mMediaPlayer;
-	private Intent mediaplayerIntent;
 	private MipUtils mMipUtils = new MipUtils();
 
 	// Megamip commands
@@ -90,6 +93,7 @@ public class MainActivity extends DroidGap {
 	private MipCommand.GuiHome mGuiHome;
 	private MipCommand.GuiBack mGuiBack;
 	private MipCommand.GuiBlink mGuiBlink;
+	private MipCommand.GuiDisplayNotificationsPanel mGuiDisplayNotificationsPanel;
 	private Boolean mUpDownSwipeFlag = true;
 	private MipWemoDevice mMipWemoDevice = null;
 
@@ -130,7 +134,7 @@ public class MainActivity extends DroidGap {
 			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
 			mMipWemoDevice = new MipWemoDevice(this.getApplicationContext());
 			Log.d(TAG2, "setting the listeners ... ");
-			commandsInit();
+			initCommands();
 			setListeners();
 
 			mState = State.STARTED;
@@ -198,15 +202,18 @@ public class MainActivity extends DroidGap {
 			// mCommand = mVideoSearch;
 			mMode = VIDEO_MODE;
 			mTrgInactivity.resetTimer();
+			showMessage("video search for: " + keywords);
 			invoker.launch(mVideoSearch);
 		}
 
 		if (action.equals("picture") || action.equals("pictures")) {
 			mMode = PICTURE_MODE;
+			
 			// mCommand = mc.new PictureSearch(receiver, keywords);
 			mPictureSearch.setKeywords(keywords);
 			// mCommand = mPictureSearch;
 			mTrgInactivity.resetTimer();
+			showMessage("picture search for: " + keywords);
 			invoker.launch(mPictureSearch);
 		}
 
@@ -215,12 +222,30 @@ public class MainActivity extends DroidGap {
 
 			if (keywords.contains("on")) {
 				Log.d(TAG6, "light on");
+				showMessage("turning the lights on !! ");
 				mMipWemoDevice.turnOn();
 
 			} else {
 				Log.d(TAG6, "light off");
+				showMessage("turning the lights off !! ");
 				mMipWemoDevice.turnOff();
 			}
+		}
+
+		if (action.equals("show") || action.equals("display")) {
+			Log.d(TAG6, "show .." + keywords);
+			mState = State.NOTIFICATIONS_DISPLAY;
+			mTrgInactivity.resetTimer();
+			mMode = PICTURE_MODE;
+			showMessage("displaying the notifications panel ");
+			invoker.launch(mGuiDisplayNotificationsPanel);
+		}
+
+		if (action.equals("my") ) {
+			loadURL("javascript:showMyVideos()");
+			mMode = LOCAL_VIDEO_MODE;
+			mTrgInactivity.resetTimer();
+			showMessage("showing your videos ...");
 		}
 
 		Log.d(TAG6, "MainActivity#voiceHandler - mState: " + mState);
@@ -239,6 +264,7 @@ public class MainActivity extends DroidGap {
 			// if (action.equals("69")) { // keyboard input ...
 			mMediaPlayer.start();
 			Log.d(TAG6, "onNext --------------");
+
 			onNext();
 
 		}
@@ -268,6 +294,7 @@ public class MainActivity extends DroidGap {
 
 			Log.d(TAG6, "left_swipe --------------");
 			delayTriggers();
+			playSound();
 			invoker.launch(mGuiPrev);
 		}
 
@@ -275,6 +302,7 @@ public class MainActivity extends DroidGap {
 
 			Log.d(TAG6, "right_swipe --------------");
 			delayTriggers();
+			playSound();
 			invoker.launch(mGuiNext);
 		}
 
@@ -282,10 +310,14 @@ public class MainActivity extends DroidGap {
 
 			Log.d(TAG6, "up_swipe --------------");
 			mScreenOrientation = ScreenOrientation.POSITION_180;
-			String param = (mUpDownSwipeFlag) ? "1" : "2";
+			String params = (mUpDownSwipeFlag) ? "1" : "2";
 			mUpDownSwipeFlag = !mUpDownSwipeFlag;
 
-			mMoveProjectorTo.setParams(param);
+			// adding the text position ( mirrored 1 or not 0 )
+			params = params + JettyServer.SPLIT_CHAR + "0";
+
+			mMoveProjectorTo.setParams(params);
+			playSound();
 			invoker.launch(mMoveProjectorTo);
 			super.setScreenOrientation(ScreenOrientation.POSITION_180);
 		}
@@ -294,19 +326,61 @@ public class MainActivity extends DroidGap {
 
 			Log.d(TAG6, "down_swipe --------------");
 			mScreenOrientation = ScreenOrientation.POSITION_0;
-			mMoveProjectorTo.setParams("3");
+			mMoveProjectorTo.setParams("3" + JettyServer.SPLIT_CHAR + "1"); // the
+																			// text
+																			// is
+																			// mirrored
+			playSound();
 			invoker.launch(mMoveProjectorTo);
 			super.setScreenOrientation(ScreenOrientation.POSITION_0);
 		}
 
 		if (action.equals(MovementInput.SIMPLE_TOUCH)) {
 
+			playSound();
 			handleSimpleTouch(movementInput);
 
 			Log.d(TAG6, "simple_touch --------------");
 		}
 
 		// Log.d(TAG6, "action:"+action);
+	}
+
+	private void playSound() {
+
+		// runOnUiThread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		mMediaPlayer.reset();
+		mMediaPlayer = MediaPlayer.create(this, R.raw.button_31);
+		mMediaPlayer.setVolume(13, 13);
+		mMediaPlayer.start();
+
+		// }
+		// });
+
+	}
+
+	private void showMessage(final String msg) {
+
+//		runOnUiThread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//
+//				String ouputMessage = msg;
+//				if (mScreenOrientation == ScreenOrientation.POSITION_0) {
+//					StringBuffer stringBuffer = new StringBuffer(msg);
+//					ouputMessage = stringBuffer.reverse().toString();
+//				}
+//
+//				Toast warning = Toast.makeText(context, ouputMessage,
+//						Toast.LENGTH_LONG);
+//				warning.show();
+//
+//			}
+//		});
 	}
 
 	private void handleSimpleTouch(MovementInput movementInput) {
@@ -352,11 +426,11 @@ public class MainActivity extends DroidGap {
 
 		if (x >= 914 && y >= 1317 && x <= 2927 && y <= 2868) {
 			mGuiShow.setmMode(mMode);
-			mCommand = mGuiShow;
+			// mCommand = mGuiShow;
 			mState = State.SHOW;
 			delayTriggers();
 			invoker.setState(Invoker.State.ACTIVE);
-			invoker.launch(mCommand);
+			invoker.launch(mGuiShow);
 		}
 
 	}
@@ -474,27 +548,21 @@ public class MainActivity extends DroidGap {
 			mState = State.SEARCH_DISPLAY;
 			invoker.setState(Invoker.State.PROCESSING);
 			if (mMode.equals(VIDEO_MODE)) {
-				// this.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN,
-				// KeyEvent.KEYCODE_BACK));
-				// this.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,
-				// KeyEvent.KEYCODE_BACK));
-				// MipVideoPlayer.getInstanceVideoPlayerHandler().post(
-				// new Runnable() {
-				//
-				// @Override
-				// public void run() {
-				// MipVideoPlayer.getInstanceMipVideoPlayer()
-				// .terminate();
-				//
-				// }
-				// });
 
-				finishActivity(1);
+				mMipUtils.closeApp("air.air.MipVideoPlayer", context);
+				// finishActivity(1);
 				Log.d(TAG6, "back event fired");
-			} else {
+			} 
+			
+			if(mMode.equals(PICTURE_MODE)){
 				// mCommand = mc.new GuiBack(receiver);
 				mCommand = mGuiBack;
 				invoker.launch(mCommand);
+			}
+			
+			if(mMode.equals(LOCAL_VIDEO_MODE)){
+				
+				finishActivity(LOCAL_VIDEO_REQUEST_CODE);
 			}
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "
 					+ mState);
@@ -538,37 +606,21 @@ public class MainActivity extends DroidGap {
 
 		if (input[1].equals("moveForward")) {
 
-			// mCommand = mc.new MipMoveForward(receiver);
-			// invoker.launch(mCommand);
-			// Log.d(TAG2, "jettHandler triggered moveForward");
-			// optimized code
 			arduinoCtrl.drive(speed, speed, time, time);
 		}
 
 		if (input[1].equals("moveBackward")) {
 
-			// mCommand = mc.new MipMoveBackward(receiver);
-			// invoker.launch(mCommand);
-			// Log.d(TAG2, "jettHandler triggered moveBackward");
-			// optimized code
 			arduinoCtrl.drive(-speed, -speed, time, time);
 		}
 
 		if (input[1].equals("moveLeft")) {
 
-			// mCommand = mc.new MipMoveLeft(receiver);
-			// invoker.launch(mCommand);
-			// Log.d(TAG2, "jettHandler triggered moveLeft");
-			// optimized code
 			arduinoCtrl.drive(-speed, speed, turnTime, turnTime);
 		}
 
 		if (input[1].equals("moveRight")) {
 
-			// mCommand = mc.new MipMoveRight(receiver);
-			// invoker.launch(mCommand);
-			// Log.d(TAG2, "jettHandler triggered moveRight");
-			// optimized code
 			arduinoCtrl.drive(speed, -speed, turnTime, turnTime);
 		}
 
@@ -577,6 +629,12 @@ public class MainActivity extends DroidGap {
 			// mCommand = mc.new MipStop(receiver);
 			// invoker.launch(mCommand);
 			// Log.d(TAG2, "jettHandler triggered stop");
+		}
+		
+		if (input[1].equals("toggleProjector")) {
+
+			arduinoCtrl.projectorOnOff();
+			 Log.d(TAG2, "jettHandler triggered projector power on/off ");
 		}
 
 		if (input[1].equals("moveProjectorTo")) {
@@ -600,10 +658,11 @@ public class MainActivity extends DroidGap {
 
 	}
 
-	
 	private void pushServerHandler(String args) {
 
 		String[] params = args.split(MegamipLSClient.CMD_SEPARATOR);
+		int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+				: 180;
 
 		if (MegamipLSClient.CMD_LAUNCH.equals(params[0])) {
 			String p2pID = params[1];
@@ -613,11 +672,11 @@ public class MainActivity extends DroidGap {
 
 			Intent intent;
 			try {
-				intent = Intent.parseUri("telepresenceapp://" + p2pID,
-						Intent.URI_INTENT_SCHEME);
-				intent.addCategory(Intent.CATEGORY_BROWSABLE);
-				intent.setComponent(null);
-				intent.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+				intent = Intent.parseUri("telepresenceapp://" + p2pID + "//"
+						+ rotationAngle, Intent.URI_INTENT_SCHEME);
+				// intent.addCategory(Intent.CATEGORY_BROWSABLE);
+				// intent.setComponent(null);
+				// intent.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 				startActivity(intent);
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
@@ -629,7 +688,7 @@ public class MainActivity extends DroidGap {
 
 	}
 
-	private void commandsInit() {
+	private void initCommands() {
 		MipCommand mc = new MipCommand();
 
 		mGuidDisplayNotifications2 = mc.new GuiDisplayNotifications2(receiver);
@@ -649,6 +708,18 @@ public class MainActivity extends DroidGap {
 		mGuiBack = mc.new GuiBack(receiver);
 
 		mGuiBlink = mc.new GuiBlink(receiver);
+		mGuiDisplayNotificationsPanel = mc.new GuiDisplayNotificationsPanel(
+				receiver);
+
+		// initialisation of the projector
+
+		mScreenOrientation = ScreenOrientation.POSITION_0;
+		mMoveProjectorTo.setParams("3" + JettyServer.SPLIT_CHAR + "1"); // the
+																		// text
+																		// is
+																		// mirrored
+		invoker.launch(mMoveProjectorTo);
+		super.setScreenOrientation(ScreenOrientation.POSITION_0);
 
 	}
 
@@ -658,18 +729,18 @@ public class MainActivity extends DroidGap {
 		// the arduino Nano controls the gesture sensor and the 2 projector
 		// servos ( focus and rotation )
 
-		mipUsbDeviceNano = MipUsbDevice.getInstance(context, DeviceType.NANO);
+//		mipUsbDeviceNano = MipUsbDevice.getInstance(context, DeviceType.NANO);
 
-		mipUsbDeviceNano.addUsbListener(new UsbListener() {
-
-			@Override
-			public void onNotify(UsbEvent e) {
-				byte[] data = e.getData();
-				movementHandler(new MovementInput(data));
-				Log.d(TAG7, "> mipUsbDeviceNano " + (new String(data)));
-			}
-
-		});
+//		mipUsbDeviceNano.addUsbListener(new UsbListener() {
+//
+//			@Override
+//			public void onNotify(UsbEvent e) {
+//				byte[] data = e.getData();
+//				movementHandler(new MovementInput(data));
+//				Log.d(TAG7, "> mipUsbDeviceNano " + (new String(data)));
+//			}
+//
+//		});
 
 		// the Sparkfun pro micro controls the touch-screen
 		mipUsbDeviceMicro = MipUsbDevice.getInstance(context, DeviceType.MICRO);
@@ -726,6 +797,31 @@ public class MainActivity extends DroidGap {
 						pushServerHandler(e.getParams());
 
 					}
+
+					@Override
+					public void onError(LsServerEvent e) {
+						int error = Integer.parseInt(e.getParams());
+						Log.d(TAG2,
+								"mMegamipLSClient onError - MainActivity ... error: "
+										+ error);
+						if (error == MegamipLSClient.ERROR
+								|| error == MegamipLSClient.CONNECTION_ERROR
+								|| error == MegamipLSClient.SERVER_ERROR) {
+
+							// we retry to reconnect after 30 seconds
+							new Thread(new Runnable() {
+								public void run() {
+									try {
+										Thread.sleep(30000);
+										mMegamipLSClient.onResume();
+									} catch (InterruptedException e) {
+
+										e.printStackTrace();
+									}
+								}
+							}).start();
+						}
+					}
 				});
 
 		// triggers ---------------------------------------------------
@@ -738,7 +834,7 @@ public class MainActivity extends DroidGap {
 				if (invoker.getState() != Invoker.State.ACTIVE) {
 					if (mState != State.STANDBY
 							&& mState != State.NOTIFICATIONS_DISPLAY) {
-						invoker.launch(mGuiShow);
+						invoker.launch(mGuiHome);
 					}
 					mState = State.STANDBY;
 					synchronized (mLock) {
@@ -812,6 +908,12 @@ public class MainActivity extends DroidGap {
 				intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
 						"voice.recognition.test");
 				intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+				intent.putExtra(
+						RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,
+						5000);
+				intent.putExtra(
+						RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+						3000);
 
 				mSpeechRecognizer.startListening(intent);
 				Log.i("A2", "MainActivity -- onSpeak() ");
@@ -906,6 +1008,7 @@ public class MainActivity extends DroidGap {
 
 			mState = State.SEARCH_ERROR;
 			// mCommand = mc.new GuiShowMessage(receiver, message);
+			showMessage(message);
 			mGuiShowMessage.setMessage(message);
 			mCommand = mGuiShowMessage;
 			invoker.launch(mCommand);
@@ -920,12 +1023,12 @@ public class MainActivity extends DroidGap {
 			ArrayList data = results
 					.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 			for (int i = 0; i < data.size(); i++) {
-				Log.d(TAG2, "result " + data.get(i));
+				Log.d("A9", "result " + data.get(i));
 				str += data.get(i);
 			}
 
 			VoiceInput voiceCommand = new VoiceInput(str);
-			Log.d(TAG2, "onResults -----vc= " + voiceCommand);
+			Log.d("A9", "onResults -----vc= " + voiceCommand);
 			voiceHandler(voiceCommand);
 
 			// mText.setText("results: "+String.valueOf(data.size()));
@@ -977,6 +1080,12 @@ public class MainActivity extends DroidGap {
 		Log.d(TAG2, "MainActivity onPause()");
 	}
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+		Log.d(TAG2, "MainActivity onStop()...");
+	}
+
 	public void getNotifications() {
 
 		// the notifications are formated on a string
@@ -1009,27 +1118,40 @@ public class MainActivity extends DroidGap {
 
 	}
 
-	public void onLaunchVideo(String url) {
+	public void onLaunchVideo(String url, int mode) { // mode == 0 for youtube
+														// videos, mode == 1 for
+														// local videos
 
-		String videoId = mMipUtils.getYoutubeVideoId(url);
-		int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
-				: 180;
+		if (mode == 0) {  // it's a youtube video 
+			String videoId = mMipUtils.getYoutubeVideoId(url);
+			int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+					: 180;
 
-		try {
-			mediaplayerIntent = Intent.parseUri("mipvideoplayerapp://"+videoId+"//"+rotationAngle,
-					Intent.URI_INTENT_SCHEME);
-		} catch (URISyntaxException e) {
-			Log.d(TAG2, "block catch - onLaunchVideo ...");
-			e.printStackTrace();
+			try {
+				Intent mediaplayerIntent = Intent
+						.parseUri("mipvideoplayerapp://" + videoId + "//"
+								+ rotationAngle, Intent.URI_INTENT_SCHEME);
+				mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+				startActivityForResult(mediaplayerIntent, 1);
+
+			} catch (URISyntaxException e) {
+				Log.d(TAG2, "block catch - onLaunchVideo ...");
+				e.printStackTrace();
+			}
+			// mediaplayerIntent.putExtra("id", videoId);
+			// mediaplayerIntent.putExtra("pos", position);
+
+		} else {  // it's a local video 
+			
+			
+			int orientation = (mScreenOrientation == ScreenOrientation.POSITION_0)? 0 : 180;
+			Intent intent = new Intent(this,LocalVideoPlayer.class);
+			intent.putExtra("videoId", url);
+			intent.putExtra("orientation", orientation);
+			startActivityForResult(intent, LOCAL_VIDEO_REQUEST_CODE);
+
 		}
-//		mediaplayerIntent.putExtra("id", videoId);
-//		mediaplayerIntent.putExtra("pos", position);
-		mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
-
-		startActivityForResult(mediaplayerIntent, 1);
 
 	}
-
-	
 
 }

@@ -11,186 +11,207 @@ import com.lightstreamer.ls_client.SubscrException;
 import android.content.res.Resources.NotFoundException;
 import android.util.Log;
 
-
-
-
 public class MegamipLSClient {
 
+	
+	// connection status 
+	public static final int DISCONNECTED = 0;
+	public static final int CONNECTING = 1;
+	public static final int CONNECTED = 2;
+	public static final int STREAMING = 3;
+	public static final int POLLING = 4;
+	public static final int STALLED = 5;
+	public static final int ERROR = 6;
+	public static final int CONNECTION_ERROR = 7;
+	public static final int SERVER_ERROR = 8;
+	
+	
+	
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG5 = "A5";
 	public static final String CMD_LAUNCH = "LAUNCH";
 	public static final String CMD_SEPARATOR = ":";
 	private LsListener lsListener;
-	private final static String[] items = {"chat_room"};
-	private final static String[] fields = {"timestamp", "IP", "nick", "message"};
+	private final static String[] items = { "chat_room" };
+	private final static String[] fields = { "timestamp", "IP", "nick",
+			"message" };
 	private LightstreamerClient lsClient;
-	private ArrayList<MegamipLSClientListener> 	mListeListeners = new ArrayList<MegamipLSClientListener>();
+	private ArrayList<MegamipLSClientListener> mListeListeners = new ArrayList<MegamipLSClientListener>();
 	private boolean userDisconnect = false;
 
-    private static AtomicBoolean connected = new AtomicBoolean(false);
-    
-    private static AtomicInteger phase = new AtomicInteger(0);
+	private static AtomicBoolean connected = new AtomicBoolean(false);
+
+	private static AtomicInteger phase = new AtomicInteger(0);
+
 	public static boolean checkPhase(int ph) {
-	    return ph == phase.get();
+		return ph == phase.get();
 	}
-	
-	 public static boolean isConnected() {
-	        return connected.get();
-	    }
 
-	    public static void setConnected(boolean status) {
-	        connected.set(status);
-	    }
-///--------------------------------------------------------------------------------------
+	public static boolean isConnected() {
+		return connected.get();
+	}
 
-	    // constructors 
-	    public MegamipLSClient(){
-	    	
-	    	lsListener = new LsListener(this);
-	    	lsListener.onStatusChange(phase.get(), LightstreamerConnectionStatus.DISCONNECTED);
-			lsClient = new LightstreamerClient(items, fields);
+	public static void setConnected(boolean status) {
+		connected.set(status);
+	}
 
-	    }
-	    
-	    public interface MegamipLSClientListener {
-	    	public void onNotify(LsServerEvent e);
-	    }
-	    
-	    
-	    
-	    public class LsServerEvent extends EventObject{
-            // -- members  
-	    	private String params;
-            public String getParams() {
-				return params;
-			}
-            //-- constructors 
-            public LsServerEvent(Object source, String params) {
-				super(source);
-			    this.params = params;
-			}
-	    }
+	// /--------------------------------------------------------------------------------------
 
-	    public void addMegamipLSClientListener(MegamipLSClientListener megamipLSClientListener) {
-			mListeListeners.add(megamipLSClientListener);
-			Log.d(TAG5, "new Lightstreamer listener added ...");
+	// constructors
+	public MegamipLSClient() {
 
-		}
-	    
-	    //------------------------------------------------------------------
-	    
-	    
-	    private void start(int ph) throws NotFoundException {
-	        // Asynchronously start
-	        Thread th = new Thread(new Runnable() {
-	            LsListener ui;
-	            LightstreamerClient ls;
-	            int ph;
+		lsListener = new LsListener(this);
+		lsListener.onStatusChange(phase.get(),
+				LightstreamerConnectionStatus.DISCONNECTED);
+		lsClient = new LightstreamerClient(items, fields);
 
-	            @Override
-	            public void run() {
-	                try {
-	                    if (!checkPhase(ph)) {
-	                        return;
-	                    }
-	                    ph = phase.incrementAndGet();
-	                    ls.start(ph, LightstreamerClient.LS_SERVER_URL, ui);
-	                    if (!checkPhase(ph)) {
-	                        return;
-	                    }
-	                    ls.subscribe(ph, ui);
+	}
 
-	                } catch (PushConnException pce) {
-	                    ui.onStatusChange(ph,
-	                            LightstreamerConnectionStatus.CONNECTION_ERROR);
-	                } catch (PushServerException pse) {
-	                    ui.onStatusChange(ph,
-	                            LightstreamerConnectionStatus.SERVER_ERROR);
-	                } catch (PushUserException pue) {
-	                    ui.onStatusChange(ph,
-	                            LightstreamerConnectionStatus.ERROR);
-	                } catch (SubscrException e) {
-	                    e.printStackTrace();
-	                    ui.onStatusChange(ph,
-	                            LightstreamerConnectionStatus.ERROR);
-	                }
-	            }
-	            
-	            public Runnable setData(int ph, LsListener ui, LightstreamerClient ls) {
-	                this.ph = ph;
-	                this.ui = ui;
-	                this.ls = ls;
-	                return this;
-	            }
+	public interface MegamipLSClientListener {
+		public void onNotify(LsServerEvent e);
 
-	        }.setData(ph, lsListener, lsClient));
-	        th.setName("StockListDemo.Lightstreamer.start-" + ph);
-	        th.start();
-	    }
+		public void onError(LsServerEvent e);
+	}
 
-	    private void stop(int ph) {
-	        // Asynchronously stop
-	        Thread th = new Thread(new Runnable() {
-	            LightstreamerClient ls;
-	            int ph;
+	public class LsServerEvent extends EventObject {
+		// -- members
+		private String params;
 
-	            @Override
-	            public void run() {
-	                if (!checkPhase(ph)) {
-	                    return;
-	                }
-	                ls.stop();
-	            }
-	            
-	            public Runnable setData(int ph, LightstreamerClient ls) {
-	                this.ph = ph;
-	                this.ls = ls;
-	                return this;
-	            }
-
-	        }.setData(ph, lsClient));
-	        th.setName("StockListDemo.Lightstreamer.stop-" + ph);
-	        th.start();
-	    }
-
-
-	    public void onResume() {
-	        
-	        /*
-	         * if user explicitly chose to disconnect the application
-	         * before hiding it, do not start it back once it's back
-	         * visible.
-	         */
-	    	Log.d(TAG5, "Lightstreamer onResume() ...");
-	        if (!userDisconnect) {
-	            start(phase.get());
-	        }
-	    }
-
-
-	    public void onPause() {
-	      
-	        // disconnect when application is paused
-	    	Log.d(TAG5, "Lightstreamer onPause() ...");
-	        stop(phase.get());
-	    }
-
-	    /*
-	     * called when a push message arrive from the Lightstreamer server 
-	     * */
-		public void update(String message) {
-
-
-			for (MegamipLSClientListener b : mListeListeners) {
-				
-				b.onNotify(new LsServerEvent(this, message));
-				Log.d(TAG5, "MegamipLSClientListener onNotify()  - message: "+message);
-			}
-			
+		public String getParams() {
+			return params;
 		}
 
-	 
-	  
+		// -- constructors
+		public LsServerEvent(Object source, String params) {
+			super(source);
+			this.params = params;
+		}
+	}
 
-	    
-	    
+	public void addMegamipLSClientListener(
+			MegamipLSClientListener megamipLSClientListener) {
+		mListeListeners.add(megamipLSClientListener);
+		Log.d(TAG5, "new Lightstreamer listener added ...");
+
+	}
+
+	// ------------------------------------------------------------------
+
+	private void start(int ph) throws NotFoundException {
+		// Asynchronously start
+		Thread th = new Thread(new Runnable() {
+			LsListener ui;
+			LightstreamerClient ls;
+			int ph;
+
+			@Override
+			public void run() {
+				try {
+					if (!checkPhase(ph)) {
+						return;
+					}
+					ph = phase.incrementAndGet();
+					ls.start(ph, LightstreamerClient.LS_SERVER_URL, ui);
+					if (!checkPhase(ph)) {
+						return;
+					}
+					ls.subscribe(ph, ui);
+
+				} catch (PushConnException pce) {
+					ui.onStatusChange(ph,
+							LightstreamerConnectionStatus.CONNECTION_ERROR);
+					notifyError(LightstreamerConnectionStatus.CONNECTION_ERROR);
+				} catch (PushServerException pse) {
+					ui.onStatusChange(ph,
+							LightstreamerConnectionStatus.SERVER_ERROR);
+				} catch (PushUserException pue) {
+					ui.onStatusChange(ph, LightstreamerConnectionStatus.ERROR);
+				} catch (SubscrException e) {
+					e.printStackTrace();
+					ui.onStatusChange(ph, LightstreamerConnectionStatus.ERROR);
+				}
+			}
+
+			private void notifyError(int connectionError) {
+				String message;
+				for (MegamipLSClientListener b : mListeListeners) {
+					message = new Integer(connectionError).toString();
+					b.onError(new LsServerEvent(this, message));
+					Log.d(TAG5,
+							"MegamipLSClientListener onError()  - message: "
+									+ message);
+				}
+
+			}
+
+			public Runnable setData(int ph, LsListener ui,
+					LightstreamerClient ls) {
+				this.ph = ph;
+				this.ui = ui;
+				this.ls = ls;
+				return this;
+			}
+
+		}.setData(ph, lsListener, lsClient));
+		th.setName("StockListDemo.Lightstreamer.start-" + ph);
+		th.start();
+	}
+
+	private void stop(int ph) {
+		// Asynchronously stop
+		Thread th = new Thread(new Runnable() {
+			LightstreamerClient ls;
+			int ph;
+
+			@Override
+			public void run() {
+				if (!checkPhase(ph)) {
+					return;
+				}
+				ls.stop();
+			}
+
+			public Runnable setData(int ph, LightstreamerClient ls) {
+				this.ph = ph;
+				this.ls = ls;
+				return this;
+			}
+
+		}.setData(ph, lsClient));
+		th.setName("StockListDemo.Lightstreamer.stop-" + ph);
+		th.start();
+	}
+
+	public void onResume() {
+
+		/*
+		 * if user explicitly chose to disconnect the application before hiding
+		 * it, do not start it back once it's back visible.
+		 */
+		Log.d(TAG5, "Lightstreamer onResume() ...");
+		if (!userDisconnect) {
+			start(phase.get());
+		}
+	}
+
+	public void onPause() {
+
+		// disconnect when application is paused
+		Log.d(TAG5, "Lightstreamer onPause() ...");
+		stop(phase.get());
+	}
+
+	/*
+	 * called when a push message arrive from the Lightstreamer server
+	 */
+	public void update(String message) {
+
+		for (MegamipLSClientListener b : mListeListeners) {
+
+			b.onNotify(new LsServerEvent(this, message));
+			Log.d(TAG5, "MegamipLSClientListener onNotify()  - message: "
+					+ message);
+		}
+
+	}
+
 }

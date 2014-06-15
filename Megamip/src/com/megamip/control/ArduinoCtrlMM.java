@@ -1,5 +1,7 @@
 package com.megamip.control;
 
+import org.eclipse.jetty.io.View;
+
 import android.content.Context;
 import android.util.Log;
 import android.widget.EditText;
@@ -147,6 +149,8 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 	public void disengageVisor() {
 		mipUsbDeviceNano.writeAsync(new byte[] { UsbCommand.START_BYTE,
 				UsbCommand.DISENGAGE_VISOR, UsbCommand.END_BYTE });
+	
+		
 
 	}
 
@@ -156,13 +160,13 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 		int position;
 		switch (pos) {
 		case PROJECTOR_POSITION_WALL:
-			position = 0xA0;
+			position = 0x2D;
 			break;
 		case PROJECTOR_POSITION_CEILING:
-			position = 0x5A;
+			position = 0x6E;
 			break;
 		case PROJECTOR_POSITION_SCREEN:
-			position = 0x31;
+			position = 0x94;
 			break;
 
 		default:
@@ -172,9 +176,18 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 
 		byte[] packet = new byte[] { UsbCommand.START_BYTE,
 				UsbCommand.ENGAGE_VISOR, new Integer(position).byteValue(),
-				UsbCommand.END_BYTE };
-		mipUsbDeviceUno.writeAsync(packet);
+				UsbCommand.END_BYTE, UsbCommand.END_BYTE, UsbCommand.END_BYTE, UsbCommand.END_BYTE};
+		mipUsbDeviceNano.writeAsync(packet);
 
+	}
+
+	@Override
+	public void projectorOnOff() {
+		
+		byte[] packet = new byte[] { UsbCommand.START_BYTE,
+				UsbCommand.PROJECTOR_ON_OFF, UsbCommand.END_BYTE,
+				UsbCommand.END_BYTE, UsbCommand.END_BYTE, UsbCommand.END_BYTE, UsbCommand.END_BYTE};
+		mipUsbDeviceNano.writeAsync(packet);
 	}
 
 }

@@ -38,7 +38,7 @@ public void stopListen();
 public void engageVisor();
 public void disengageVisor();
 public void moveProjectorTo(Position pos);
-
+public void projectorOnOff();
 
 
 

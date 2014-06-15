@@ -13,8 +13,40 @@ var timerIdBlink = null;
 var player = null;
 var animationLock = 1;
 var mode = 'picture';
+var textOrientation = 1; // 0 = normal, 1 = mirrored 
+var month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+var day = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+var minutesTimer;
 
+//--
 
+function flipText(pos){
+
+  textOrientation = pos;
+  var $text = $('.text-field');
+  var $notifications_pnl3 = $('#principal-3');
+  var $notifications_pnl2 = $('#principal-2');
+  if(pos == 1){
+       $text.each(function(index){
+             $(this).addClass('mirror');
+        
+       });
+
+       $notifications_pnl2.addClass('mirror');
+       $notifications_pnl3.addClass('mirror');
+ 
+  }else{
+
+     $text.each(function(index){
+             $(this).removeClass('mirror');
+        
+       });
+      $notifications_pnl2.removeClass('mirror');
+      $notifications_pnl3.removeClass('mirror');
+  }
+  
+
+}
 //----------animations 
 
 function sequence01(){    // transition - shrink 
@@ -218,18 +250,20 @@ function show(mMode){
    selectedItem = $("[data-wow-"+baseRef.currentItem+"] ");
    var url = selectedItem.attr("data-wow-"+baseRef.currentItem);
    console.log('show --- url: '+url);
-   if(mMode == 'video')
+   if(mMode == 'video' || mMode == 'local_video' )
    {
+
+     var mode =(mMode == 'video')? 0 : 1;  // 0 for youtube videos, 1 for local videos 
    try{  
      
-      megaMipJSInterface.onLaunchVideo(url);
+      megaMipJSInterface.onLaunchVideo(url, mode);
      
       }catch(error){
         console.log("show() -- bloc catch err: "+error);
       }
-    }else{
-        //selectedItem.trigger("click");
     }
+
+
   //  console.log('show');
 }
 
@@ -274,7 +308,8 @@ function showCenterPanel(){
   //   console.log('showCenterPanel'); 
 }
 function hideCenterPanel() {
-     $("#principal-2").slideUp("slow");   
+     $("#principal-2").slideUp("slow");  
+      $("#principal-3").slideUp("slow");    
   //   console.log('hideCenterPanel');
 }
 

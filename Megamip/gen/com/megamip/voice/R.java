@@ -32,34 +32,40 @@ public final class R {
         public static final int speak_now_level6=0x7f020008;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0009;
-        public static final int btnGo=0x7f0a0005;
-        public static final int btnNext=0x7f0a0007;
-        public static final int btnShow=0x7f0a0008;
-        public static final int editText1=0x7f0a0006;
-        public static final int image=0x7f0a0002;
-        public static final int textView1=0x7f0a0004;
-        public static final int tutorialView=0x7f0a0000;
-        public static final int webView1=0x7f0a0003;
-        public static final int youtubeplayer=0x7f0a0001;
+        public static final int action_settings=0x7f0a000a;
+        public static final int btnGo=0x7f0a0006;
+        public static final int btnNext=0x7f0a0008;
+        public static final int btnShow=0x7f0a0009;
+        public static final int editText1=0x7f0a0007;
+        public static final int image=0x7f0a0003;
+        public static final int textView1=0x7f0a0005;
+        public static final int tutorialView=0x7f0a0001;
+        public static final int videoView1=0x7f0a0000;
+        public static final int webView1=0x7f0a0004;
+        public static final int youtubeplayer=0x7f0a0002;
     }
     public static final class layout {
-        public static final int activity_main=0x7f030000;
-        public static final int mip_video_player=0x7f030001;
-        public static final int speak_now=0x7f030002;
-        public static final int webview=0x7f030003;
+        public static final int activity_local_video_player=0x7f030000;
+        public static final int activity_main=0x7f030001;
+        public static final int mip_video_player=0x7f030002;
+        public static final int speak_now=0x7f030003;
+        public static final int webview=0x7f030004;
     }
     public static final class menu {
         public static final int main=0x7f090000;
     }
     public static final class raw {
         public static final int boing_comical_accent=0x7f050000;
+        public static final int button_3=0x7f050001;
+        public static final int button_30=0x7f050002;
+        public static final int button_31=0x7f050003;
     }
     public static final class string {
         public static final int action_settings=0x7f070001;
         public static final int app_name=0x7f070000;
         public static final int hello_world=0x7f070002;
         public static final int speak=0x7f070003;
+        public static final int title_activity_local_video_player=0x7f070004;
     }
     public static final class style {
         /** 

@@ -208,6 +208,27 @@ public class MipCommand {
 		}
 
 	}
+	
+public class GuiDisplayNotificationsPanel implements Command {
+
+		
+		private MipReceiver mipReceiver;
+		
+
+		// constructors
+		private GuiDisplayNotificationsPanel() {
+		}
+
+		public GuiDisplayNotificationsPanel(MipReceiver mipReceiver) {
+			this.mipReceiver = mipReceiver;
+		
+		}
+
+		public void execute() {
+			mipReceiver.guiDisplayNotificationsPanel();
+		}
+
+}
 
 	public class Speak implements Command {
 
@@ -590,7 +611,7 @@ public class MipCommand {
 			try {
 				Log.d("A3", "bloc try MoveProjectorTo - MipCommand params: "
 						+ params);
-				mipReceiver.moveProjectorTo(Integer.parseInt(params));
+				mipReceiver.moveProjectorTo(params);
 			} catch (Exception e) {
 				Log.d("A3",
 						"bloc catch MoveProjectorTo - MipCommand e: "
