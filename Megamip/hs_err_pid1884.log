@@ -11,6 +11,10 @@ Test Telepresence   --> MipTelepresence
 gui webView --->         A7Webview & A8Webview (full screen)
 2eme paneau de notifications --> C:\Users\user\Documents\Raouf\workspace2\A7Webview\assets\www\demos4
 
+on utilise le pilote usb que se trouve dans : C:\Users\user\Documents\Raouf\Docs\UsbSerialLibrary\modified_version_07_May_2014
+
+
+
  
 
 

@@ -342,10 +342,11 @@ package  {
 		    if (camera != null){
 				//camera.setMode(1280, 720, 30, true);
 				//camera.setMode(480, 360, 30, true);
-				camera.setMode(960 , 540, 15, false);
+				//camera.setMode(960 , 540, 15, false);
+				camera.setMode(480 , 360, 15, false);
 				//camera.setQuality(8192, 100);
-				camera.setQuality(0, 100);
-				camera.setKeyFrameInterval(1);
+				camera.setQuality(0, 90);
+				camera.setKeyFrameInterval(7);
 				camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
 				
 			    
@@ -501,6 +502,7 @@ package  {
 	
 	
 			videoRead = new Video();
+			videoRead.smoothing = true;
 		    videoRead.width = 1280;
 			videoRead.height = 720;
 		    container2.width = 1100;

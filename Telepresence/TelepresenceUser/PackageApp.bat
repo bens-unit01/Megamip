@@ -71,7 +71,7 @@ adb devices
 echo.
 echo Installing %OUTPUT% on the device...
 echo.
-adb -d install -r "%OUTPUT%"
+::adb -d install -r "%OUTPUT%"
 if errorlevel 1 goto installfail
 goto end
 

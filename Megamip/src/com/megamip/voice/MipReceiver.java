@@ -26,7 +26,8 @@ public class MipReceiver {
 	private static final String Q = "?";
 	private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";
 //	public static final int SPEED = 30, TIME = 3;
-	public static final int SPEED = 30, TIME = 3;
+	public static final int SPEED = 34, TIME = 3, TURN_TIME = 2;
+	
 	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
 
 	// actors

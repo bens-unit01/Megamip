@@ -151,6 +151,13 @@ public class MipUsbDevice {
 			mUsbDriver.setDTR(true);
 			Log.d(TAG3, "MipUsbDevice  - driver open - baudrate = 115200");
 		} catch (IOException e) {
+			
+			try {
+				mUsbDriver.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 			Log.e(TAG3,
 					"MipUsbDevice - constructor - bloc catch ex = "
@@ -162,7 +169,7 @@ public class MipUsbDevice {
 					"MipUsbDevice - constructor - bloc catch ex = "
 							+ e.getMessage());
 		}
-		// stopIoManager();
+	    stopIoManager();
 		startIoManager();
 	}
 
@@ -198,15 +205,20 @@ public class MipUsbDevice {
 					"MipUsbDevice - constructor - bloc catch ex = "
 							+ e.getMessage());
 		}
-		// stopIoManager();
+	    stopIoManager();
 		startIoManager();
+	}
+	
+	
+	public boolean isUsbConnected(){
+		return mUsbDriver != null;
 	}
 
 	/*
 	 * this method checks if we have a usb connection to the NANO and the UNO
 	 */
 
-	public static boolean isUSBConnected(Context context) {
+	public static boolean isAllUSBConnected(Context context) {
 
 		boolean unoConnected = false;
 		boolean nanoConnected = false;
@@ -218,10 +230,12 @@ public class MipUsbDevice {
 
 			if (NANO_PRODUCT_ID == element.getProductId()) {
 				nanoConnected = true;
+				Log.d("A3", "nano connected ...");
 			}
 
 			if (UNO_PRODUCT_ID == element.getProductId()) {
 				unoConnected = true;
+				Log.d("A3", "uno connected ...");
 			}
 		}
 
@@ -358,6 +372,7 @@ public class MipUsbDevice {
 			} catch (IOException e) {
 			}
 
+		mMipUsbDeviceUno = null;
 		mUsbDriver = null;
 	}
 
@@ -398,11 +413,12 @@ public class MipUsbDevice {
 		try {
 			mUsbDriver.write(data, 1000);
 			// Log.d(TAG3, "writeAsync - data:" + data[0] + " " + data[1]);
-		} catch (IOException e) {
+		} catch (Exception e) {
 
 			Log.d(TAG3,
 					"MipUsbDevice - writeAsync - block catch ex:"
 							+ e.getMessage());
+			e.printStackTrace();
 		}
 
 	}

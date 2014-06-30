@@ -17,6 +17,12 @@ var textOrientation = 1; // 0 = normal, 1 = mirrored
 var month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 var day = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 var minutesTimer;
+// time management variables 
+var offset = {"montreal":-4, "tokyo":9, "san_francisco":-7};
+var mLocation = 'montreal';
+var mOffset = offset.montreal;
+var blink = true;
+
 
 //--
 
@@ -163,7 +169,7 @@ function setFrameTo(n){
         $("#notifications").addClass('not-active eyes-state-08');
         $("#shrink").addClass('not-active');
 
-    //    console.log('animationInit');
+       console.log('animationInit');
     }
 
 
@@ -324,6 +330,7 @@ function resetTimers(){
  clearTimeout(timerIdBlink);
  clearTimeout(timerIdShowNotifications1);
  clearTimeout(timerIdShowNotifications2);
+ clearTimeout(minutesTimer);
 }
 
 

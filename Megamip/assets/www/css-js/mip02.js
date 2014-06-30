@@ -57,10 +57,11 @@ function showNotifications3(){
   hideEyes();
   hideCenterPanel();
   displayDate2();
+  blinkFlag = false;
   var $panel = $('#principal-3');
   $panel.slideDown('slow');
 
-  timerMinutes = setInterval(function(){
+  minutesTimer = setInterval(function(){
      displayDate2();
   }, 20000);
 
@@ -68,10 +69,11 @@ function showNotifications3(){
 }
 
 function hideNotifications3(){
+  blinkFlag = true;
   var $panel = $('#principal-3');
   $panel.slideUp('slow');
   showEyes();
-  clearInterval(timerMinutes);
+  clearInterval(minutesTimer);
 }
 function setNotifications(notifications){
 
@@ -114,7 +116,8 @@ function displayDate(){
 
     var $date =$('#date');
     $date.empty();
-    var d = new Date();
+    // var d = new Date();
+    var d = getMipDate();
 
       var month = d.getMonth()+1;
       var day = d.getDate();
@@ -130,7 +133,7 @@ function displayDate(){
 
       $date.html(output1+"<br/>"+output2);
 
-      console.log('displayDate');
+      console.log('displayDate1');
   
 }
 
@@ -138,28 +141,33 @@ function displayDate(){
 function displayDate2() {
     var $date = $('#pnl-date');
     var $time = $('#pnl-time');
+    var $ampm = $('#pnl-am-pm');
+ 
     $date.empty();
     $time.empty();
-    var d = new Date();
+    //var d = new Date();
+     var d = getMipDate();
 
     var monthIndex = d.getMonth();
     var dayOfMonth = d.getDate();
     var dayIndex = d.getDay(); 
     var hours = d.getHours();
     var minutes = d.getMinutes();
-    var ampm = "AM";
+    var ampm = "am";
     if (hours > 12) {
-        ampm = "PM";
+        ampm = "pm";
         hours -= 12;
     }
+
     var timeFormat =  hours + ":" + (minutes < 10 ? '0' : '') + minutes;
    // var dayFormat = (dayOfMonth < 10 ? '0' : '') + dayOfMonth + '/' + (month < 10 ? '0' : '') + month + '/' + d.getFullYear();
      var dayFormat = (dayOfMonth < 10 ? '0' : '') + dayOfMonth;
     $date.html('<ul><li>'+day[dayIndex]+'</li><li>'+month[monthIndex]+" "+'</li><li>'+
       dayFormat+'</li><li>'+d.getFullYear()+'</li></ul>');
     $time.html(timeFormat);
+    $ampm.html("<br><br>"+ampm);
 
-    console.log('displayDate');
+    console.log('displayDate2');
 
 }
 
@@ -222,6 +230,7 @@ function displayBatteryAndWifi(batteryLevel, signalLevel){
 
 //------------------------------------------------
 function blink(){
+  if(!blinkFlag) return;
 
     if(animationLock){
       	$next = $('#eyes');

@@ -1,3 +1,8 @@
+
+/*
+ * TelepresenceMegamip
+ * Flex_projects\develop\11\TelepresenceMegamip
+ * */
 package  {
 	import com.bit101.components.CheckBox;
 	import com.bit101.components.Panel;
@@ -7,6 +12,7 @@ package  {
 	import com.soma.ui.layouts.*;
 	import flash.text.TextFormat;
 	import flash.net.*;
+	import flash.geom.Matrix;
     
 	import org.osmf.media.MediaElement;
 	import org.osmf.net.StreamingURLResource;
@@ -74,6 +80,7 @@ package  {
 		
 		private var megamipLSClient:MegamipLSClient;
 		public static var externalArgs:String = "";
+		private var videoRotation:String = "0";
 		
 	
 		
@@ -83,7 +90,10 @@ package  {
 
 			NativeApplication.nativeApplication.addEventListener(
 			InvokeEvent.INVOKE, onInvoke);
-			initGui();
+			
+			//onInvoke2(null);
+			
+			
 
 		}
 		//-------------------------------------------------------------------------------------------------------
@@ -98,16 +108,20 @@ package  {
 		private function onInvoke(event:InvokeEvent):void
 		{
 			 externalArgs =  event.arguments[0] + "\n" + event.arguments[1];
-			  var fingerPrint:String = event.arguments[0];
-			  fingerPrint = fingerPrint.substr(fingerPrint.indexOf("//") + 2);
-			  txtFingerPrint.text = externalArgs + "\n" +fingerPrint;
+			  var uri:String = event.arguments[0];
+			  var args:Array = uri.split("//");
+			  var fingerPrint:String = args[1];
+			  videoRotation = args[2];
+			  
 			  farPeerID = fingerPrint;
 			  
-			 
+			initGui();
 			initConnection(null);
 			
 			 megamipLSClient = new MegamipLSClient();
 			 megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
+			 trace("onInvoke ... uri: " + uri + " fingerPrint: " + fingerPrint + " videoRotation: " + videoRotation);
+			 
 			 
 			 
 		}
@@ -115,7 +129,8 @@ package  {
 		private function onInvoke2(event:MouseEvent):void
 		{
 			 
-			  farPeerID =   txtFingerPrint.text
+			  //farPeerID =   txtFingerPrint.text
+			  farPeerID = "492510b93ca7214fe9a798f4edf8d07b64099bf79102cc1aea278d3f027e63af";
 			  initConnection(null);
 			  megamipLSClient = new MegamipLSClient();
 			  megamipLSClient.addEventListener(MegamipLSClient.UPDATE, lsReceiveData);
@@ -343,19 +358,35 @@ package  {
 		  
 		
 		    camera = getCamera();
+		
 		    mic = Microphone.getMicrophone();
 		    
 		    if (camera != null){
-				camera.setMode(480, 360, 15, true);
-				camera.setQuality(0, 90);
-				camera.setKeyFrameInterval(1);
-				camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
+			//	camera.setMode(camera.height,  camera.width, camera.fps);
+			//	camera.setMode(640, 480, camera.fps);
+			//camera.setMode(352, 288, camera.fps);   // works fine with logitech hd 720p - good image quality but some lags 
+			camera.setMode(352, 288, 15, false); 
+			//camera.setMode(320, 240, camera.fps);
+			//camera.setMode(480, 640, camera.fps);
+			//camera.setMode(1280, 800, camera.fps);
+			
+			//camera.setMode(480, 360, camera.fps);
+			//camera.setMode(480, 360, camera.fps);
+			
+			// camera.setMode(480, 360, camera.fps);
+			
+			//camera.setMode(camera.width,  camera.height, camera.fps);
+		
+			camera.setQuality(0, 90);
+		    camera.setKeyFrameInterval(7);
+			camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
 			    
 	
 				videoPublish.attachCamera(camera);
 				
 				nsPublish.attachCamera(camera);
-				nsPublish.bufferTime = 3;
+				//nsPublish.bufferTime = 3;
+				
 			
 			}
 			
@@ -397,8 +428,11 @@ package  {
 		
 		videoRead.attachNetStream(nsRead);
 		nsRead.play("media");
-
-			
+		
+		//---------------------------
+		
+	
+       
 		// we start publishing ... 	
 		  initSendStream(null); 
 		 }
@@ -420,22 +454,7 @@ package  {
 		 * */	
 		private function getCamera():Camera {
 			
-			
-			var returnValue:Camera;
-		if (platform != "desktop") {
-			
-			for (var i:int = 0; i < 2; i++ ) {
-				var cam:Camera = Camera.getCamera(String(i));
-				if (cam.position == CameraPosition.FRONT || cam.position == CameraPosition.UNKNOWN) {
-					returnValue = cam;	
-				}
-			}	
-		}else { 
-			
-			returnValue = Camera.getCamera();
-		}
-		
-		 return returnValue;
+		   return Camera.getCamera();
 		}
 		
 
@@ -446,71 +465,60 @@ package  {
 			this.stage.align = StageAlign.TOP_LEFT;
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 			this.stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE; 
-			
-			var container1:MediaContainer = new MediaContainer();
-			var container2:MediaContainer = new MediaContainer();
-			var player1:MediaPlayerSprite = new MediaPlayerSprite();
-			var player2:MediaPlayerSprite = new MediaPlayerSprite();
-			
-			
+			this.stage.color =  0x202020;
 			
 		
-			
-			
-			
-			
-			var baseUI:BaseUI = new BaseUI(stage);
 			
 			
 		 //-------------- videos display 
 		 
-		   videoPublish = new Video();
-			videoPublish.scaleX = 0.4;
-			videoPublish.scaleY = 0.4;
-			
-		  videoRead = new Video();
-		  videoRead.scaleX = 3;
-		  videoRead.scaleY = 3;
-
 		  
-		//------ -----------  panels	
-	
-	
-		var bottomPanel:Panel = new Panel(this);
-		bottomPanel.setSize(1100, 150);
-	    var element5:ElementUI = baseUI.add(bottomPanel);
-		element5.right = 3;
-		element5.bottom = 3;
-
 		
-		txtFingerPrint = new TextField();
-		txtFingerPrint.type = TextFieldType.INPUT;
-		txtFingerPrint.width = 500;
-		txtFingerPrint.height = 50;
-		txtFingerPrint.multiline = false;
-		txtFingerPrint.background = true;
+	    // videoRead 
+	    videoRead = new Video();
+		videoRead.smoothing = true;
+		videoPublish = new Video();
+		videoPublish.smoothing = true;
 		
+		var mat1:Matrix = new Matrix();
+		var mat2:Matrix = new Matrix();
+		videoRead.scaleX = 3;
+		videoRead.scaleY = 3;
+		videoPublish.scaleX = 0.4;
+		videoPublish.scaleY = 0.4;
+		var gap:int = (stage.fullScreenWidth - videoRead.width) / 2;
 		
-		var txtFormat:TextFormat = new TextFormat();
-		txtFormat.font = "Verdana";
-		txtFingerPrint.defaultTextFormat = txtFormat;
-		txtFingerPrint.backgroundColor = 0xF5F5DC;
-		txtFingerPrint.text = "FingerPrint: "+externalArgs;
+		trace("initGui rotation: " + videoRotation);
 		
-		var hbox2:HBoxUI = new HBoxUI(bottomPanel, 300,35);
-		hbox2.backgroundColor = 0x868686;
-		hbox2.backgroundAlpha = 0.4;
-		hbox2.ratio = ElementUI.RATIO_IN;
-		hbox2.childrenGap = new GapUI(5, 5);
-		hbox2.childrenPadding = new PaddingUI(15,15, 15, 15);
-		hbox2.childrenAlign = HBoxUI.ALIGN_CENTER_LEFT;
-	
-		hbox2.addChild(txtFingerPrint);
-		
-		hbox2.addChild(videoPublish);
-		hbox2.refresh();
+		if (videoRotation == "180") {
+			
+			// videoRead rotation and positionning 
+			mat1.rotate(Math.PI);
+			mat1.concat(videoRead.transform.matrix);
+			videoRead.transform.matrix = mat1;
+			
+			videoRead.x = gap + videoRead.width;
+			videoRead.y = stage.fullScreenHeight;
+			
+			// videoPublish rotation and positionning 
+			mat2.rotate(Math.PI);
+			mat2.concat(videoPublish.transform.matrix);
+			videoPublish.transform.matrix = mat2;
+			
+			videoPublish.x = (gap - videoPublish.width)/2 + videoPublish.width ;
+			videoPublish.y = videoPublish.height + 30;
+			
+		 }else { // no rotation 
+		    
+			videoRead.x = gap ;
+			videoRead.y = 0;
+			var gap2:int = gap + videoRead.width;
+			videoPublish.x = (gap - videoPublish.width)/2  + gap2;
+			videoPublish.y = stage.fullScreenHeight - ( videoPublish.height + 30 );
+		  }
+		  
+		addChild(videoPublish);
         addChild(videoRead); 
-		addChild(hbox2);	
 		
 		}
 		
@@ -526,7 +534,7 @@ package  {
 
 		}
 		private function sendMegamipCMD(str:String):void {
-			
+		trace("sendMegamipCMD ... str: " + str);	
 		var url:String = "http://localhost:8080/"+str;
 		var request:URLRequest = new URLRequest(url);
 		request.method = URLRequestMethod.GET;

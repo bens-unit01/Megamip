@@ -2,11 +2,13 @@ package com.megamip.voice;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.cordova.CordovaWebView;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,6 +61,7 @@ public class MainActivity extends DroidGap {
 	private Handler handler = null;
 	private MipUsbDevice mipUsbDeviceNano;
 	private MipUsbDevice mipUsbDeviceMicro;
+	private MipUsbDevice mipUsbDeviceUno;
 	// private static final String HTML_ROOT = "file:///mnt/sdcard/DCIM/gui/";
 	private static final String HTML_ROOT = "file:///android_asset/www/";
 	private Command mCommand;
@@ -96,6 +99,8 @@ public class MainActivity extends DroidGap {
 	private MipCommand.GuiDisplayNotificationsPanel mGuiDisplayNotificationsPanel;
 	private Boolean mUpDownSwipeFlag = true;
 	private MipWemoDevice mMipWemoDevice = null;
+	private String mLocation = "montreal";
+	private ArduinoCtrlMM arduinoCtrl = null;
 
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
@@ -118,10 +123,11 @@ public class MainActivity extends DroidGap {
 
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
 
-		if (MipUsbDevice.isUSBConnected(context)) { // we confirm that the
-													// Arduino Nano and Uno are
+//***		if (MipUsbDevice.isAllUSBConnected(context)) { // we confirm that the
+														// Arduino Nano and Uno
+														// are
 			invoker = new Invoker(); // both connected
-			receiver = new MipReceiver(handler, webView, this);
+//***			receiver = new MipReceiver(handler, webView, this);
 			// mc = new MipCommand();
 			mJettyServer = new JettyServer();
 
@@ -134,22 +140,22 @@ public class MainActivity extends DroidGap {
 			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
 			mMipWemoDevice = new MipWemoDevice(this.getApplicationContext());
 			Log.d(TAG2, "setting the listeners ... ");
-			initCommands();
-			setListeners();
+//***			initCommands();
+//***			setListeners();
 
 			mState = State.STARTED;
 
-		} else {
-
-			Log.d(TAG2,
-					"Not all usb devices are connected ... closing the app ");
-			Toast warning = Toast.makeText(context,
-					"Not all usb connections are plugged in !!",
-					Toast.LENGTH_LONG);
-			warning.show();
-			this.finish();
-
-		}
+//***		} else {
+//
+//			Log.d(TAG2,
+//					"Not all usb devices are connected ... closing the app ");
+//			Toast warning = Toast.makeText(context,
+//					"Not all usb connections are plugged in !!",
+//					Toast.LENGTH_LONG);
+//			warning.show();
+//			this.finish();
+//
+//		}
 
 		// loadPage("index.html");
 		// loadPage("test.html");
@@ -208,7 +214,7 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals("picture") || action.equals("pictures")) {
 			mMode = PICTURE_MODE;
-			
+
 			// mCommand = mc.new PictureSearch(receiver, keywords);
 			mPictureSearch.setKeywords(keywords);
 			// mCommand = mPictureSearch;
@@ -241,11 +247,35 @@ public class MainActivity extends DroidGap {
 			invoker.launch(mGuiDisplayNotificationsPanel);
 		}
 
-		if (action.equals("my") ) {
-			loadURL("javascript:showMyVideos()");
-			mMode = LOCAL_VIDEO_MODE;
-			mTrgInactivity.resetTimer();
-			showMessage("showing your videos ...");
+		if (action.equals("my")) {
+			if (keywords.contains("video") || keywords.contains("videos")) {
+				loadURL("javascript:showMyVideos()");
+				mMode = LOCAL_VIDEO_MODE;
+				mTrgInactivity.resetTimer();
+				showMessage("showing your videos ...");
+			} else {
+				loadURL("javascript:showMyPictures()");
+				mMode = PICTURE_MODE;
+				mTrgInactivity.resetTimer();
+				showMessage("showing your pictures ...");
+			}
+
+		}
+		
+		if (action.equals("personal")) {
+			
+			Log.d(TAG6, "personal assistant ...");
+			try {
+				Intent mediaplayerIntent = Intent
+						.parseUri("godog://" , Intent.URI_INTENT_SCHEME);
+				//mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+				startActivityForResult(mediaplayerIntent, 55);
+
+//			} catch (URISyntaxException e) {
+			} catch (Exception e) {
+				Log.d(TAG2, "block catch - onLaunchVideo ...");
+				e.printStackTrace();
+			}
 		}
 
 		Log.d(TAG6, "MainActivity#voiceHandler - mState: " + mState);
@@ -324,6 +354,7 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals(MovementInput.DOWN_SWIPE)) {
 
+			mUpDownSwipeFlag = true;
 			Log.d(TAG6, "down_swipe --------------");
 			mScreenOrientation = ScreenOrientation.POSITION_0;
 			mMoveProjectorTo.setParams("3" + JettyServer.SPLIT_CHAR + "1"); // the
@@ -354,7 +385,7 @@ public class MainActivity extends DroidGap {
 		// public void run() {
 		mMediaPlayer.reset();
 		mMediaPlayer = MediaPlayer.create(this, R.raw.button_31);
-		mMediaPlayer.setVolume(13, 13);
+		// mMediaPlayer.setVolume(13, 13);
 		mMediaPlayer.start();
 
 		// }
@@ -364,23 +395,23 @@ public class MainActivity extends DroidGap {
 
 	private void showMessage(final String msg) {
 
-//		runOnUiThread(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//
-//				String ouputMessage = msg;
-//				if (mScreenOrientation == ScreenOrientation.POSITION_0) {
-//					StringBuffer stringBuffer = new StringBuffer(msg);
-//					ouputMessage = stringBuffer.reverse().toString();
-//				}
-//
-//				Toast warning = Toast.makeText(context, ouputMessage,
-//						Toast.LENGTH_LONG);
-//				warning.show();
-//
-//			}
-//		});
+		// runOnUiThread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		//
+		// String ouputMessage = msg;
+		// if (mScreenOrientation == ScreenOrientation.POSITION_0) {
+		// StringBuffer stringBuffer = new StringBuffer(msg);
+		// ouputMessage = stringBuffer.reverse().toString();
+		// }
+		//
+		// Toast warning = Toast.makeText(context, ouputMessage,
+		// Toast.LENGTH_LONG);
+		// warning.show();
+		//
+		// }
+		// });
 	}
 
 	private void handleSimpleTouch(MovementInput movementInput) {
@@ -413,7 +444,8 @@ public class MainActivity extends DroidGap {
 		}
 
 		// close button
-		if (x >= 3489 && y >= 3773 && x <= 4030 && y <= 4095) {
+	    if (x >= 3489 && y >= 3773 && x <= 4030 && y <= 4095) {
+		//if (x >= 3489) {
 
 			Log.d(TAG3, "handleSimpleTouch , close ");
 			// mState = State.STANDBY;
@@ -552,16 +584,16 @@ public class MainActivity extends DroidGap {
 				mMipUtils.closeApp("air.air.MipVideoPlayer", context);
 				// finishActivity(1);
 				Log.d(TAG6, "back event fired");
-			} 
-			
-			if(mMode.equals(PICTURE_MODE)){
+			}
+
+			if (mMode.equals(PICTURE_MODE)) {
 				// mCommand = mc.new GuiBack(receiver);
 				mCommand = mGuiBack;
 				invoker.launch(mCommand);
 			}
-			
-			if(mMode.equals(LOCAL_VIDEO_MODE)){
-				
+
+			if (mMode.equals(LOCAL_VIDEO_MODE)) {
+
 				finishActivity(LOCAL_VIDEO_REQUEST_CODE);
 			}
 			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "
@@ -597,63 +629,77 @@ public class MainActivity extends DroidGap {
 
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 
-		ArduinoCtrlMM arduinoCtrl = new ArduinoCtrlMM(this);
 		int speed = MipReceiver.SPEED;
+		int turnSpeed = speed - 3;
 		int time = MipReceiver.TIME;
-		int turnTime = MipReceiver.TIME / 2;
+		// int turnTime = MipReceiver.TIME / 2;
+		int turnTime = MipReceiver.TURN_TIME;
+		mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
 
 		// Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
-		if (input[1].equals("moveForward")) {
+		if (input[1].equals("moveForward") && mipUsbDeviceUno.isUsbConnected()) {
 
 			arduinoCtrl.drive(speed, speed, time, time);
 		}
 
-		if (input[1].equals("moveBackward")) {
+		if (input[1].equals("moveBackward") && mipUsbDeviceUno.isUsbConnected()) {
 
 			arduinoCtrl.drive(-speed, -speed, time, time);
 		}
 
-		if (input[1].equals("moveLeft")) {
+		if (input[1].equals("moveLeft") && mipUsbDeviceUno.isUsbConnected()) {
 
-			arduinoCtrl.drive(-speed, speed, turnTime, turnTime);
+			arduinoCtrl.drive(-turnSpeed, turnSpeed, turnTime, turnTime);
 		}
 
-		if (input[1].equals("moveRight")) {
+		if (input[1].equals("moveRight") && mipUsbDeviceUno.isUsbConnected()) {
 
-			arduinoCtrl.drive(speed, -speed, turnTime, turnTime);
+			arduinoCtrl.drive(turnSpeed, -turnSpeed, turnTime, turnTime);
 		}
 
-		if (input[1].equals("stop")) {
+		if (input[1].equals("stop") && mipUsbDeviceUno.isUsbConnected()) {
 
 			// mCommand = mc.new MipStop(receiver);
 			// invoker.launch(mCommand);
 			// Log.d(TAG2, "jettHandler triggered stop");
 		}
-		
-		if (input[1].equals("toggleProjector")) {
 
+		if (input[1].equals("toggleProjector")) {
+			playSound();
 			arduinoCtrl.projectorOnOff();
-			 Log.d(TAG2, "jettHandler triggered projector power on/off ");
+			Log.d(TAG2, "jettyHandler triggered projector power on/off ");
 		}
 
 		if (input[1].equals("moveProjectorTo")) {
 
-			// mCommand = mc.new MoveProjectorTo(receiver, input[2]);
-			mMoveProjectorTo.setParams(input[2]);
-			mCommand = mMoveProjectorTo;
+			String rotationSettings = input[2];
 
 			// adjusting the screen orientation : landscape or reversed
 			// landscape
 
 			if (input[2].equals("1") || input[2].equals("2")) {
 				super.setScreenOrientation(ScreenOrientation.POSITION_180);
+				rotationSettings += JettyServer.SPLIT_CHAR + "0";
 			} else {
 				super.setScreenOrientation(ScreenOrientation.POSITION_0);
+				rotationSettings += JettyServer.SPLIT_CHAR + "1";
 			}
-			invoker.launch(mCommand);
+			playSound();
+			mMoveProjectorTo.setParams(rotationSettings);
+			invoker.launch(mMoveProjectorTo);
 			Log.d(TAG2, "jettHandler triggered moveProjectorTo params: "
 					+ input[2]);
+		}
+
+		if (input[1].equals("changeLocation")) {
+
+			mLocation = input[2];
+
+			loadURL("javascript:changeLocation('" + mLocation + "')");
+			// String host = prop.getProperty("host");
+			Log.d(TAG2, "jettyHandler triggered changeLocation  city: "
+					+ mLocation);
 		}
 
 	}
@@ -717,9 +763,18 @@ public class MainActivity extends DroidGap {
 		mMoveProjectorTo.setParams("3" + JettyServer.SPLIT_CHAR + "1"); // the
 																		// text
 																		// is
-																		// mirrored
+		// projector initialisation // mirrored
 		invoker.launch(mMoveProjectorTo);
 		super.setScreenOrientation(ScreenOrientation.POSITION_0);
+
+		// settings initialisation
+
+		loadURL("javascript:changeLocation(" + mLocation + ")");
+		Log.d(TAG2, "current location: " + mLocation);
+
+		// reference to usb connections to the arduino nano and uno
+		arduinoCtrl = new ArduinoCtrlMM(this);
+		mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
 
 	}
 
@@ -729,18 +784,19 @@ public class MainActivity extends DroidGap {
 		// the arduino Nano controls the gesture sensor and the 2 projector
 		// servos ( focus and rotation )
 
-//		mipUsbDeviceNano = MipUsbDevice.getInstance(context, DeviceType.NANO);
+		// mipUsbDeviceNano = MipUsbDevice.getInstance(context,
+		// DeviceType.NANO);
 
-//		mipUsbDeviceNano.addUsbListener(new UsbListener() {
-//
-//			@Override
-//			public void onNotify(UsbEvent e) {
-//				byte[] data = e.getData();
-//				movementHandler(new MovementInput(data));
-//				Log.d(TAG7, "> mipUsbDeviceNano " + (new String(data)));
-//			}
-//
-//		});
+		// mipUsbDeviceNano.addUsbListener(new UsbListener() {
+		//
+		// @Override
+		// public void onNotify(UsbEvent e) {
+		// byte[] data = e.getData();
+		// movementHandler(new MovementInput(data));
+		// Log.d(TAG7, "> mipUsbDeviceNano " + (new String(data)));
+		// }
+		//
+		// });
 
 		// the Sparkfun pro micro controls the touch-screen
 		mipUsbDeviceMicro = MipUsbDevice.getInstance(context, DeviceType.MICRO);
@@ -751,7 +807,13 @@ public class MainActivity extends DroidGap {
 			public void onNotify(UsbEvent e) {
 				byte[] data = e.getData();
 				movementHandler(new MovementInput(data));
-				Log.d(TAG7, "> mipUsbDeviceMicro " + (new String(data)));
+
+				// ------ logs
+//				StringBuilder sb = new StringBuilder();
+//				for (byte b : data) {
+//					sb.append(String.format("%02X ", b));
+//				}
+				Log.d(TAG7, "> mipUsbDeviceMicro " + new String(data));
 			}
 
 		});
@@ -1086,6 +1148,27 @@ public class MainActivity extends DroidGap {
 		Log.d(TAG2, "MainActivity onStop()...");
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+
+		Log.d("A3", "onNewIntent ...");
+		// if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED))
+		// {
+		// Log.d("A3", "device attached ...");
+		//
+		// // arduinoCtrl = new ArduinoCtrlMM(this); // reconnecting to the usb
+		// // devices nano & uno
+//		 mipUsbDeviceUno.pause(); // we
+//		// // mipUsbDeviceUno.resume();
+//		// MipUsbDevice.isAllUSBConnected(this);
+//		 arduinoCtrl = new ArduinoCtrlMM(this);
+//		 mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
+		// // mipUsbDeviceUno.resume();
+		//
+		// }
+	}
+
 	public void getNotifications() {
 
 		// the notifications are formated on a string
@@ -1122,7 +1205,7 @@ public class MainActivity extends DroidGap {
 														// videos, mode == 1 for
 														// local videos
 
-		if (mode == 0) {  // it's a youtube video 
+		if (mode == 0) { // it's a youtube video
 			String videoId = mMipUtils.getYoutubeVideoId(url);
 			int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
 					: 180;
@@ -1141,11 +1224,11 @@ public class MainActivity extends DroidGap {
 			// mediaplayerIntent.putExtra("id", videoId);
 			// mediaplayerIntent.putExtra("pos", position);
 
-		} else {  // it's a local video 
-			
-			
-			int orientation = (mScreenOrientation == ScreenOrientation.POSITION_0)? 0 : 180;
-			Intent intent = new Intent(this,LocalVideoPlayer.class);
+		} else { // it's a local video
+
+			int orientation = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+					: 180;
+			Intent intent = new Intent(this, LocalVideoPlayer.class);
 			intent.putExtra("videoId", url);
 			intent.putExtra("orientation", orientation);
 			startActivityForResult(intent, LOCAL_VIDEO_REQUEST_CODE);

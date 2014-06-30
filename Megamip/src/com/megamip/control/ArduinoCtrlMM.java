@@ -160,13 +160,13 @@ public class ArduinoCtrlMM implements ArduinoCtrl {
 		int position;
 		switch (pos) {
 		case PROJECTOR_POSITION_WALL:
-			position = 0x2D;
+			position = 0x1C;
 			break;
 		case PROJECTOR_POSITION_CEILING:
-			position = 0x6E;
+			position = 0x59;
 			break;
 		case PROJECTOR_POSITION_SCREEN:
-			position = 0x94;
+			position = 0x80;
 			break;
 
 		default:

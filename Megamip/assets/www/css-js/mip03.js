@@ -49,6 +49,81 @@ function showMyVideos(){
          
 }
 
+
+function showMyPictures(){
+
+
+  var content = "";
+          var newWidth = 0;
+         animationInit();
+         clearScreen();
+          hideEyes();     
+          showCenterPanel();
+          var $results =  $('#results');
+         
+          if(baseRef != null){
+           var items = baseRef.itemsAmount;
+
+           for(var i=0 ; i < items; i++){
+              $results.data('owlCarousel').removeItem();
+            }
+
+          }else{
+             $results.owlCarousel({
+             stopOnHover : true,
+             navigation:true,
+             paginationSpeed : 200,
+             goToFirstSpeed : 200,
+             singleItem : true,
+             transitionStyle:"fade"
+
+            
+          });
+
+          }   
+
+            for(var i = 0; i < 2; i++){
+
+             content = "<div><img src='img/pic0"+i+".jpg'  /></div>";
+             //$results.append(content);
+              $results.data('owlCarousel').addItem(content);
+
+           } 
+
+         
+}
+
+
+
+function changeLocation(newLocation){
+
+
+   var ofst = offset.montreal;
+   mLocation = 'montreal';
+   if(newLocation == "tokyo"){
+   	ofst = offset.tokyo;
+   	mLocation = 'tokyo';
+   } 
+   if(newLocation == "san_francisco"){
+   	mLocation = 'san fran.';
+   	ofst = offset.san_francisco;
+   } 
+
+  
+   mOffset = ofst;
+    var $location = $('#location');
+    $location.html(mLocation);
+    displayDate2();
+ }
+
+ function getMipDate(){
+   var d = new Date();
+   var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+   var nd = new Date(utc + (3600000*mOffset));
+   
+  return nd;
+}
+
 function updateResult() {
 			// var result = JSON.parse(data2);
 
@@ -265,3 +340,22 @@ function updateResult() {
 				}
 			}
 		}
+
+
+
+		function calcTime(city, offset) {
+    // create Date object for current location
+    var d = new Date();
+
+    // convert to msec
+    // add local time zone offset
+    // get UTC time in msec
+    var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+    // create new Date object for different city
+    // using supplied offset
+    var nd = new Date(utc + (3600000*offset));
+
+    // return time as a string
+    return "The local time for city"+ city +" is "+ nd.toLocaleString();
+}
