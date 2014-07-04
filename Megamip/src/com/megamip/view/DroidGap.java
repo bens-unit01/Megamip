@@ -2,25 +2,18 @@ package com.megamip.view;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.apache.cordova.Config;
-import org.apache.cordova.CordovaActivity;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
-
 import com.megamip.voice.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
-public class DroidGap extends Activity implements CordovaInterface {
+public class DroidGap extends Activity  {
 
-	private CordovaWebView cwv;
+	private WebView wv;
 	private MegamipGui megamipGui;
 	private Handler handler;
 	private ScreenOrientation screenOrientation;
@@ -41,13 +34,12 @@ public class DroidGap extends Activity implements CordovaInterface {
 		
 		setContentView(megamipGui);
 	//	megamipGui.setLayerType(View.LAYER_TYPE_HARDWARE, null);  // turn off the GPU hardware acceleration
-		cwv = (CordovaWebView) findViewById(R.id.tutorialView);
-		Config.init(this);
-		cwv.loadUrl(Config.getStartUrl());
+		wv = (WebView) findViewById(R.id.web_view);
+		wv.loadUrl("file:///android_asset/www/index.html");
 	}
 
-	public CordovaWebView getWebView() {
-		return cwv;
+	public WebView getWebView() {
+		return wv;
 	}
 
 	public void setScreenOrientation(ScreenOrientation screenOrientation) {
@@ -86,33 +78,5 @@ public class DroidGap extends Activity implements CordovaInterface {
 		}
 	}
 
-	@Override
-	public Activity getActivity() {
-		// TODO Auto-generated method stub
-		return this;
-	}
-
-	@Override
-	public ExecutorService getThreadPool() {
-		return threadPool;
-
-	}
-
-	@Override
-	public Object onMessage(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setActivityResultCallback(CordovaPlugin arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void startActivityForResult(CordovaPlugin arg0, Intent arg1, int arg2) {
-		// TODO Auto-generated method stub
-
-	}
+	
 }

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.cordova.CordovaWebView;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.hardware.usb.UsbManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -18,6 +18,7 @@ import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.Menu;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Toast;
 import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.telepresence.MegamipLSClient;
@@ -29,7 +30,16 @@ import com.megamip.util.MipDeviceManager;
 import com.megamip.util.MipTimer;
 import com.megamip.util.MipUtils;
 import com.megamip.util.MipWemoDevice;
+import com.megamip.view.CarouselActivity;
+import com.megamip.view.CarouselPhoto;
+import com.megamip.view.CarouselVideo;
 import com.megamip.view.DroidGap;
+import com.megamip.view.MxtTouch;
+import com.megamip.view.MxtTouch.TouchDownListener;
+import com.megamip.view.MxtTouch.TouchEvent;
+import com.megamip.view.MxtTouch.TouchSwipeDownListener;
+import com.megamip.view.MxtTouch.TouchSwipeUpListener;
+import com.megamip.view.MxtTouch.TouchUpListener;
 import com.megamip.view.SpeakNow;
 import com.megamip.voice.MipUsbDevice.DeviceType;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
@@ -57,7 +67,7 @@ public class MainActivity extends DroidGap {
 
 	private String mMode = PICTURE_MODE;
 	private ScreenOrientation mScreenOrientation = ScreenOrientation.POSITION_0;
-	private CordovaWebView webView;
+	private WebView webView;
 	private Handler handler = null;
 	private MipUsbDevice mipUsbDeviceNano;
 	private MipUsbDevice mipUsbDeviceMicro;
@@ -101,6 +111,13 @@ public class MainActivity extends DroidGap {
 	private MipWemoDevice mMipWemoDevice = null;
 	private String mLocation = "montreal";
 	private ArduinoCtrlMM arduinoCtrl = null;
+	// touch handling
+	private TouchDownListener mTouchDownListener;
+	private TouchUpListener mTouchUpListener;
+	private TouchEvent mTouchEvent;
+	private int yStart = 0;
+	private TouchSwipeDownListener mTouchSwipeDownListener;
+	private TouchSwipeUpListener mTouchSwipeUpListener;
 
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
@@ -123,11 +140,11 @@ public class MainActivity extends DroidGap {
 
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
 
-//***		if (MipUsbDevice.isAllUSBConnected(context)) { // we confirm that the
+		if (MipUsbDevice.isAllUSBConnected(context)) { // we confirm that the
 														// Arduino Nano and Uno
 														// are
 			invoker = new Invoker(); // both connected
-//***			receiver = new MipReceiver(handler, webView, this);
+			receiver = new MipReceiver(handler, webView, this);
 			// mc = new MipCommand();
 			mJettyServer = new JettyServer();
 
@@ -140,22 +157,22 @@ public class MainActivity extends DroidGap {
 			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
 			mMipWemoDevice = new MipWemoDevice(this.getApplicationContext());
 			Log.d(TAG2, "setting the listeners ... ");
-//***			initCommands();
-//***			setListeners();
+			initCommands();
+			setListeners();
 
 			mState = State.STARTED;
 
-//***		} else {
-//
-//			Log.d(TAG2,
-//					"Not all usb devices are connected ... closing the app ");
-//			Toast warning = Toast.makeText(context,
-//					"Not all usb connections are plugged in !!",
-//					Toast.LENGTH_LONG);
-//			warning.show();
-//			this.finish();
-//
-//		}
+		} else {
+
+			Log.d(TAG2,
+					"Not all usb devices are connected ... closing the app ");
+			Toast warning = Toast.makeText(context,
+					"Not all usb connections are plugged in !!",
+					Toast.LENGTH_LONG);
+			warning.show();
+			this.finish();
+
+		}
 
 		// loadPage("index.html");
 		// loadPage("test.html");
@@ -248,30 +265,37 @@ public class MainActivity extends DroidGap {
 		}
 
 		if (action.equals("my")) {
+			int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+					: 180;
 			if (keywords.contains("video") || keywords.contains("videos")) {
-				loadURL("javascript:showMyVideos()");
+
 				mMode = LOCAL_VIDEO_MODE;
 				mTrgInactivity.resetTimer();
-				showMessage("showing your videos ...");
+				Intent intent = new Intent(this, CarouselVideo.class);				
+				intent.putExtra("rotation", rotationAngle);
+				startActivity(intent);
 			} else {
-				loadURL("javascript:showMyPictures()");
+				// loadURL("javascript:showMyPictures()");
 				mMode = PICTURE_MODE;
 				mTrgInactivity.resetTimer();
-				showMessage("showing your pictures ...");
+				
+				Intent intent = new Intent(this, CarouselPhoto.class);				
+				intent.putExtra("rotation", rotationAngle);
+				startActivity(intent);
 			}
 
 		}
-		
+
 		if (action.equals("personal")) {
-			
+
 			Log.d(TAG6, "personal assistant ...");
 			try {
-				Intent mediaplayerIntent = Intent
-						.parseUri("godog://" , Intent.URI_INTENT_SCHEME);
-				//mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+				Intent mediaplayerIntent = Intent.parseUri("godog://",
+						Intent.URI_INTENT_SCHEME);
+				// mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
 				startActivityForResult(mediaplayerIntent, 55);
 
-//			} catch (URISyntaxException e) {
+				// } catch (URISyntaxException e) {
 			} catch (Exception e) {
 				Log.d(TAG2, "block catch - onLaunchVideo ...");
 				e.printStackTrace();
@@ -444,8 +468,8 @@ public class MainActivity extends DroidGap {
 		}
 
 		// close button
-	    if (x >= 3489 && y >= 3773 && x <= 4030 && y <= 4095) {
-		//if (x >= 3489) {
+		if (x >= 3489 && y >= 3773 && x <= 4030 && y <= 4095) {
+			// if (x >= 3489) {
 
 			Log.d(TAG3, "handleSimpleTouch , close ");
 			// mState = State.STANDBY;
@@ -776,6 +800,10 @@ public class MainActivity extends DroidGap {
 		arduinoCtrl = new ArduinoCtrlMM(this);
 		mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
 
+		// touch events init
+
+		mTouchEvent = new MxtTouch().new TouchEvent(this, new Point(0, 0));
+
 	}
 
 	private void setListeners() {
@@ -801,22 +829,88 @@ public class MainActivity extends DroidGap {
 		// the Sparkfun pro micro controls the touch-screen
 		mipUsbDeviceMicro = MipUsbDevice.getInstance(context, DeviceType.MICRO);
 
-		mipUsbDeviceMicro.addUsbListener(new UsbListener() {
+		// touch listeners
+		mTouchDownListener = new TouchDownListener() {
 
 			@Override
-			public void onNotify(UsbEvent e) {
-				byte[] data = e.getData();
-				movementHandler(new MovementInput(data));
+			public void onNotify(TouchEvent e) {
+				yStart = e.getPosition().y;
 
-				// ------ logs
-//				StringBuilder sb = new StringBuilder();
-//				for (byte b : data) {
-//					sb.append(String.format("%02X ", b));
-//				}
-				Log.d(TAG7, "> mipUsbDeviceMicro " + new String(data));
 			}
+		};
 
-		});
+		mTouchUpListener = new TouchUpListener() {
+
+			@Override
+			public void onNotify(TouchEvent e) {
+
+				int x = e.getPosition().x;
+				int y = e.getPosition().y;
+
+				// up/down swipe
+				int diffY = y - yStart;
+
+				if (Math.abs(diffY) > 300) {
+					if (diffY > 0) {
+						mTouchSwipeDownListener.onNotify();
+					} else {
+						mTouchSwipeUpListener.onNotify();
+					}
+				}
+
+				// simple touch
+
+				// mic button
+				if (x >= 9 && y >= 3650 && x <= 506 && y <= 4095) {
+					delayTriggers();
+					onSpeak();
+
+				}
+
+			}
+		};
+
+		mTouchSwipeDownListener = new TouchSwipeDownListener() {
+
+			@Override
+			public void onNotify() {
+				Log.d(TAG3, "swipe down ...");
+				mUpDownSwipeFlag = true;
+
+				mScreenOrientation = ScreenOrientation.POSITION_0;
+				mMoveProjectorTo.setParams("3" + JettyServer.SPLIT_CHAR + "1"); // the
+																				// text
+																				// is
+																				// mirrored
+				playSound();
+				invoker.launch(mMoveProjectorTo);
+				MainActivity.super
+						.setScreenOrientation(ScreenOrientation.POSITION_0);
+
+			}
+		};
+
+		mTouchSwipeUpListener = new TouchSwipeUpListener() {
+
+			@Override
+			public void onNotify() {
+				Log.d(TAG3, "swipe up ...");
+
+				mScreenOrientation = ScreenOrientation.POSITION_180;
+				String params = (mUpDownSwipeFlag) ? "1" : "2";
+				mUpDownSwipeFlag = !mUpDownSwipeFlag;
+
+				// adding the text position ( mirrored 1 or not 0 )
+				params = params + JettyServer.SPLIT_CHAR + "0";
+
+				mMoveProjectorTo.setParams(params);
+				playSound();
+				invoker.launch(mMoveProjectorTo);
+				MainActivity.super
+						.setScreenOrientation(ScreenOrientation.POSITION_180);
+
+			}
+		};
 
 		// Listener for the mic device
 
@@ -1123,6 +1217,40 @@ public class MainActivity extends DroidGap {
 			// }
 		}
 
+		mipUsbDeviceMicro.addUsbListener(new UsbListener() {
+
+			@Override
+			public void onNotify(UsbEvent e) {
+
+				byte[] data = e.getData();
+				// extracting the touch coordinates
+
+				int arg1 = (int) data[3] & 0xFF; // convert to unsigned byte
+				int arg2 = (int) data[4] & 0xFF;
+				int arg3 = (int) data[5] & 0xFF;
+
+				// decoding 3 bytes data to x,y coordinates
+				int x = ((arg1 << 4) | (arg3 >> 4) & 0xf);
+				int y = (arg2 << 4) | ((arg3 & 0xf));
+
+				mTouchEvent.getPosition().x = x;
+				mTouchEvent.getPosition().y = y;
+
+				if (data[1] == 0x40) {
+					// Log.d(TAG, " touch down x: " + x + " y: " + y);
+					mTouchDownListener.onNotify(mTouchEvent);
+				}
+
+				//
+
+				if (data[1] == 0x42) {
+					// Log.d(TAG, " touch up ex: " + x + " y: " + y);
+					mTouchUpListener.onNotify(mTouchEvent);
+				}
+			}
+
+		});
+
 		Log.d(TAG2, "MainActivity onResume()--- mState: " + mState);
 	}
 
@@ -1159,11 +1287,11 @@ public class MainActivity extends DroidGap {
 		//
 		// // arduinoCtrl = new ArduinoCtrlMM(this); // reconnecting to the usb
 		// // devices nano & uno
-//		 mipUsbDeviceUno.pause(); // we
-//		// // mipUsbDeviceUno.resume();
-//		// MipUsbDevice.isAllUSBConnected(this);
-//		 arduinoCtrl = new ArduinoCtrlMM(this);
-//		 mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
+		// mipUsbDeviceUno.pause(); // we
+		// // // mipUsbDeviceUno.resume();
+		// // MipUsbDevice.isAllUSBConnected(this);
+		// arduinoCtrl = new ArduinoCtrlMM(this);
+		// mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
 		// // mipUsbDeviceUno.resume();
 		//
 		// }

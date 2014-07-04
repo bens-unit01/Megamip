@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Array of puppy resource IDs -->
+  
+    <string-array name="pics_array">
+        <item>@drawable/pic_00</item>
+        <item>@drawable/pic_01</item>
+    </string-array>
+    
+    <string-array name="vids_array">
+        <item>@drawable/vid_00</item>
+        <item>@drawable/vid_01</item>
+    </string-array>
+
+</resources>

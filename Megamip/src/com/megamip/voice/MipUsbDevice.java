@@ -272,7 +272,7 @@ public class MipUsbDevice {
 				
               
 			}else if (includeValue(data, UsbCommand.END_BYTE)
-					&& (data.length > 3)) {
+					&& (data.length > 4)) {
 				for (UsbListener b : mListeListeners) {
 
 					b.onNotify(new UsbEvent(this, data));
@@ -336,6 +336,7 @@ public class MipUsbDevice {
 	}
 
 	public void addUsbListener(UsbListener usbListener) {
+		mListeListeners.clear();
 		mListeListeners.add(usbListener);
 		Log.d(TAG3, "UsbDevice 4 mSerialDriver = " + mUsbDriver);
 

@@ -68,6 +68,21 @@
             android:name="com.megamip.voice.LocalVideoPlayer"
             android:label="@string/title_activity_local_video_player" >
         </activity>
+        <activity
+            android:name="com.megamip.view.CarouselActivity"
+            android:label="@string/title_activity_carousel" 
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+        </activity>
+          <activity
+            android:name="com.megamip.view.CarouselVideo"
+            android:label="carousel_video" 
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+        </activity>
+         <activity
+            android:name="com.megamip.view.CarouselPhoto"
+            android:label="carousel_photo" 
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+        </activity>
     </application>
 
 </manifest>

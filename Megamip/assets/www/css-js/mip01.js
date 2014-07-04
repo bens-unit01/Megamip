@@ -21,7 +21,7 @@ var minutesTimer;
 var offset = {"montreal":-4, "tokyo":9, "san_francisco":-7};
 var mLocation = 'montreal';
 var mOffset = offset.montreal;
-var blink = true;
+var blinkFlag = true;
 
 
 //--
