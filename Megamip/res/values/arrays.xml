@@ -2,12 +2,18 @@
 <resources>
 
     <!-- Array of puppy resource IDs -->
-  
+
     <string-array name="pics_array">
-        <item>@drawable/pic_00</item>
-        <item>@drawable/pic_01</item>
+        <item>@raw/pic_00</item>
+        <item>@raw/pic_01</item>
+        <item>@raw/pic_02</item>
+        <item>@raw/pic_03</item>
+        <item>@raw/pic_04</item>
+        <item>@raw/pic_05</item>
+        <item>@raw/pic_06</item>
+        <item>@raw/pic_07</item>
+        <item>@raw/pic_08</item>
     </string-array>
-    
     <string-array name="vids_array">
         <item>@drawable/vid_00</item>
         <item>@drawable/vid_01</item>

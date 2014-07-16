@@ -11,4 +11,14 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" />
 
+        <ImageButton
+            android:id="@+id/btnBackLVP"
+            android:layout_width="90dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="42dp"
+            android:background="@drawable/btn_blue_states"
+            android:src="@drawable/delete_back_24" />
+
 </RelativeLayout>

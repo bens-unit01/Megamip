@@ -81,7 +81,7 @@ public class SpeakNow extends Dialog {
 	
 	// constructor 
 	public SpeakNow(String mTitle, Context context) {
-		super(context);
+		super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
 		this.mTitle = mTitle;
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.speak_now);

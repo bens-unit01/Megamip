@@ -65,23 +65,27 @@
             android:name="com.megamip.voice.WebViewActivity"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.megamip.voice.LocalVideoPlayer"
+            android:name="com.megamip.util.LocalVideoPlayer"
             android:label="@string/title_activity_local_video_player" >
         </activity>
         <activity
             android:name="com.megamip.view.CarouselActivity"
-            android:label="@string/title_activity_carousel" 
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+            android:label="@string/title_activity_carousel"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
         </activity>
-          <activity
+        <activity
             android:name="com.megamip.view.CarouselVideo"
-            android:label="carousel_video" 
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+            android:label="carousel_video"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
         </activity>
-         <activity
+        <activity
             android:name="com.megamip.view.CarouselPhoto"
-            android:label="carousel_photo" 
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+            android:label="carousel_photo"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.megamip.view.NotificationsActivity"
+            android:label="@string/title_activity_notifications" >
         </activity>
     </application>
 

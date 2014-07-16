@@ -1,9 +1,12 @@
 package com.megamip.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.megamip.util.LocalVideoPlayer;
+import com.megamip.view.DroidGap.ScreenOrientation;
 import com.megamip.view.MxtTouch.TouchEvent;
 import com.megamip.view.MxtTouch.TouchUpListener;
 import com.megamip.voice.R;
@@ -32,12 +35,22 @@ public class CarouselVideo extends CarouselActivity {
 		// TODO Auto-generated method stub
 		super.onNotify(e);
 		int x = e.getPosition().x;
-
+		int y = e.getPosition().y;
 		Log.d(TAG, "onNotify x: " + x);
 		int diffX = Math.abs(xInit - x);
-		if (diffX < 50) {
+		int diffY = Math.abs(yInit - y);
+
+		if (diffX < 50 && diffY < 50) {
 			if (x > 200 && x < 3000) {
-				Log.d(TAG, " onNotify - play button pushed");
+
+				int orientation = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+						: 180;
+				Intent intent = new Intent(this, LocalVideoPlayer.class);
+				intent.putExtra("videoId", "vid0" + index);
+				intent.putExtra("orientation", orientation);
+				Log.d(TAG, " onNotify - play button pushed index: " + index
+						+ " orientation: " + orientation);
+				startActivityForResult(intent, 123);
 			}
 		}
 	}

@@ -31,46 +31,46 @@ public final class R {
         public static final int btn1=0x7f020001;
         public static final int btn2=0x7f020002;
         public static final int btn3=0x7f020003;
-        public static final int btn_blue_states=0x7f020004;
-        public static final int delete_back_24=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int mic_icon=0x7f020007;
-        public static final int pic_00=0x7f020008;
-        public static final int pic_01=0x7f020009;
-        public static final int shadow=0x7f02000a;
-        public static final int speak_now_level0=0x7f02000b;
-        public static final int speak_now_level1=0x7f02000c;
-        public static final int speak_now_level2=0x7f02000d;
-        public static final int speak_now_level3=0x7f02000e;
-        public static final int speak_now_level4=0x7f02000f;
-        public static final int speak_now_level5=0x7f020010;
-        public static final int speak_now_level6=0x7f020011;
-        public static final int vid_00=0x7f020012;
-        public static final int vid_01=0x7f020013;
+        public static final int btn3_5=0x7f020004;
+        public static final int btn3_6=0x7f020005;
+        public static final int btn_blue_states=0x7f020006;
+        public static final int btn_red_states=0x7f020007;
+        public static final int delete_back_24=0x7f020008;
+        public static final int ic_launcher=0x7f020009;
+        public static final int mic_icon=0x7f02000a;
+        public static final int pic_00=0x7f02000b;
+        public static final int pic_01=0x7f02000c;
+        public static final int shadow=0x7f02000d;
+        public static final int speak_now_level0=0x7f02000e;
+        public static final int speak_now_level1=0x7f02000f;
+        public static final int speak_now_level2=0x7f020010;
+        public static final int speak_now_level3=0x7f020011;
+        public static final int speak_now_level4=0x7f020012;
+        public static final int speak_now_level5=0x7f020013;
+        public static final int speak_now_level6=0x7f020014;
+        public static final int vid_00=0x7f020015;
+        public static final int vid_01=0x7f020016;
     }
     public static final class id {
-        public static final int action_settings=0x7f0b000d;
+        public static final int action_settings=0x7f0b000a;
         public static final int btnBack=0x7f0b0002;
-        public static final int btnGo=0x7f0b0009;
-        public static final int btnNext=0x7f0b000b;
-        public static final int btnShow=0x7f0b000c;
+        public static final int btnBackLVP=0x7f0b0004;
+        public static final int btnMic=0x7f0b0006;
         public static final int carousel=0x7f0b0001;
-        public static final int editText1=0x7f0b000a;
         public static final int horizontal_carousel=0x7f0b0000;
-        public static final int image=0x7f0b0006;
-        public static final int textView1=0x7f0b0008;
+        public static final int image=0x7f0b0009;
+        public static final int layout_notifications=0x7f0b0007;
         public static final int videoView1=0x7f0b0003;
-        public static final int webView1=0x7f0b0007;
-        public static final int web_view=0x7f0b0004;
-        public static final int youtubeplayer=0x7f0b0005;
+        public static final int web_view=0x7f0b0005;
+        public static final int youtubeplayer=0x7f0b0008;
     }
     public static final class layout {
         public static final int activity_carousel=0x7f030000;
         public static final int activity_local_video_player=0x7f030001;
         public static final int activity_main=0x7f030002;
-        public static final int mip_video_player=0x7f030003;
-        public static final int speak_now=0x7f030004;
-        public static final int webview=0x7f030005;
+        public static final int activity_notifications=0x7f030003;
+        public static final int mip_video_player=0x7f030004;
+        public static final int speak_now=0x7f030005;
     }
     public static final class menu {
         public static final int main=0x7f0a0000;
@@ -80,6 +80,16 @@ public final class R {
         public static final int button_3=0x7f050001;
         public static final int button_30=0x7f050002;
         public static final int button_31=0x7f050003;
+        public static final int empty=0x7f050004;
+        public static final int pic_00=0x7f050005;
+        public static final int pic_01=0x7f050006;
+        public static final int pic_02=0x7f050007;
+        public static final int pic_03=0x7f050008;
+        public static final int pic_04=0x7f050009;
+        public static final int pic_05=0x7f05000a;
+        public static final int pic_06=0x7f05000b;
+        public static final int pic_07=0x7f05000c;
+        public static final int pic_08=0x7f05000d;
     }
     public static final class string {
         public static final int action_settings=0x7f080001;
@@ -88,6 +98,7 @@ public final class R {
         public static final int speak=0x7f080003;
         public static final int title_activity_carousel=0x7f080005;
         public static final int title_activity_local_video_player=0x7f080004;
+        public static final int title_activity_notifications=0x7f080006;
     }
     public static final class style {
         /** 

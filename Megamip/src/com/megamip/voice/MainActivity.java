@@ -9,7 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.hardware.usb.UsbManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -19,6 +21,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.telepresence.MegamipLSClient;
@@ -26,6 +30,7 @@ import com.megamip.telepresence.MegamipLSClient.LsServerEvent;
 import com.megamip.util.JettyServer;
 import com.megamip.util.JettyServer.JettyListener;
 import com.megamip.util.JettyServer.ServerEvent;
+import com.megamip.util.LocalVideoPlayer;
 import com.megamip.util.MipDeviceManager;
 import com.megamip.util.MipTimer;
 import com.megamip.util.MipUtils;
@@ -35,11 +40,15 @@ import com.megamip.view.CarouselPhoto;
 import com.megamip.view.CarouselVideo;
 import com.megamip.view.DroidGap;
 import com.megamip.view.MxtTouch;
+import com.megamip.view.DroidGap.ScreenOrientation;
 import com.megamip.view.MxtTouch.TouchDownListener;
 import com.megamip.view.MxtTouch.TouchEvent;
 import com.megamip.view.MxtTouch.TouchSwipeDownListener;
 import com.megamip.view.MxtTouch.TouchSwipeUpListener;
 import com.megamip.view.MxtTouch.TouchUpListener;
+import com.megamip.view.NotificationsActivity;
+import com.megamip.view.ProgressTask;
+import com.megamip.view.ProgressTask.Task;
 import com.megamip.view.SpeakNow;
 import com.megamip.voice.MipUsbDevice.DeviceType;
 import com.megamip.voice.MipUsbDevice.UsbEvent;
@@ -66,7 +75,7 @@ public class MainActivity extends DroidGap {
 	public static final int LOCAL_VIDEO_REQUEST_CODE = 123;
 
 	private String mMode = PICTURE_MODE;
-	private ScreenOrientation mScreenOrientation = ScreenOrientation.POSITION_0;
+	public static ScreenOrientation mScreenOrientation = ScreenOrientation.POSITION_0;
 	private WebView webView;
 	private Handler handler = null;
 	private MipUsbDevice mipUsbDeviceNano;
@@ -119,6 +128,11 @@ public class MainActivity extends DroidGap {
 	private TouchSwipeDownListener mTouchSwipeDownListener;
 	private TouchSwipeUpListener mTouchSwipeUpListener;
 
+	private SoundPool soundPool;
+	private int soundId;
+
+	private ImageButton btnMic;
+
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
 	}
@@ -139,6 +153,8 @@ public class MainActivity extends DroidGap {
 		webView = super.getWebView();
 
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
+
+		btnMic = (ImageButton) findViewById(R.id.btnMic);
 
 		if (MipUsbDevice.isAllUSBConnected(context)) { // we confirm that the
 														// Arduino Nano and Uno
@@ -261,27 +277,55 @@ public class MainActivity extends DroidGap {
 			mTrgInactivity.resetTimer();
 			mMode = PICTURE_MODE;
 			showMessage("displaying the notifications panel ");
-			invoker.launch(mGuiDisplayNotificationsPanel);
+//			invoker.launch(mGuiDisplayNotificationsPanel);
+			final int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+					: 180;
+			new ProgressTask(context, new Task() {
+
+				@Override
+				public void run() {
+
+					Intent intent = new Intent(context, NotificationsActivity.class);
+					intent.putExtra("rotation", rotationAngle);
+					startActivity(intent);
+				}
+			}).execute();
 		}
 
 		if (action.equals("my")) {
-			int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
+			final int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
 					: 180;
 			if (keywords.contains("video") || keywords.contains("videos")) {
 
 				mMode = LOCAL_VIDEO_MODE;
 				mTrgInactivity.resetTimer();
-				Intent intent = new Intent(this, CarouselVideo.class);				
-				intent.putExtra("rotation", rotationAngle);
-				startActivity(intent);
+				new ProgressTask(context, new Task() {
+
+					@Override
+					public void run() {
+
+						Intent intent = new Intent(context, CarouselVideo.class);
+						intent.putExtra("rotation", rotationAngle);
+						startActivity(intent);
+					}
+				}).execute();
+
 			} else {
 				// loadURL("javascript:showMyPictures()");
 				mMode = PICTURE_MODE;
 				mTrgInactivity.resetTimer();
-				
-				Intent intent = new Intent(this, CarouselPhoto.class);				
-				intent.putExtra("rotation", rotationAngle);
-				startActivity(intent);
+
+				new ProgressTask(context, new Task() {
+
+					@Override
+					public void run() {
+						Intent intent = new Intent(context, CarouselPhoto.class);
+						intent.putExtra("rotation", rotationAngle);
+						startActivity(intent);
+
+					}
+				}).execute();
+
 			}
 
 		}
@@ -403,17 +447,14 @@ public class MainActivity extends DroidGap {
 
 	private void playSound() {
 
-		// runOnUiThread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		mMediaPlayer.reset();
-		mMediaPlayer = MediaPlayer.create(this, R.raw.button_31);
-		// mMediaPlayer.setVolume(13, 13);
-		mMediaPlayer.start();
+		AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		float actualVolume = (float) audioManager
+				.getStreamVolume(AudioManager.STREAM_MUSIC);
+		float maxVolume = (float) audioManager
+				.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		float volume = actualVolume / maxVolume;
 
-		// }
-		// });
+		soundPool.play(soundId, volume, volume, 1, 0, 1f);
 
 	}
 
@@ -804,6 +845,10 @@ public class MainActivity extends DroidGap {
 
 		mTouchEvent = new MxtTouch().new TouchEvent(this, new Point(0, 0));
 
+		// sound initialization
+		soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+		soundId = soundPool.load(this, R.raw.button_31, 1);
+
 	}
 
 	private void setListeners() {
@@ -835,6 +880,21 @@ public class MainActivity extends DroidGap {
 			@Override
 			public void onNotify(TouchEvent e) {
 				yStart = e.getPosition().y;
+				playSound();
+
+				int x = e.getPosition().x;
+				int y = e.getPosition().y;
+				// mic button
+				if (x >= 9 && y >= 3650 && x <= 506 && y <= 4095) {
+
+					handler.post(new Runnable() {
+						public void run() {
+							btnMic.setPressed(true);
+						}
+					});
+
+					
+				}
 
 			}
 		};
@@ -843,6 +903,15 @@ public class MainActivity extends DroidGap {
 
 			@Override
 			public void onNotify(TouchEvent e) {
+
+				handler.post(new Runnable() {
+
+					@Override
+					public void run() {
+
+						btnMic.setPressed(false);
+					}
+				});
 
 				int x = e.getPosition().x;
 				int y = e.getPosition().y;
@@ -863,6 +932,7 @@ public class MainActivity extends DroidGap {
 				// mic button
 				if (x >= 9 && y >= 3650 && x <= 506 && y <= 4095) {
 					delayTriggers();
+
 					onSpeak();
 
 				}
@@ -1064,12 +1134,12 @@ public class MainActivity extends DroidGap {
 				intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
 						"voice.recognition.test");
 				intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-				intent.putExtra(
-						RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,
-						5000);
-				intent.putExtra(
-						RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-						3000);
+				// intent.putExtra(
+				// RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,
+				// 3000);
+				// intent.putExtra(
+				// RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+				// 3000);
 
 				mSpeechRecognizer.startListening(intent);
 				Log.i("A2", "MainActivity -- onSpeak() ");
@@ -1217,6 +1287,7 @@ public class MainActivity extends DroidGap {
 			// }
 		}
 
+		setScreenOrientation(mScreenOrientation);
 		mipUsbDeviceMicro.addUsbListener(new UsbListener() {
 
 			@Override

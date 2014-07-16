@@ -29,7 +29,7 @@ import com.megamip.util.UsbCommand;
 
 public class MipUsbDevice {
 
-	public static final String TAG3 = "A3";
+	public static final String TAG3 = MipUsbDevice.class.getName();
 
 	// attributes
 	private ArrayList<UsbListener> mListeListeners = new ArrayList<UsbListener>();
@@ -252,8 +252,10 @@ public class MipUsbDevice {
 		@Override
 		public void onNewData(final byte[] data) {
 
+		
 			// ---- notifyAll
 
+			try{
 			Log.d(TAG3, "UsbDevice onNewData -----  ");
 			if (partialResult.flag) {
 
@@ -287,6 +289,12 @@ public class MipUsbDevice {
 				}
 				partialResult.lastIndex++;
 				partialResult.flag = true;
+			}
+			
+			
+			}catch(Exception e){
+				Log.d(TAG3, "bloc catch ... onNewData() ");
+				e.printStackTrace();
 			}
 		}
 

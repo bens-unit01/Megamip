@@ -8,6 +8,7 @@ import com.megamip.view.MxtTouch.TouchSwipeDownListener;
 import com.megamip.view.MxtTouch.TouchSwipeListener;
 import com.megamip.view.MxtTouch.TouchSwipeUpListener;
 import com.megamip.view.MxtTouch.TouchUpListener;
+import com.megamip.voice.MainActivity;
 import com.megamip.voice.MipCommand;
 import com.megamip.voice.MipReceiver;
 import com.megamip.voice.MipUsbDevice;
@@ -22,6 +23,8 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -59,17 +62,19 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 	protected Handler handler;
 	private Activity mActivity;
 
-	protected int xPrevious = 0, xInit = 0, yInit = 0, scrollInit = 0;
+	protected int xPrevious = 0, xInit = 0, yInit = 0, scrollInit = 0,
+			index = 0;
 	public final int STEP = 20, SCALE_FACTOR = 3;
 	protected ImageButton btnBack;
 	private MxtTouch mMxtTouch;
 	private TouchEvent mTouchEvent;
 	private MipReceiver receiver;
 	private MoveProjectorTo mMoveProjectorTo;
-	private ScreenOrientation mScreenOrientation;
+	protected ScreenOrientation mScreenOrientation;
 	private Boolean mUpDownSwipeFlag = true;
-	private ScreenOrientation screenOrientation;
-	private CarouselGui carouselGui;
+    private CarouselGui carouselGui;
+    private SoundPool soundPool;
+    private int soundId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,9 +90,9 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 		handler = new Handler();
 		Intent i = getIntent();
 		int rotation = i.getIntExtra("rotation", 0);
-		ScreenOrientation so = (rotation == 0) ? ScreenOrientation.POSITION_0
+		mScreenOrientation = (rotation == 0) ? ScreenOrientation.POSITION_0
 				: ScreenOrientation.POSITION_180;
-		setScreenOrientation(so);
+		setScreenOrientation(rotation);
 
 		mActivity = this;
 		mMxtTouch = new MxtTouch();
@@ -96,6 +101,10 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 		receiver = new MipReceiver(this);
 		mMoveProjectorTo = (new MipCommand()).new MoveProjectorTo(receiver);
 
+		// sound initialization 
+				soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+				soundId = soundPool.load(this, R.raw.button_31, 1);
+				
 		// Get reference to carousel container
 		mCarouselContainer = (LinearLayout) findViewById(R.id.carousel);
 		hsv = (HorizontalScrollView) findViewById(R.id.horizontal_carousel);
@@ -110,6 +119,8 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 			public boolean onTouch(View v, MotionEvent event) {
 
 				Log.d(TAG, "onTouch ...");
+				
+				MainActivity.mScreenOrientation = mScreenOrientation;
 				mActivity.finish();
 				return false;
 			}
@@ -130,7 +141,7 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 				// playSound();
 				// invoker.launch(mMoveProjectorTo);
 				receiver.moveProjectorTo(position);
-				setScreenOrientation(ScreenOrientation.POSITION_180);
+				setScreenOrientation(180);
 
 			}
 		};
@@ -146,7 +157,7 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 				receiver.moveProjectorTo(3);
 				// playSound();
 
-				setScreenOrientation(ScreenOrientation.POSITION_0);
+				setScreenOrientation(0);
 
 			}
 		};
@@ -170,10 +181,8 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 						public void run() {
 
 							btnBack.setPressed(true);
-							// btnBack.dispatchTouchEvent(MotionEvent.obtain(0,
-							// 0,
-							// MotionEvent.ACTION_DOWN, 0, 0, 0, 0, 0, 0,
-							// 0, 0, 0));
+							playSound();
+							
 
 						}
 					});
@@ -202,7 +211,9 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 						Log.d(TAG, " getScrollX 1: " + hsv.getScrollX());
 						// int absDiff = Math.abs(xPrevious - x);
 						// int swipeX = (absDiff / 10) + (absDiff % 10);
-						if (direction > 0) {
+						int dir = direction;
+//						if(mScreenOrientation == ScreenOrientation.POSITION_0) dir = - direction;
+						if (dir > 0) {
 							hsv.smoothScrollTo((int) hsv.getScrollX() + STEP,
 									(int) hsv.getScrollY());
 						} else {
@@ -213,11 +224,23 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 						Log.d(TAG, " direction " + direction + " getScrollX: "
 								+ hsv.getScrollX());
 					}
-				}, 100L);
+				}, 30L);
 
 			}
 		};
 
+
+
+	}
+	
+	
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		int rotation = (MainActivity.mScreenOrientation == ScreenOrientation.POSITION_0)? 0 : 180 ;
+		setScreenOrientation(rotation);
 		mipUsbDeviceMicro = MipUsbDevice.getInstance(this, DeviceType.MICRO);
 
 		mipUsbDeviceMicro.addUsbListener(new UsbListener() {
@@ -225,7 +248,8 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 			@Override
 			public void onNotify(MipUsbDevice.UsbEvent e) {
 
-				byte[] data = e.getData();
+				byte[] data = new byte[10];
+						data = e.getData();
 				// extracting the touch coordinates
 
 				int arg1 = (int) data[3] & 0xFF; // convert to unsigned byte
@@ -256,7 +280,8 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 
 			}
 		});
-
+		
+		
 	}
 
 	@Override
@@ -272,13 +297,27 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 
 		final DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		final int imageWidth = (int) (displayMetrics.widthPixels / INITIAL_ITEMS_COUNT);
+		final int imageWidth = displayMetrics.widthPixels;
 		final int imageHeight = displayMetrics.heightPixels;
+		float density = getResources().getDisplayMetrics().density;
+		Log.d(TAG, " density: " + density + " imageWidth: " + imageWidth);
 		// Get the array of puppy resources
 
 		final TypedArray puppyResourcesTypedArray = getResources()
 				.obtainTypedArray(arrayId);
 
+         // we add the first item 
+		ImageView firstItem = new  ImageView(this);
+		firstItem.setBackgroundResource(R.drawable.shadow);
+		firstItem.setImageResource(R.raw.empty);
+		LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(
+				50, imageHeight);
+		flp.setMargins(0, 0, 15, 0); // lp.setMargins(left, top, right,
+									// bottom);
+
+		firstItem.setLayoutParams(flp);
+		mCarouselContainer.addView(firstItem);
+		
 		// Populate the carousel with items
 		ImageView imageItem;
 		for (int i = 0; i < puppyResourcesTypedArray.length(); ++i) {
@@ -297,7 +336,7 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 			// LinearLayout.LayoutParams(imageWidth,
 			// imageHeight));
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-					imageWidth, imageHeight - 10);
+					imageWidth, imageHeight);
 			lp.setMargins(0, 0, 15, 0); // lp.setMargins(left, top, right,
 										// bottom);
 
@@ -309,34 +348,30 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 
 	}
 
-	public void setScreenOrientation(ScreenOrientation screenOrientation) {
-		this.screenOrientation = screenOrientation;
-		if (this.screenOrientation == ScreenOrientation.POSITION_0) {
+	public void setScreenOrientation(final int rotation) {
+		
+	
 
 			handler.post(new Runnable() {
 
 				@Override
 				public void run() {
 
-					carouselGui.setRotation(0);
+					carouselGui.setRotation(rotation);
+					
+					if(rotation == 0){
+						carouselGui.setScaleX(-1);
+						carouselGui.setScaleY(1);
+					 }else{
+						 carouselGui.setScaleX(1);
+						 carouselGui.setScaleY(1);
+					 }
 
 				}
 			});
 
-		} else {
+  }
 
-			handler.post(new Runnable() {
-
-				@Override
-				public void run() {
-
-					carouselGui.setRotation(180);
-
-				}
-			});
-
-		}
-	}
 
 	// mTouchUp notify method
 	@Override
@@ -363,7 +398,8 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 		});
 
 		// up/down swipe
-		if (Math.abs(diffY) > MIN_SWIPE_DISTANCE && Math.abs(swipeDistance) <  MIN_SWIPE_DISTANCE) {
+		if (Math.abs(diffY) > MIN_SWIPE_DISTANCE
+				&& Math.abs(swipeDistance) < MIN_SWIPE_DISTANCE) {
 			if (diffY > 0) {
 				mTouchSwipeDownListener.onNotify();
 			} else {
@@ -377,30 +413,31 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 				@Override
 				public void run() {
 
-					// btnBack.dispatchTouchEvent(MotionEvent.obtain(0, 0,
-					// MotionEvent.ACTION_UP, 0, 0, 0, 0, 0, 0, 0, 0,
-					// 0));
-
 					int minDistance = hsv.getWidth() / 2;
-					// if (hsv.getScrollX() <= minDistance) {
-					// hsv.smoothScrollTo(0, hsv.getScrollY());
-					// } else {
-					// hsv.smoothScrollTo(hsv.getWidth(), hsv.getScrollY());
-					// }
-
+					int ds = hsv.getWidth() - 20;
+//                    if(mScreenOrientation == ScreenOrientation.POSITION_0) ds = -ds;
+					
 					if ((swipeDistance > 0) // right to left swipe
 							&& (Math.abs(swipeDistance) > minDistance)) {
 
+//						hsv.smoothScrollTo(
+//								(int) hsv.getScrollX() + ds,
+//								hsv.getScrollY());
 						hsv.smoothScrollTo(
-								(int) hsv.getScrollX() + hsv.getWidth(),
+								scrollInit+ ds,
 								hsv.getScrollY());
+						index++;
 					} else { // left to right swipe
 
 						if ((swipeDistance <= 0)
 								&& (Math.abs(swipeDistance) > minDistance)) {
+//							hsv.smoothScrollTo(
+//									(int) hsv.getScrollX() - ds,
+//									hsv.getScrollY());
 							hsv.smoothScrollTo(
-									(int) hsv.getScrollX() - hsv.getWidth(),
+									scrollInit - ds,
 									hsv.getScrollY());
+							index--;
 						} else {
 							hsv.smoothScrollTo(scrollInit, hsv.getScrollY());
 						}
@@ -409,13 +446,27 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 
 					Log.d(TAG, "swipeDistance: " + swipeDistance
 							+ " minDistance: " + minDistance + " scrollInit: "
-							+ scrollInit);
+							+ scrollInit + " ds: "+ ds  + " getScrollX: "+  hsv.getScrollX());
 
 				}
 
 			}, 100L);
 
 		}
+
+	}
+	
+	
+	private void playSound() {
+
+		AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		float actualVolume = (float) audioManager
+				.getStreamVolume(AudioManager.STREAM_MUSIC);
+		float maxVolume = (float) audioManager
+				.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		float volume = actualVolume / maxVolume;
+		
+		soundPool.play(soundId, volume, volume, 1, 0, 1f);
 
 	}
 

@@ -34,11 +34,11 @@ hr{
     height: 32%;
     margin-left: 20px;
     margin-top: 20px;
-    color: black;
+    color: #002240;
 }
 #bottom-panel{
 
-    background-color: #BCBCBC;
+    background-color: #002240;
     width: 92%;
     height: 46%;
     margin-left: 15px;
@@ -54,7 +54,7 @@ hr{
     width:73.6%;
     padding:0px;
     height: 93%;
-    background-color: #BCBCBC;
+    background-color: #002240;
     /* font-family: Opificio;*/
 
 
@@ -96,6 +96,10 @@ hr{
 
     font-family: 'Venera';
 
+}
+
+.green-color{
+    color:#3AC026;
 }
 
 
@@ -148,7 +152,7 @@ hr{
     font-family: 'Venera';
     font-size: 1.6em;
     line-height: 22px;
-    color: black;
+    color: #0088C4;
 
 }
 
@@ -189,7 +193,7 @@ hr{
     font-family: 'Venera';
     font-size: 1.9em;
     text-align: center;
-    color: #BCBCBC;
+    color: #7F909F;
     position:relative;
     top:-84px;
 
