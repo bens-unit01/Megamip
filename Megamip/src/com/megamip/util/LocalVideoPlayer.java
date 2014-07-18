@@ -1,5 +1,6 @@
 package com.megamip.util;
 
+import com.megamip.view.CarouselActivity;
 import com.megamip.view.MxtTouch;
 import com.megamip.view.MxtTouch.TouchDownListener;
 import com.megamip.view.MxtTouch.TouchEvent;
@@ -16,11 +17,13 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
@@ -47,6 +50,11 @@ public class LocalVideoPlayer extends Activity {
 		Intent intent = getIntent();
 		String videoId = intent.getStringExtra("videoId");
 		int orientation = intent.getIntExtra("orientation", 0);
+		
+		if(orientation == 180){  // We hide the back button when displaying on the wall 
+			ImageButton btnBack = (ImageButton)findViewById(R.id.btnBackLVP);
+			btnBack.setVisibility(View.GONE);
+		}
 		videoId += (orientation == 0) ? ".mp4" : "-flp.mp4";
 
 		VideoView video = (VideoView) findViewById(R.id.videoView1);
@@ -124,16 +132,12 @@ public class LocalVideoPlayer extends Activity {
 				xInit = xPrevious;
 				yInit = e.getPosition().y;
 
-				if (xInit > 3800 && yInit > 3800) {
+				if ((xInit > 3800 && yInit > 3800)  ||  (xInit >= 3661 && yInit <= 434)){
 					handler.post(new Runnable() {
 						public void run() {
 
 							btnBack.setPressed(true);
-							// btnBack.dispatchTouchEvent(MotionEvent.obtain(0,
-							// 0,
-							// MotionEvent.ACTION_DOWN, 0, 0, 0, 0, 0, 0,
-							// 0, 0, 0));
-
+			
 						}
 					});
 
@@ -158,7 +162,7 @@ public class LocalVideoPlayer extends Activity {
 					@Override
 					public void run() {
 						btnBack.setPressed(false);
-						if (lastPositionX > 3800 && lastPositionY > 3800) {
+						if ((lastPositionX > 3800 && lastPositionY > 3800)   ||  (lastPositionX >= 3661 && lastPositionY <= 434)) {
 							btnBack.dispatchTouchEvent(MotionEvent.obtain(0, 0,
 									MotionEvent.ACTION_UP, 0, 0, 0, 0, 0, 0, 0,
 									0, 0));

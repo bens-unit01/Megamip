@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 
 public class CarouselGui extends FrameLayout{
 	
-	RelativeLayout mCarouselGui;
+	FrameLayout mCarouselGui;
 	
 	final String TAG  = CarouselGui.class.getName();
 
@@ -26,7 +26,7 @@ public class CarouselGui extends FrameLayout{
 	{
 	   
 	    LayoutInflater inflator = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	    mCarouselGui = (RelativeLayout) inflator.inflate(R.layout.activity_carousel, this,false);
+	    mCarouselGui = (FrameLayout) inflator.inflate(R.layout.activity_carousel, this,false);
 	    setWillNotDraw(false);
 	    addView(mCarouselGui);
 	    

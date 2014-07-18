@@ -30,6 +30,14 @@ public class MipTimer {
         timer.schedule(new MipTimerTask(),  period*1000);
         System.out.println("MipReminder - constructor");
 	}
+    
+    public MipTimer(float period, int id) {
+    	this.id = id;
+    //	this.period = period;
+        timer = new Timer();
+        timer.schedule(new MipTimerTask(), (int) period*1000);
+        System.out.println("MipReminder - constructor");
+	}
 
     
     // getters & setters 

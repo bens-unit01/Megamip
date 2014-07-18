@@ -151,6 +151,7 @@ public class MainActivity extends DroidGap {
 		// setContentView(R.layout.activity_main);
 		// super.loadUrl("http://www.accenture.com/ca-en/Pages/index.aspx");
 		webView = super.getWebView();
+		webView.getSettings().setJavaScriptEnabled(true);
 
 		webView.addJavascriptInterface(this, "megaMipJSInterface");
 
@@ -277,7 +278,7 @@ public class MainActivity extends DroidGap {
 			mTrgInactivity.resetTimer();
 			mMode = PICTURE_MODE;
 			showMessage("displaying the notifications panel ");
-//			invoker.launch(mGuiDisplayNotificationsPanel);
+			// invoker.launch(mGuiDisplayNotificationsPanel);
 			final int rotationAngle = (mScreenOrientation == ScreenOrientation.POSITION_0) ? 0
 					: 180;
 			new ProgressTask(context, new Task() {
@@ -285,9 +286,11 @@ public class MainActivity extends DroidGap {
 				@Override
 				public void run() {
 
-					Intent intent = new Intent(context, NotificationsActivity.class);
+					Intent intent = new Intent(context,
+							NotificationsActivity.class);
 					intent.putExtra("rotation", rotationAngle);
 					startActivity(intent);
+					overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
 				}
 			}).execute();
 		}
@@ -307,6 +310,7 @@ public class MainActivity extends DroidGap {
 						Intent intent = new Intent(context, CarouselVideo.class);
 						intent.putExtra("rotation", rotationAngle);
 						startActivity(intent);
+						overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
 					}
 				}).execute();
 
@@ -322,6 +326,7 @@ public class MainActivity extends DroidGap {
 						Intent intent = new Intent(context, CarouselPhoto.class);
 						intent.putExtra("rotation", rotationAngle);
 						startActivity(intent);
+						overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
 
 					}
 				}).execute();
@@ -338,6 +343,7 @@ public class MainActivity extends DroidGap {
 						Intent.URI_INTENT_SCHEME);
 				// mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
 				startActivityForResult(mediaplayerIntent, 55);
+				overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
 
 				// } catch (URISyntaxException e) {
 			} catch (Exception e) {
@@ -893,7 +899,6 @@ public class MainActivity extends DroidGap {
 						}
 					});
 
-					
 				}
 
 			}
@@ -915,7 +920,7 @@ public class MainActivity extends DroidGap {
 
 				int x = e.getPosition().x;
 				int y = e.getPosition().y;
-
+				Log.d(TAG3, "------------------ x: " + x + " y: " + y);
 				// up/down swipe
 				int diffY = y - yStart;
 
@@ -930,7 +935,8 @@ public class MainActivity extends DroidGap {
 				// simple touch
 
 				// mic button
-				if (x >= 9 && y >= 3650 && x <= 506 && y <= 4095) {
+				if ((x >= 9 && y >= 3650 && x <= 506 )
+						|| (x >= 1646 && y >= 3911 && x <= 2662 )) {
 					delayTriggers();
 
 					onSpeak();
@@ -1134,12 +1140,6 @@ public class MainActivity extends DroidGap {
 				intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
 						"voice.recognition.test");
 				intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-				// intent.putExtra(
-				// RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,
-				// 3000);
-				// intent.putExtra(
-				// RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-				// 3000);
 
 				mSpeechRecognizer.startListening(intent);
 				Log.i("A2", "MainActivity -- onSpeak() ");
@@ -1280,11 +1280,6 @@ public class MainActivity extends DroidGap {
 			mTrgInactivity.resetTimer();
 			mTrgBlink.resetTimer();
 
-			// if (State.SHOW == mState) {
-			// mState = State.SEARCH_DISPLAY;
-			// } else {
-			// mState = State.STANDBY;
-			// }
 		}
 
 		setScreenOrientation(mScreenOrientation);
@@ -1352,20 +1347,7 @@ public class MainActivity extends DroidGap {
 		super.onNewIntent(intent);
 
 		Log.d("A3", "onNewIntent ...");
-		// if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED))
-		// {
-		// Log.d("A3", "device attached ...");
-		//
-		// // arduinoCtrl = new ArduinoCtrlMM(this); // reconnecting to the usb
-		// // devices nano & uno
-		// mipUsbDeviceUno.pause(); // we
-		// // // mipUsbDeviceUno.resume();
-		// // MipUsbDevice.isAllUSBConnected(this);
-		// arduinoCtrl = new ArduinoCtrlMM(this);
-		// mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
-		// // mipUsbDeviceUno.resume();
-		//
-		// }
+
 	}
 
 	public void getNotifications() {

@@ -68,6 +68,20 @@ function showNotifications3(){
 
 }
 
+function showNotifications4(){
+
+
+  displayDate2();
+  blinkFlag = false;
+  var $panel = $('#principal-3');
+
+  minutesTimer = setInterval(function(){
+     displayDate2();
+  }, 20000);
+
+
+}
+
 function hideNotifications3(){
   blinkFlag = true;
   var $panel = $('#principal-3');

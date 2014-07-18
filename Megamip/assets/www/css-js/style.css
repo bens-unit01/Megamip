@@ -6,13 +6,15 @@
 	padding:0;
 }
 
+
+
 body{
 	font-size:13px;
 	color:#eee;
 	font-family:Verdana, Arial, Helvetica, sans-serif;
 	background-color:#231F20;
-	/*background:url('img/bg.jpg') repeat-x #718693; */ 
 }
+
 
 .bg1 {background-color:black;}
 #container{ width:1255px; height:720px;}
