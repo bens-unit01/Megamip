@@ -210,6 +210,9 @@ public class MegamipLSClient {
 			b.onNotify(new LsServerEvent(this, message));
 			Log.d(TAG5, "MegamipLSClientListener onNotify()  - message: "
 					+ message);
+			if(message.equals("Disconnected")){
+				b.onError(new LsServerEvent(this, "8"));
+			}
 		}
 
 	}

@@ -76,7 +76,7 @@ public class MipDeviceManager {
 			String[] t1 = contents.split("<fullcount>");
 			String[] t2 = t1[1].split("</fullcount>");
 			returnValue = t2[0];
-			Log.d(TAG3,"MipHttpClient - bloc try - new emails: "+t2[0]);
+			//Log.d(TAG3,"MipHttpClient - bloc try - new emails: "+t2[0]);
 			
 			
 			//--------------getting the wifi signal strength-------------
@@ -88,13 +88,13 @@ public class MipDeviceManager {
 			int wifiPct =0;
 			
 			if(null == networkInfo || !networkInfo.isConnectedOrConnecting()){
-				Log.d(TAG3, "No connection");
+			//	Log.d(TAG3, "No connection");
 			}else{
 				int netType = networkInfo.getType();
 				int netSubType = networkInfo.getSubtype();
 				
 				if (ConnectivityManager.TYPE_WIFI == netType) {
-					Log.d(TAG3,"MipHttpClient - bloc try - connection wifi");
+				//	Log.d(TAG3,"MipHttpClient - bloc try - connection wifi");
 					WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 					int rssi = wifiManager.getConnectionInfo().getRssi();
 				    String ssid = wifiManager.getConnectionInfo().getSSID();
@@ -125,7 +125,7 @@ public class MipDeviceManager {
 						wifiPct = 2 * (dBm + 100);
 					} 
 					
-					Log.d(TAG3,"MipHttpClient - bloc try - connection wifi - rssi: "+rssi+" dbm: "+dBm+" quality: "+wifiPct+" ssid: "+ssid);
+				//	Log.d(TAG3,"MipHttpClient - bloc try - connection wifi - rssi: "+rssi+" dbm: "+dBm+" quality: "+wifiPct+" ssid: "+ssid);
 				
 					
 				}
@@ -142,7 +142,7 @@ public class MipDeviceManager {
 			batteryPct *= 100;
 			level = (int)batteryPct;
 			returnValue += ":"+level;
-			Log.d(TAG3,"MipHttpClient - bloc try - battery level - batteryPct: "+batteryPct);
+			//Log.d(TAG3,"MipHttpClient - bloc try - battery level - batteryPct: "+batteryPct);
 			
 			
 		} catch (MalformedURLException e) {

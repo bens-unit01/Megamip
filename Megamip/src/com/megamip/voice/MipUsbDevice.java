@@ -222,6 +222,7 @@ public class MipUsbDevice {
 
 		boolean unoConnected = false;
 		boolean nanoConnected = false;
+		boolean microConnected = false;
 		UsbManager usbManager = (UsbManager) context
 				.getSystemService(Context.USB_SERVICE);
 
@@ -237,9 +238,14 @@ public class MipUsbDevice {
 				unoConnected = true;
 				Log.d("A3", "uno connected ...");
 			}
+			
+			if (MICRO_PRODUCT_ID == element.getProductId()) {
+				microConnected = true;
+				Log.d("A3", "micro connected ...");
+			}
 		}
 
-		return unoConnected && nanoConnected;
+		return unoConnected && nanoConnected && microConnected;
 	}
 
 	private final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {

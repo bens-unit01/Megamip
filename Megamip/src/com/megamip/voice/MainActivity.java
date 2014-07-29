@@ -701,6 +701,7 @@ public class MainActivity extends DroidGap {
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 
 		int speed = MipReceiver.SPEED;
+	
 		int turnSpeed = speed - 3;
 		int time = MipReceiver.TIME;
 		// int turnTime = MipReceiver.TIME / 2;
@@ -710,22 +711,23 @@ public class MainActivity extends DroidGap {
 		// Log.d(TAG2, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward") && mipUsbDeviceUno.isUsbConnected()) {
-
+            speed = Integer.parseInt(input[2]);
 			arduinoCtrl.drive(speed, speed, time, time);
 		}
 
 		if (input[1].equals("moveBackward") && mipUsbDeviceUno.isUsbConnected()) {
-
+			speed = Integer.parseInt(input[2]);
 			arduinoCtrl.drive(-speed, -speed, time, time);
 		}
 
 		if (input[1].equals("moveLeft") && mipUsbDeviceUno.isUsbConnected()) {
 
+			 turnSpeed = Integer.parseInt(input[2]) - 3;
 			arduinoCtrl.drive(-turnSpeed, turnSpeed, turnTime, turnTime);
 		}
 
 		if (input[1].equals("moveRight") && mipUsbDeviceUno.isUsbConnected()) {
-
+			turnSpeed = Integer.parseInt(input[2]) - 3;
 			arduinoCtrl.drive(turnSpeed, -turnSpeed, turnTime, turnTime);
 		}
 
@@ -1045,7 +1047,12 @@ public class MainActivity extends DroidGap {
 								public void run() {
 									try {
 										Thread.sleep(30000);
-										mMegamipLSClient.onResume();
+										boolean isConnected = mMegamipLSClient.isConnected();
+										Log.d(TAG2, "is connected: "+ isConnected);
+										if(!isConnected){
+											mMegamipLSClient.onResume();
+										}
+									
 									} catch (InterruptedException e) {
 
 										e.printStackTrace();
