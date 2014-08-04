@@ -36,7 +36,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	private String host = null;
+	private String mHost = null, mIp;
 	private Button btnLeft, btnRight, btnUp, btnDown, btnPos1, btnPos2,
 			btnPos3, btnPower, btnSync, btnTelepresence;
 	public final String TAG7 = "A7";
@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+ 
 		btnLeft = (Button) findViewById(R.id.btnLeft);
 		btnRight = (Button) findViewById(R.id.btnRight);
 		btnUp = (Button) findViewById(R.id.btnTop);
@@ -95,7 +95,8 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				try {
-					Intent i = Intent.parseUri("telepresenceapp://", Intent.URI_INTENT_SCHEME);
+				
+					Intent i = Intent.parseUri("telepresenceapp://"+mIp+"//"+mSpeed, Intent.URI_INTENT_SCHEME);
 					startActivity(i);
 					
 				} catch (URISyntaxException e) {
@@ -324,9 +325,8 @@ public class MainActivity extends Activity {
 		 
 		SharedPreferences sharedPrefs = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		host = "http://"
-				+ sharedPrefs.getString("prefHostname", "10.10.250.115")
-				+ ":8080/";
+		mIp = sharedPrefs.getString("prefHostname", "10.10.250.115");
+		mHost = "http://"+ mIp + ":8080/";
 		
 
 	}
@@ -346,7 +346,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 
-				String url = host + "toggleProjector/";
+				String url = mHost + "toggleProjector/";
 
 				URL obj = null;
 				HttpURLConnection con = null;
@@ -383,7 +383,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 
-				String url = host + "changeLocation/"+newLocation;
+				String url = mHost + "changeLocation/"+newLocation;
 
 				URL obj = null;
 				HttpURLConnection con = null;
@@ -420,7 +420,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 
-			String url = host + "moveForward/"+mSpeed+"/5";
+			String url = mHost + "moveForward/"+mSpeed+"/5";
 
 			URL obj = null;
 			HttpURLConnection con = null;
@@ -468,7 +468,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 
-			String url = host + "moveBackward/"+mSpeed+"/5";
+			String url = mHost + "moveBackward/"+mSpeed+"/5";
 			int max = 0;
 			URL obj = null;
 			HttpURLConnection con = null;
@@ -514,7 +514,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 
-			String url = host + "moveLeft/"+mSpeed+"/5";
+			String url = mHost + "moveLeft/"+mSpeed+"/5";
 			int max = 0;
 			URL obj = null;
 			HttpURLConnection con = null;
@@ -560,7 +560,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 
-			String url = host + "moveRight/"+mSpeed+"/5";
+			String url = mHost + "moveRight/"+mSpeed+"/5";
 			int max = 0;
 			URL obj = null;
 			HttpURLConnection con = null;
@@ -607,7 +607,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 
-				String url = host + "moveProjectorTo/" + pos;
+				String url = mHost + "moveProjectorTo/" + pos;
 
 				URL obj = null;
 				HttpURLConnection con = null;
@@ -645,7 +645,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 
-				String url = host + "stop/13/5";
+				String url = mHost + "stop/13/5";
 
 				URL obj = null;
 				HttpURLConnection con = null;
@@ -714,9 +714,8 @@ public class MainActivity extends Activity {
 			showSettings();
 			SharedPreferences sharedPrefs = PreferenceManager
 					.getDefaultSharedPreferences(this);
-			host = "http://"
-					+ sharedPrefs.getString("prefHostname", "10.10.250.115")
-					+ ":8080/";
+			mIp = sharedPrefs.getString("prefHostname", "10.10.250.115");
+			mHost = "http://" + mIp + ":8080/";
 
 			break;
 

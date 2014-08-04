@@ -55,6 +55,7 @@
     <element path="lib\Main.swc" />
     <element path="lib\OSMF.swc" />
     <element path="lib\Lightstreamer_as_client.swc" />
+    <element path="lib\mcomps.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

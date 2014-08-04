@@ -24,27 +24,11 @@ echo  [9] App Store    (ipa-app-store)
 echo.
 
 :choice
-set /P C=[Choice]: 
-echo.
+
 
 set PLATFORM=android
 set OPTIONS=
-if %C% GTR 3 set PLATFORM=ios
-if %C% GTR 7 set PLATFORM=ios-dist
-
-if "%C%"=="1" set TARGET=
-if "%C%"=="2" set TARGET=-debug
-if "%C%"=="2" set OPTIONS=-connect %DEBUG_IP%
-if "%C%"=="3" set TARGET=-captive-runtime
-
-if "%C%"=="4" set TARGET=-test-interpreter
-if "%C%"=="5" set TARGET=-debug-interpreter
-if "%C%"=="5" set OPTIONS=-connect %DEBUG_IP%
-if "%C%"=="6" set TARGET=-test
-if "%C%"=="7" set TARGET=-debug
-if "%C%"=="7" set OPTIONS=-connect %DEBUG_IP%
-if "%C%"=="8" set TARGET=-ad-hoc
-if "%C%"=="9" set TARGET=-app-store
+set TARGET=-captive-runtime
 
 call bat\Packager.bat
 
@@ -69,9 +53,12 @@ goto end
 :android-package
 adb devices
 echo.
-echo Installing %OUTPUT% on the device...
+echo Packaging completed ...
 echo.
 ::adb -d install -r "%OUTPUT%"
+echo Installing ...
+cd dist
+adb install -r  TelepresenceUser-captive-runtime.apk
 if errorlevel 1 goto installfail
 goto end
 

@@ -24,6 +24,20 @@
 				<uses-feature android:name="android.hardware.microphone" android:required="true"/>
 				<uses-feature android:name="android.hardware.camera.autofocus" android:required="true"/>
 				<uses-feature android:name="android.hardware.touchscreen.multitouch" android:required="true"/>
+				<application>
+                 <activity>
+                     <intent-filter>
+                         <action android:name="android.intent.action.MAIN"/>
+                         <category android:name="android.intent.category.LAUNCHER"/>
+                     </intent-filter>
+                     <intent-filter>
+                         <action android:name="android.intent.action.VIEW"/>
+                         <category android:name="android.intent.category.BROWSABLE"/>
+                         <category android:name="android.intent.category.DEFAULT"/>
+                         <data android:scheme="telepresenceapp"/>
+                     </intent-filter>
+                 </activity>
+             </application>
 			</manifest>
 			
 		]]></manifestAdditions>

@@ -6,6 +6,9 @@ package  {
 	import com.soma.ui.vo.*;
 	import com.soma.ui.*;
 	import com.soma.ui.layouts.*;
+	import flash.net.*;
+	import flash.events.*;
+	import flash.utils.Timer;
 
 	import org.osmf.media.MediaElement;
 	import org.osmf.net.StreamingURLResource;
@@ -53,7 +56,7 @@ package  {
 	private const DEVELOPER_KEY:String = "ab4cf6a661db0fc2f51f582d-6aeff8c9e9ef";
 		
 		// members 
-		private var txtFingerPrint:TextField;
+		private var txtMessage:TextField;
 		private var btnStart:PushButton;
 		private var btnForward:CustomButton;
 	    private var btnBack:CustomButton;
@@ -79,18 +82,73 @@ package  {
 		private var farPeerID:String;
 		private var myPeerID:String;
 		private var megamipLSClient:MegamipLSClient;
+		private var timer01:Timer = new Timer(200);
+		private var timerFlag:Boolean = true;
+		
+		private var urlRequestMF:URLRequest;
+		private var urlRequestMB:URLRequest;
+		private var urlRequestML:URLRequest;
+		private var urlRequestMR:URLRequest;
+		private var urlLoader:URLLoader;
+		private var host:String;
+		private var speed:String;
+		private var counter:int = 0; 
+		private var timerForward:Timer;
+		private var timerTurn:Timer;
+		private var REFRESH_RATE_FORWARD:int = 250;
+		private var REFRESH_RATE_TURN:int = 100;
+		private var currentCommand:URLRequest;
+		
 	
 		
 		public function Main() {
 			
+			NativeApplication.nativeApplication.addEventListener(
+			InvokeEvent.INVOKE, onInvoke);
+			
 			initGui();
-			initListeners();
-		 
+		    initListeners();
 			
 		}
+		
+		private function onInvoke(event:InvokeEvent):void
+		{
+		    var uri:String = event.arguments[0];
+		    var args:Array = uri.split("//");
+		    host = args[1];
+		    speed = args[2];
+		  
+		  
+		    urlRequestMF = new URLRequest("http://"+host+":8080/moveForward/"+speed);
+			urlRequestMB = new URLRequest("http://"+host+":8080/moveBackward/"+speed);
+			urlRequestML = new URLRequest("http://"+host+":8080/moveLeft/"+speed);
+			urlRequestMR = new URLRequest("http://" + host + ":8080/moveRight/" + speed);
+			currentCommand = urlRequestMF;
+			urlLoader = new URLLoader();
+			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			
+			// setting up timers for RC long press 
+			timerForward = new Timer(REFRESH_RATE_FORWARD);
+			timerForward.addEventListener(TimerEvent.TIMER, function():void {
+				urlLoader.load(currentCommand);
+				} );
+			timerTurn = new Timer(REFRESH_RATE_TURN);
+			timerTurn.addEventListener(TimerEvent.TIMER, function():void {
+				urlLoader.load(currentCommand);
+				});
+		
+		  trace("onInvoke ... ip: " + host + " speed: " + speed);
+		  txtMessage.text = "Megamip ip: " + host + " \nMotors speed: " + speed; 
+	   }
 		//---------------------------------------     P2P ---------------------------------------------------------
 		
 		
+		
+	
+		
+		private function onIOError(evt:IOErrorEvent):void {
+		  trace("IOErrorEvent ...error: ");
+		}
 		private function initSendStream(event:MouseEvent):void{
 			
 		trace("initSendStream");
@@ -173,13 +231,20 @@ package  {
 			//txtFingerPrint.appendText( "--------------\n Connecting ...");
 			
 			trace("initConnection() ...");
+			btnConnect.removeEventListener(MouseEvent.CLICK, initConnection);
+			btnConnect.setBackground(CustomButton.ButtonConnecting1); 
+			txtMessage.text = "\n            connecting ... please wait" ;
+			timer01.start();
+			timer01.addEventListener(TimerEvent.TIMER, onTick);
 			nc = new NetConnection();
 			nc.addEventListener(NetStatusEvent.NET_STATUS, ncStatusHandler);
 			nc.connect(SERVER_ADRESS, DEVELOPER_KEY);
 			
-			
-			
-
+	    }
+		
+		private function onTick(evt:TimerEvent):void {
+		  (timerFlag)? btnConnect.setBackground(CustomButton.ButtonConnecting2) : btnConnect.setBackground(CustomButton.ButtonConnecting1);
+		  timerFlag = !timerFlag;
 		}
 		
 		/*
@@ -421,6 +486,11 @@ package  {
 			
 		   videoRead.attachNetStream(nsRead);
 		    nsRead.play("media");
+			timer01.stop();
+			btnConnect.setBackground(CustomButton.ButtonConnected);
+			btnExit.addEventListener(MouseEvent.CLICK, deactivate);	
+			txtMessage.text = "Connected !!!";
+			//removeChild(txtMessage);
 			//addChild(videoRead);
 		 }
 			
@@ -469,13 +539,74 @@ package  {
 			
 			
 		   btnConnect.addEventListener(MouseEvent.CLICK, initConnection);
-		   btnExit.addEventListener(MouseEvent.CLICK, deactivate);	
-		   // btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
+	      // btnRead.addEventListener(MouseEvent.CLICK, initRecvStream);
+		  
 		   btnForward.addEventListener(MouseEvent.CLICK, moveForward);
-		  // btnForward.addEventListener(MouseEvent.MOUSE_DOWN, moveForward);
-		   btnBack.addEventListener(MouseEvent.CLICK, moveBackward);
-		   btnLeft.addEventListener(MouseEvent.CLICK, moveLeft);
+		   btnForward.addEventListener(MouseEvent.MOUSE_DOWN, function():void {
+			   btnForward.setBackground(CustomButton.ButtonForwardSel);
+			   currentCommand = urlRequestMF;
+			   timerForward.start();
+			   } );
+		   btnForward.addEventListener(MouseEvent.MOUSE_UP, function():void {
+			   btnForward.setBackground(CustomButton.ButtonForward);
+			   timerForward.stop();
+			   } );
+		   btnForward.addEventListener(MouseEvent.MOUSE_OUT, function():void {
+			   btnForward.setBackground(CustomButton.ButtonForward);
+			   timerForward.stop();
+			   } );
+			   
+		 
+		    btnBack.addEventListener(MouseEvent.CLICK, moveBackward);
+		    btnBack.addEventListener(MouseEvent.MOUSE_DOWN, function():void {
+			   btnBack.setBackground(CustomButton.ButtonBackwardSel);
+			   currentCommand = urlRequestMB;
+			   timerForward.start();
+			   } );
+		    btnBack.addEventListener(MouseEvent.MOUSE_UP, function():void {
+			   btnBack.setBackground(CustomButton.ButtonBackward);
+			   timerForward.stop();
+			   } );
+		    btnBack.addEventListener(MouseEvent.MOUSE_OUT, function():void {
+			   btnBack.setBackground(CustomButton.ButtonBackward);
+			   timerForward.stop();
+			   } );
+			   
+		  
+			   
+			   
+		    btnLeft.addEventListener(MouseEvent.CLICK, moveLeft);
+		    btnLeft.addEventListener(MouseEvent.MOUSE_DOWN, function():void {
+			   btnLeft.setBackground(CustomButton.ButtonLeftSel);
+			   currentCommand = urlRequestML;
+			   timerTurn.start();
+			   } );
+		    btnLeft.addEventListener(MouseEvent.MOUSE_UP, function():void {
+			   btnLeft.setBackground(CustomButton.ButtonLeft);
+			   timerTurn.stop();
+			   } );
+		    btnLeft.addEventListener(MouseEvent.MOUSE_OUT, function():void {
+			   btnLeft.setBackground(CustomButton.ButtonLeft);
+			   timerTurn.stop();
+			   } );
+		   
+		   
 		   btnRight.addEventListener(MouseEvent.CLICK, moveRight);
+		   btnRight.addEventListener(MouseEvent.MOUSE_DOWN, function():void {
+			   btnRight.setBackground(CustomButton.ButtonRightSel);
+			   currentCommand = urlRequestMR;
+			   timerTurn.start();
+			   } );
+		    btnRight.addEventListener(MouseEvent.MOUSE_UP, function():void {
+			   btnRight.setBackground(CustomButton.ButtonRight);
+			   timerTurn.stop();
+			   } );
+		    btnRight.addEventListener(MouseEvent.MOUSE_OUT, function():void {
+			   btnRight.setBackground(CustomButton.ButtonRight);
+			   timerTurn.stop();
+			   } );
+			   
+			
 		}
 		//--------------- GUI initialisation 
 		
@@ -492,6 +623,7 @@ package  {
 		   var player1:MediaPlayer = new MediaPlayer();
 		   var player2:MediaPlayerSprite = new MediaPlayerSprite();
 
+		 
 		    videoElementPublish = new VideoElement();
 			videoElementRead = new VideoElement();
 	
@@ -567,10 +699,32 @@ package  {
 	     ctnBtnExit.bottom = 30;
 	     ctnBtnExit.left = 75;
 	     ctnBtnExit.refresh();
+		 
+		 
+		 
+		   txtMessage = new TextField();
+		   var txtFormat:TextFormat = new TextFormat();
+			txtMessage = new TextField();
+			txtMessage.type = TextFieldType.INPUT;
+			txtMessage.width = 300;
+			txtMessage.height = 50;
+			txtMessage.multiline = true;
+			txtMessage.background = true;
+			txtFormat.font = "Verdana";
+            txtMessage.defaultTextFormat = txtFormat;
+			txtMessage.backgroundColor = 0x99D9EA;
+		
+		
+			var ctnTxtMessage:ElementUI = baseUI.add(txtMessage);
+			ctnTxtMessage.bottom = 30;
+			ctnTxtMessage.left = 490;
+			ctnTxtMessage.refresh();
+			
+		 
 		 //--------------------------------------------------------------
 		 	
 		  	
-
+          
 		  addChild(videoRead); 
 	      addChild(container1);
           addChild(container2);
@@ -578,6 +732,7 @@ package  {
 		  addChild(ctnPrincipalRC);
 		  addChild(btnConnect);
 		  addChild(btnExit);
+		  addChild(txtMessage);
       
 		
 	
@@ -600,22 +755,40 @@ package  {
 			 megamipLSClient.sendMessage(str);
 		}
 		
+		
+		
+		//-------------  RC commands 
 		private function moveForward(evt:MouseEvent):void {
 			
-		   	lsSendData(MegamipRC.CMD_FORWARD);
-			//trace("moveForward ---");
+			urlLoader.load(urlRequestMF);
+			counter++;
+			txtMessage.text = urlRequestMF.url + " " + counter;
+	
+		  //  lsSendData(MegamipRC.CMD_FORWARD);
+		
 		}
 		private function moveBackward(evt:MouseEvent):void {
 			
-		   	lsSendData(MegamipRC.CMD_BACK);
+			urlLoader.load(urlRequestMB);
+			counter++;
+			txtMessage.text = urlRequestMB.url + " " + counter;
+	
+		   	//lsSendData(MegamipRC.CMD_BACK + speed + "/5");
+			  
 		}
 		private function moveLeft(evt:MouseEvent):void {
-			
-		   	lsSendData(MegamipRC.CMD_LEFT);
+			urlLoader.load(urlRequestML);
+			counter++;
+			txtMessage.text = urlRequestML.url + " " + counter;
+	
+		//   	lsSendData(MegamipRC.CMD_LEFT + speed + "/5");
 		}
 		private function moveRight(evt:MouseEvent):void {
-			
-		   	lsSendData(MegamipRC.CMD_RIGHT);
+			urlLoader.load(urlRequestMR);
+			counter++;
+			txtMessage.text = urlRequestMR.url + " " + counter;
+		
+		//  lsSendData(MegamipRC.CMD_RIGHT + speed + "/5");
 		}
 	}
 	
@@ -623,9 +796,10 @@ package  {
 	
 }
 
+
 class CustomClient {
 		public function onMetaData(info:Object):void {
 			trace("width: " + info.width);
 			trace("height: " + info.height);
 		}
-	}
+}

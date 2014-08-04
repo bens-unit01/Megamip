@@ -1,4 +1,5 @@
 package com.megamip.util;
+
 //  the code of this class is partially inspired from :http://codersapprentice.blogspot.ca/2011/09/android-integrate-jetty-server-in-my.html
 /**
  * 
@@ -20,144 +21,184 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.megamip.voice.MainActivity;
+import com.megamip.voice.R;
+
+
+
+
+
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
+public class JettyServer extends Service {
 
-
-public class JettyServer {
-	
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String TAG = JettyServer.class.getName();
 	public static final int SERVERPORT = 8080;
 	public static final String SPLIT_CHAR = "/";
-	private ArrayList<JettyListener> 	mListeListeners = new ArrayList<JettyListener>();
-	
-    private Handler jettyHandler = new AbstractHandler()
-    {	
-    	//@Override
-		public void handle(String target, Request request, HttpServletRequest MainRequestObject,
-				HttpServletResponse response) throws IOException, ServletException
-		{
-			try
-			{
-				//How to get Query String/
-				//Log.i(TAG3, "Query string: "+target);
+	private static ArrayList<JettyListener> mListeListeners = new ArrayList<JettyListener>();
+
+	private Handler jettyHandler = new AbstractHandler() {
+		// @Override
+		public void handle(String target, Request request,
+				HttpServletRequest MainRequestObject,
+				HttpServletResponse response) throws IOException,
+				ServletException {
+			try {
 				
 
-				
 				for (JettyListener b : mListeListeners) {
-					
+
 					b.onNotify(new ServerEvent(this, target));
-					//Log.d(TAG3, "JettyServer  onNotify   ");
+					// Log.d(TAG3, "JettyServer  onNotify   ");
 				}
-//				
-				
-				
-				//URI format
-				//http://127.0.0.1:1234/Function/para1/para2
-				
-				//Http Request Type: GET/POST/PUT/DELETE
-				//Log.i(TAG3, "HTTP Verb: "+MainRequestObject.getMethod());
-				
-			/*	BufferedReader in = new BufferedReader(new InputStreamReader(MainRequestObject.getInputStream()));
-				String line = null;
-				                   
-				StringBuilder PostedData = new StringBuilder();
-				
-				while ((line = in.readLine()) != null)
-				{    							
-					//Log.i(TAG3,"Received Message Line by Line"+line);
-					PostedData.append(line);					
-				}	
-				*/			
-				
-				//Http Request Data Type
-				//Log.i(TAG3,"Posted Data Type"+ MainRequestObject.getContentType());
-				
-				//Http Request Type: GET/POST/PUT/DELETE
-				//Log.i("Posted Data", PostedData.toString());
-				
-				//How To Send Responce Back
-				/*response.setContentType("text/html");
-	            response.setStatus(HttpServletResponse.SC_OK);
-	            response.getWriter().println("<h1>Hello</h1>");
-	            ((Request)MainRequestObject).setHandled(true);	
-	            */			
-			}
-        	catch (Exception ex)
-        	{
-        		Log.i(TAG3,"Error"+ex.getMessage());
-			}
-		}	
-		
-		
-		
-    };
-
-	
-	
-
-  
-    // constructor 
-    
-    public JettyServer() {
-		super();
-		
-		
-		Server server = new Server(SERVERPORT);
-		server.setHandler(jettyHandler);
-		try {
-			server.start();
-			Log.i(TAG3,"server started ...");
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.i(TAG3,"block catch ...ex: "+e.getMessage());
+			} catch (Exception ex) {
+				Log.i(TAG, "Error" + ex.getMessage());
+			}
 		}
+
+	};
+
+	// constructor
+
+	public JettyServer() {
+		super();
+
+//		Server server = new Server(SERVERPORT);
+//		server.setHandler(jettyHandler);
+//		try {
+//			server.start();
+//			Log.i(TAG, "server started ...");
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			Log.i(TAG, "block catch ...ex: " + e.getMessage());
+//		}
+	
+		
 	}
-    
-    
-    
-    public interface JettyListener {
-    	
-    	public void onNotify(ServerEvent e);
-    }
-    
-    
-    
-    public class ServerEvent extends EventObject{
+	
+
+
+	public interface JettyListener {
+
+		public void onNotify(ServerEvent e);
+	}
+
+	public class ServerEvent extends EventObject {
 
 		public ServerEvent(Object source, String params) {
 			super(source);
 			this.params = params;
-		}
+	}
 
 		/**
 		 * 
 		 * 
 		 * 
 		 */
-		
+
 		private static final long serialVersionUID = 1L;
-		private String params; // forward slash separated values including the method called, expel : /function/param1/param2 ...
-		
-		
+		private String params; // forward slash separated values including the
+								// method called, expel :
+								// /function/param1/param2 ...
+
 		public String getParams() {
 			return params;
 		}
+
 		public void setParams(String params) {
 			this.params = params;
 		}
 
-    	
-    }
-    
-    
-    
-    public void addJettyListener(JettyListener listener) {
+	}
+
+	public void addJettyListener(JettyListener listener) {
 		mListeListeners.add(listener);
-		Log.d(TAG3, "new jetty listener added ...");
+		Log.d(TAG, "new jetty listener added ...");
 
 	}
-    
-    
+	
+	
+	// sevice methods 
+	
+	/**
+	 * this method is used to stop the service 
+	 * @param view
+	 */
+	 public void stopService(View view) {
+		 
+	        stopService(new Intent(this, JettyServer.class));
+	        Log.d(TAG,"stopService ... ");
+	 }
+	 
+	 public void startNewService(Context context) {
+	 	 
+	        startService(new Intent(context, JettyServer.class));
+	     
+	        Log.d(TAG,"MainActivity - startNewService ");
+     }
+	 
+	    
+	 @Override
+		public int onStartCommand(Intent intent, int flags, int startId) {
+			
+			
+			Log.w(getClass().getName(), "onStartCommand ...");
+			Server server = new Server(SERVERPORT);
+			server.setHandler(jettyHandler);
+			try {
+				server.start();
+				Log.i(TAG, "server started ...");
+	
+			} catch (Exception e) {
+				e.printStackTrace();
+				Log.i(TAG, "block catch ...ex: " + e.getMessage());
+			}
+			
+			// making the service a foreground service 
+			Notification note = new Notification(R.drawable.led_on,
+					"Can you hear the music?", System.currentTimeMillis());
+			
+			Intent i= new Intent(this, JettyServer.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			
+			PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+			note.setLatestEventInfo(this, "Fake Player", "Now Playing : ..",pi);
+			note.flags |= Notification.FLAG_NO_CLEAR;
+			startForeground(1337, note);
+			
+			return (START_NOT_STICKY);
+		}
+  
+
+	
+
+
+	@Override
+	public IBinder onBind(Intent intent) {
+	
+		return null;
+	}
+
+	@Override
+	public void onStart(Intent intent, int startId) {
+
+		Log.d(TAG, "service started ...");
+	}
+
+	@Override
+	public void onDestroy() {
+        Log.d(TAG, "service stopped ...");
+	}
+
 }

@@ -12,19 +12,26 @@ package  {
 		
 		
 
-
-	private var bitmapData:BitmapData;
+    private var _backgroundImage :Bitmap;
+	private var _bitmapData:BitmapData;
     private const  THRESHOLD:Number = 0;
 		
 		public function BitmapButton(ImageData:Class) 
 		{
-		    var image:Bitmap = new ImageData();
-		    addChild(image);
+		    _backgroundImage = new ImageData();
+		    addChild(_backgroundImage);
 		         
-		    bitmapData = image.bitmapData;
+		    _bitmapData = _backgroundImage.bitmapData;
 		     
 		  //  addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		  //  addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		public function setBackground(ImageData:Class):void {
+			removeChild(_backgroundImage);
+			_backgroundImage = new ImageData();
+			addChild(_backgroundImage);
+		
 		}
 		
 		

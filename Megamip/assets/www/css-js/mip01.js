@@ -323,6 +323,15 @@ function log(displayString){
     hideEyes();showCenterPanel();
     $('#output').empty();
     $('#output').append(displayString);
+
+    var timerShow = setInterval(
+    function(){
+      
+      hideCenterPanel();
+      showEyes();
+      clearInterval(timerShow);
+
+    }, 2000);
  //   console.log('log');
 }
 

@@ -7,12 +7,15 @@ package  {
 	import com.bit101.components.CheckBox;
 	import com.bit101.components.Panel;
 	import com.bit101.components.PushButton;
+	import com.bit101.components.Text;
 	import com.soma.ui.vo.*;
 	import com.soma.ui.*;
 	import com.soma.ui.layouts.*;
 	import flash.text.TextFormat;
 	import flash.net.*;
+	import flash.events.*;
 	import flash.geom.Matrix;
+	import flash.utils.Timer;
     
 	import org.osmf.media.MediaElement;
 	import org.osmf.net.StreamingURLResource;
@@ -22,9 +25,7 @@ package  {
 	import org.osmf.media.MediaPlayer;
 	import org.osmf.media.URLResource;
 	import org.osmf.media.MediaPlayerSprite;
-
-	
-	import flash.events.MouseEvent;
+   
 	import flash.net.NetConnection;
 	import flash.desktop.NativeApplication;
 	import flash.events.Event;
@@ -40,10 +41,6 @@ package  {
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
 	import flash.net.NetConnection;
-    import flash.events.NetStatusEvent;
-    import flash.events.ActivityEvent;
-	import flash.events.MouseEvent;
-	import flash.events.InvokeEvent;
 	import flash.net.NetStream;
     import flash.media.Video;
     import flash.media.Microphone;
@@ -51,6 +48,7 @@ package  {
 	import flash.media.CameraPosition;
 	import flash.display.StageDisplayState;
 	import flash.geom.Rectangle; 
+	import com.bit101.components.ProgressBar;
 	
 	
 	public class Main extends Sprite {
@@ -81,22 +79,24 @@ package  {
 		private var megamipLSClient:MegamipLSClient;
 		public static var externalArgs:String = "";
 		private var videoRotation:String = "0";
+		private var progressBar:ProgressBar;
+		private var progressBarTimer:Timer = new  Timer(150);
+		private var progress:int = 0;
+		private var startupMessage:TextField;
 		
 	
 		
 		public function Main() {
-		   
-			
-
+		 
 			NativeApplication.nativeApplication.addEventListener(
 			InvokeEvent.INVOKE, onInvoke);
 			
-			//onInvoke2(null);
 			
-			
+		
+		//	onInvoke2(null);
+		
 
 		}
-		//-------------------------------------------------------------------------------------------------------
 		
 		
 		private function initHandler(evt:Event):void {
@@ -107,14 +107,14 @@ package  {
 		
 		private function onInvoke(event:InvokeEvent):void
 		{
-			 externalArgs =  event.arguments[0] + "\n" + event.arguments[1];
+		     externalArgs =  event.arguments[0] + "\n" + event.arguments[1];
 			  var uri:String = event.arguments[0];
 			  var args:Array = uri.split("//");
 			  var fingerPrint:String = args[1];
 			  videoRotation = args[2];
 			  
 			  farPeerID = fingerPrint;
-			  
+			//initProgressBar();  
 			initGui();
 			initConnection(null);
 			
@@ -459,14 +459,63 @@ package  {
 		
 
 		
-		private function initGui():void {
+		private function setProgress(evt:TimerEvent):void {
+	        progress++;
+			progressBar.value = progress;
+			if (progress >= 99) {
+			  progressBarTimer.stop();
+			}
 			
+		}
 		
-			this.stage.align = StageAlign.TOP_LEFT;
+		
+		private function initProgressBar():void {
+			var baseUI:BaseUI = new BaseUI(stage);
+			progressBar = new ProgressBar(stage);
+			progressBar.maximum = 100;
+			progressBar.setSize(300, 30);
+			progressBarTimer.addEventListener(TimerEvent.TIMER, setProgress);
+			var ctnProgressBar:ElementUI = baseUI.add(progressBar);
+			ctnProgressBar.bottom = 200;
+			ctnProgressBar.left = 200;
+			ctnProgressBar.refresh();
+			
+			
+			startupMessage = new TextField();
+			startupMessage.type = TextFieldType.INPUT;
+			startupMessage.width = 400;
+			startupMessage.height = 100;
+			startupMessage.multiline = true;
+			startupMessage.background = true;
+			startupMessage.backgroundColor = 0x0;
+			
+			var txtFormat:TextFormat = new TextFormat();
+			txtFormat.font = "Verdana";
+			txtFormat.size = 24;
+			txtFormat.color = 0xffffff;
+			startupMessage.defaultTextFormat = txtFormat;
+			startupMessage.text = "       Incoming telepresence call \n \t\t\t please wait ...";
+		
+			var ctnTxtMessage:ElementUI = baseUI.add(startupMessage);
+			ctnTxtMessage.bottom = 30;
+			ctnTxtMessage.left = 200;
+			ctnTxtMessage.refresh();
+			
+			
+			addChild(startupMessage);
+			addChild(progressBar);
+			progressBarTimer.start();
+		}
+		
+		
+		private function initGui():void {
+		    this.stage.align = StageAlign.TOP_LEFT;
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 			this.stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE; 
 			this.stage.color =  0x202020;
 			
+		//-- progress bar 
+		
 		
 			
 			
@@ -551,7 +600,7 @@ package  {
 			
 		}
 		
-		function onSendMegamipCallback (event:Event):void {
+		private function onSendMegamipCallback (event:Event):void {
 		trace(event.target.data);
 		}
 	}

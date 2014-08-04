@@ -35,6 +35,7 @@ import com.megamip.util.MipDeviceManager;
 import com.megamip.util.MipTimer;
 import com.megamip.util.MipUtils;
 import com.megamip.util.MipWemoDevice;
+import com.megamip.util.PerformanceUtils;
 import com.megamip.view.CarouselActivity;
 import com.megamip.view.CarouselPhoto;
 import com.megamip.view.CarouselVideo;
@@ -132,6 +133,7 @@ public class MainActivity extends DroidGap {
 	private int soundId;
 
 	private ImageButton btnMic;
+	private PerformanceUtils logger;
 
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
@@ -164,6 +166,12 @@ public class MainActivity extends DroidGap {
 			receiver = new MipReceiver(handler, webView, this);
 			// mc = new MipCommand();
 			mJettyServer = new JettyServer();
+			
+//			mJettyServer.startNewService(this);
+//			mJettyServer.start();
+			
+			Intent i = new Intent(this, JettyServer.class);
+			startService(i);
 
 			mMegamipLSClient = new MegamipLSClient();
 			mSpeakNowDlg = new SpeakNow("Speak now !!", context);
@@ -774,6 +782,10 @@ public class MainActivity extends DroidGap {
 			Log.d(TAG2, "jettyHandler triggered changeLocation  city: "
 					+ mLocation);
 		}
+		
+		if (input[1].equals("getLogs")) {
+			logger.searchRunningAppProcesses();
+		}
 
 	}
 
@@ -856,6 +868,9 @@ public class MainActivity extends DroidGap {
 		// sound initialization
 		soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 		soundId = soundPool.load(this, R.raw.button_31, 1);
+		
+		
+		logger = new PerformanceUtils(this);
 
 	}
 

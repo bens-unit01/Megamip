@@ -89,6 +89,7 @@
             android:label="@string/title_activity_notifications"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
         </activity>
+         <service android:name="com.megamip.util.JettyServer" />
     </application>
 
 </manifest>
