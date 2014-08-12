@@ -12,57 +12,73 @@
         android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    
-     <ImageButton
-         android:id="@+id/btnMic"
-         android:layout_width="130dp"
-         android:layout_height="40dp"
-         android:layout_alignBottom="@+id/web_view"
-         android:layout_centerHorizontal="true"
-         android:layout_marginBottom="93dp"
-         android:background="@drawable/btn_blue_states"
-         android:src="@drawable/mic_icon" />
 
-     <ImageButton
-         android:id="@+id/btnLed1"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignLeft="@+id/web_view"
-         android:layout_alignTop="@+id/btnMic"
-         android:layout_marginLeft="50dp"
-         android:layout_marginTop="44dp"
-         android:background="@drawable/btn_led_states" />
+    <ImageButton
+        android:id="@+id/btnMic"
+        android:layout_width="130dp"
+        android:layout_height="40dp"
+        android:layout_alignBottom="@+id/web_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="93dp"
+        android:background="@drawable/btn_blue_states"
+        android:src="@drawable/mic_icon" />
 
-     <ImageButton
-         android:id="@+id/btnLed2"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignTop="@+id/button1"
-         android:layout_toRightOf="@+id/button1"
-         android:background="@drawable/btn_led_states" />
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/web_view"
+        android:layout_alignRight="@+id/web_view"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="100dp"
+        android:padding="5dp" >
 
-     <ImageButton
-         android:id="@+id/btnLed3"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignTop="@+id/ImageButton01"
-         android:layout_toRightOf="@+id/ImageButton01"
-         android:background="@drawable/btn_led_states" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-     <ImageButton
-         android:id="@+id/btnLed4"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignTop="@+id/ImageButton02"
-         android:layout_toRightOf="@+id/ImageButton02"
-         android:background="@drawable/btn_led_states" />
+            <TextView
+                android:id="@+id/txtLog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dp"
+                android:text="10.10.250.156"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-     <ImageButton
-         android:id="@+id/btnLed5"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignTop="@+id/ImageButton03"
-         android:layout_toRightOf="@+id/ImageButton03"
-         android:background="@drawable/btn_led_states" />
-   
+            <ImageButton
+                android:id="@+id/btnLed1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_led_states"
+                android:padding="10dp" />
+
+            <ImageButton
+                android:id="@+id/btnLed2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_led_states"
+                android:padding="10dp" />
+
+            <ImageButton
+                android:id="@+id/btnLed3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_led_states"
+                android:padding="10dp" />
+
+           
+
+            <ImageButton
+                android:id="@+id/btnLed4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_led_states"
+                android:padding="10dp" />
+        </LinearLayout>
+    </RelativeLayout>
+
 </RelativeLayout>

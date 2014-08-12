@@ -32,7 +32,7 @@ public class CarouselVideo extends CarouselActivity {
 
 	@Override
 	public void onNotify(TouchEvent e) {
-		// TODO Auto-generated method stub
+		
 		super.onNotify(e);
 		int x = e.getPosition().x;
 		int y = e.getPosition().y;

@@ -1,12 +1,18 @@
 package com.megamip.voice;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
@@ -17,12 +23,14 @@ import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.megamip.control.ArduinoCtrlMM;
 import com.megamip.telepresence.MegamipLSClient;
@@ -67,8 +75,7 @@ public class MainActivity extends DroidGap {
 
 	public static Context context; // reference vers l'activité MainActivity
 	protected static final int RESULT_SPEECH = 1;
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3",
-			TAG6 = "A6", TAG7 = "A7", TAG8 = "A8";
+	public static final String TAG = MainActivity.class.getSimpleName();
 
 	public static final String PICTURE_MODE = "picture";
 	public static final String VIDEO_MODE = "video";
@@ -131,15 +138,21 @@ public class MainActivity extends DroidGap {
 
 	private SoundPool soundPool;
 	private int soundId;
+	
+	private int counter1 = 0;
 
-	private ImageButton btnMic;
+	private ImageButton btnMic, btnLed1 /* Uno */, btnLed2 /* Nano */, btnLed3 /* Pro Micro*/, btnLed4 /* LightStreamer */, btnLed5;
 	private PerformanceUtils logger;
 
+	private final int CHECK_LSCLIENT_INTERVAL_INMILLIS = 5000; 
 	public enum State {
 		STANDBY, NOTIFICATIONS_DISPLAY, SEARCH_DISPLAY, SEARCH_ERROR, SHOW, PROJECTING, STARTING, STARTED
 	}
 
 	private State mState = State.STARTING;
+	private TextView txtLog;
+	
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -159,17 +172,22 @@ public class MainActivity extends DroidGap {
 
 		btnMic = (ImageButton) findViewById(R.id.btnMic);
 
+		txtLog = (TextView)findViewById(R.id.txtLog);
+		txtLog.setText(MipUtils.getIPAddress(true));
+
+
 		if (MipUsbDevice.isAllUSBConnected(context)) { // we confirm that the
-														// Arduino Nano and Uno
-														// are
-			invoker = new Invoker(); // both connected
+														// Arduino Nano, Uno and
+														// Pro Micro
+														// are connected ...
+			invoker = new Invoker();
 			receiver = new MipReceiver(handler, webView, this);
 			// mc = new MipCommand();
 			mJettyServer = new JettyServer();
-			
-//			mJettyServer.startNewService(this);
-//			mJettyServer.start();
-			
+
+			// mJettyServer.startNewService(this);
+			// mJettyServer.start();
+
 			Intent i = new Intent(this, JettyServer.class);
 			startService(i);
 
@@ -180,35 +198,104 @@ public class MainActivity extends DroidGap {
 
 			mTrgBlink = new MipTimer(BLINK_PERIOD, 2);
 			mMediaPlayer = MediaPlayer.create(this, R.raw.boing_comical_accent);
-			mMipWemoDevice = new MipWemoDevice(this.getApplicationContext());
-			Log.d(TAG2, "setting the listeners ... ");
+			// mMipWemoDevice = new MipWemoDevice(this.getApplicationContext());
+			Log.d(TAG, "setting the listeners ... ");
 			initCommands();
 			setListeners();
+			
+			BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+
+				@Override
+				public void onReceive(Context context, Intent intent) {
+					Log.d(TAG, "onReceive ...");
+					
+					checkUsbDevices(context);
+					
+					 try {
+					        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+					            NetworkInterface intf = en.nextElement();
+					            
+					            if(intf.getName().equals("wlan0")){
+					            	
+					              Enumeration<InetAddress> a;
+					            	Log.d(MipUtils.class.getName(), " ip: " );
+					            }
+					            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+					                InetAddress inetAddress = enumIpAddr.nextElement();
+					                if (!inetAddress.isLoopbackAddress()) {
+					                    String ip = Formatter.formatIpAddress(inetAddress.hashCode());
+					                    Log.i(TAG, "***** IP="+ ip);
+					               //     return ip;
+					                }
+					            }
+					        }
+					    } catch (Exception ex) {
+				        	Log.d(TAG, "bloc catch ex: " + ex.getMessage());
+				        } 
+
+				}
+
+			
+
+			};
+
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+			registerReceiver(mUsbReceiver, filter);
 
 			mState = State.STARTED;
 
 		} else {
 
-			Log.d(TAG2,
+			Log.d(TAG,
 					"Not all usb devices are connected ... closing the app ");
 			Toast warning = Toast.makeText(context,
 					"Not all usb connections are plugged in !!",
 					Toast.LENGTH_LONG);
 			warning.show();
-			this.finish();
+			// this.finish();
+			android.os.Process.killProcess(android.os.Process.myPid());
 
 		}
 
 		// loadPage("index.html");
 		// loadPage("test.html");
-		Log.d(TAG2, "MainActivity onCreate()--- ");
+		Log.d(TAG, "MainActivity onCreate()--- ");
 
 	}
 
+	
+	
+	
+	private void checkUsbDevices(Context context) {
+		if(MipUsbDevice.isDeviceConnected(context, MipUsbDevice.UNO_PRODUCT_ID)){
+			Log.d(TAG, "uno disconnected ...");
+			btnLed1.setPressed(true);
+		}else{
+			Log.d(TAG, "uno connected ...");
+			btnLed1.setPressed(false);
+		}
+		if(MipUsbDevice.isDeviceConnected(context, MipUsbDevice.NANO_PRODUCT_ID)){
+			Log.d(TAG, "nano disconnected ...");
+			btnLed2.setPressed(true);
+		}else{
+			Log.d(TAG, "nano connected ...");
+			btnLed2.setPressed(false);
+		}
+		
+		if(MipUsbDevice.isDeviceConnected(context, MipUsbDevice.MICRO_PRODUCT_ID)){
+			Log.d(TAG, "micro disconnected ...");
+			btnLed3.setPressed(true);
+		}else{
+			Log.d(TAG, "micro connected ...");
+			btnLed3.setPressed(false);
+		}
+	}
+	
 	public void loadPage(String in) {
 		final String url = HTML_ROOT + in;
 
-		Log.d(TAG3, " loadPage url = " + url);
+		Log.d(TAG, " loadPage url = " + url);
 		loadURL(url);
 
 	}
@@ -266,22 +353,22 @@ public class MainActivity extends DroidGap {
 		}
 
 		if (action.equals("light") || action.equals("lights")) {
-			Log.d(TAG6, "light on/off .." + keywords);
+			Log.d(TAG, "light on/off .." + keywords);
 
 			if (keywords.contains("on")) {
-				Log.d(TAG6, "light on");
+				Log.d(TAG, "light on");
 				showMessage("turning the lights on !! ");
 				mMipWemoDevice.turnOn();
 
 			} else {
-				Log.d(TAG6, "light off");
+				Log.d(TAG, "light off");
 				showMessage("turning the lights off !! ");
 				mMipWemoDevice.turnOff();
 			}
 		}
 
 		if (action.equals("show") || action.equals("display")) {
-			Log.d(TAG6, "show .." + keywords);
+			Log.d(TAG, "show .." + keywords);
 			mState = State.NOTIFICATIONS_DISPLAY;
 			mTrgInactivity.resetTimer();
 			mMode = PICTURE_MODE;
@@ -298,7 +385,8 @@ public class MainActivity extends DroidGap {
 							NotificationsActivity.class);
 					intent.putExtra("rotation", rotationAngle);
 					startActivity(intent);
-					overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
+					overridePendingTransition(R.anim.push_down_in,
+							R.anim.push_down_out);
 				}
 			}).execute();
 		}
@@ -318,7 +406,8 @@ public class MainActivity extends DroidGap {
 						Intent intent = new Intent(context, CarouselVideo.class);
 						intent.putExtra("rotation", rotationAngle);
 						startActivity(intent);
-						overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
+						overridePendingTransition(R.anim.push_down_in,
+								R.anim.push_down_out);
 					}
 				}).execute();
 
@@ -334,7 +423,8 @@ public class MainActivity extends DroidGap {
 						Intent intent = new Intent(context, CarouselPhoto.class);
 						intent.putExtra("rotation", rotationAngle);
 						startActivity(intent);
-						overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
+						overridePendingTransition(R.anim.push_down_in,
+								R.anim.push_down_out);
 
 					}
 				}).execute();
@@ -345,22 +435,23 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals("personal")) {
 
-			Log.d(TAG6, "personal assistant ...");
+			Log.d(TAG, "personal assistant ...");
 			try {
 				Intent mediaplayerIntent = Intent.parseUri("godog://",
 						Intent.URI_INTENT_SCHEME);
 				// mediaplayerIntent.addCategory(Intent.CATEGORY_BROWSABLE);
 				startActivityForResult(mediaplayerIntent, 55);
-				overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
+				overridePendingTransition(R.anim.push_down_in,
+						R.anim.push_down_out);
 
 				// } catch (URISyntaxException e) {
 			} catch (Exception e) {
-				Log.d(TAG2, "block catch - onLaunchVideo ...");
+				Log.d(TAG, "block catch - onLaunchVideo ...");
 				e.printStackTrace();
 			}
 		}
 
-		Log.d(TAG6, "MainActivity#voiceHandler - mState: " + mState);
+		Log.d(TAG, "MainActivity#voiceHandler - mState: " + mState);
 		// invoker.launch(mCommand);
 
 	}
@@ -375,7 +466,7 @@ public class MainActivity extends DroidGap {
 		if (action.equals(MovementInput.NEXT_GESTURE)) {
 			// if (action.equals("69")) { // keyboard input ...
 			mMediaPlayer.start();
-			Log.d(TAG6, "onNext --------------");
+			Log.d(TAG, "onNext --------------");
 
 			onNext();
 
@@ -386,7 +477,7 @@ public class MainActivity extends DroidGap {
 		if (action.equals(MovementInput.HOLD_GESTURE)) {
 			// if (action.equals("81")) {
 			mMediaPlayer.start();
-			Log.d(TAG6, "onHold --------------");
+			Log.d(TAG, "onHold --------------");
 			onHold();
 		}
 
@@ -394,7 +485,7 @@ public class MainActivity extends DroidGap {
 		if (action.equals(MovementInput.BACK_GESTURE)) {
 			// if (action.equals("87")) {
 			mMediaPlayer.start();
-			Log.d(TAG6, "onBack --------------");
+			Log.d(TAG, "onBack --------------");
 			onBack();
 
 		}
@@ -404,7 +495,7 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals(MovementInput.LEFT_SWIPE)) {
 
-			Log.d(TAG6, "left_swipe --------------");
+			Log.d(TAG, "left_swipe --------------");
 			delayTriggers();
 			playSound();
 			invoker.launch(mGuiPrev);
@@ -412,7 +503,7 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals(MovementInput.RIGHT_SWIPE)) {
 
-			Log.d(TAG6, "right_swipe --------------");
+			Log.d(TAG, "right_swipe --------------");
 			delayTriggers();
 			playSound();
 			invoker.launch(mGuiNext);
@@ -420,7 +511,7 @@ public class MainActivity extends DroidGap {
 
 		if (action.equals(MovementInput.UP_SWIPE)) {
 
-			Log.d(TAG6, "up_swipe --------------");
+			Log.d(TAG, "up_swipe --------------");
 			mScreenOrientation = ScreenOrientation.POSITION_180;
 			String params = (mUpDownSwipeFlag) ? "1" : "2";
 			mUpDownSwipeFlag = !mUpDownSwipeFlag;
@@ -437,7 +528,7 @@ public class MainActivity extends DroidGap {
 		if (action.equals(MovementInput.DOWN_SWIPE)) {
 
 			mUpDownSwipeFlag = true;
-			Log.d(TAG6, "down_swipe --------------");
+			Log.d(TAG, "down_swipe --------------");
 			mScreenOrientation = ScreenOrientation.POSITION_0;
 			mMoveProjectorTo.setParams("3" + JettyServer.SPLIT_CHAR + "1"); // the
 																			// text
@@ -453,10 +544,10 @@ public class MainActivity extends DroidGap {
 			playSound();
 			handleSimpleTouch(movementInput);
 
-			Log.d(TAG6, "simple_touch --------------");
+			Log.d(TAG, "simple_touch --------------");
 		}
 
-		// Log.d(TAG6, "action:"+action);
+		// Log.d(TAG, "action:"+action);
 	}
 
 	private void playSound() {
@@ -506,17 +597,17 @@ public class MainActivity extends DroidGap {
 			arg2 = Integer.parseInt(args[1]);
 			arg3 = Integer.parseInt(args[2]);
 		} catch (Exception e) {
-			Log.d(TAG3, " bloc catch: ex: " + e.getMessage());
+			Log.d(TAG, " bloc catch: ex: " + e.getMessage());
 		}
 
 		// decoding 3 bytes data to x,y coordinates
 		int x = ((arg1 << 4) | (arg3 >> 4) & 0xf);
 		int y = (arg2 << 4) | ((arg3 & 0xf));
-		Log.d(TAG3, " x: " + x + " y: " + y);
+		Log.d(TAG, " x: " + x + " y: " + y);
 
 		// mic button
 		if (x >= 9 && y >= 3650 && x <= 506 && y <= 4095) {
-			Log.d(TAG3, "handleSimpleTouch , speak-now ");
+			Log.d(TAG, "handleSimpleTouch , speak-now ");
 			delayTriggers();
 			onSpeak();
 
@@ -526,7 +617,7 @@ public class MainActivity extends DroidGap {
 		if (x >= 3489 && y >= 3773 && x <= 4030 && y <= 4095) {
 			// if (x >= 3489) {
 
-			Log.d(TAG3, "handleSimpleTouch , close ");
+			Log.d(TAG, "handleSimpleTouch , close ");
 			// mState = State.STANDBY;
 			// delayTriggers();
 			// invoker.launch(mGuiHome);
@@ -559,14 +650,14 @@ public class MainActivity extends DroidGap {
 			mGuidDisplayNotifications2.setPeriod(INACTIVITY_PERIOD);
 			mCommand = mGuidDisplayNotifications2;
 			delayTriggers();
-			Log.d(TAG3,
+			Log.d(TAG,
 					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
 			invoker.launch(mCommand);
 			break;
 		case SEARCH_DISPLAY:
 			// mCommand = mc.new GuiNext(receiver);
 			mCommand = mGuiNext;
-			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiNext ");
+			Log.d(TAG, "MainActivity#mouvementHandler() - GuiNext ");
 			delayTriggers();
 			invoker.launch(mCommand);
 			break;
@@ -589,14 +680,14 @@ public class MainActivity extends DroidGap {
 			mGuidDisplayNotifications2.setPeriod(INACTIVITY_PERIOD);
 			mCommand = mGuidDisplayNotifications2;
 			delayTriggers();
-			Log.d(TAG3,
-					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
+			//Log.d(TAG,
+				//	"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
 			invoker.launch(mCommand);
 			break;
 		case NOTIFICATIONS_DISPLAY:
 			// mCommand = mc.new Speak(receiver);
 			onSpeak();
-			Log.d(TAG3, "MainActivity#mouvementHandler() - Speak ");
+			Log.d(TAG, "MainActivity#mouvementHandler() - Speak ");
 			delayTriggers();
 			// invoker.launch(mCommand);
 			break;
@@ -604,7 +695,7 @@ public class MainActivity extends DroidGap {
 			// mCommand = mc.new GuiShow(receiver, mMode);
 			mGuiShow.setmMode(mMode);
 			mCommand = mGuiShow;
-			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiShow ");
+			Log.d(TAG, "MainActivity#mouvementHandler() - GuiShow ");
 			mState = State.SHOW;
 			delayTriggers();
 			invoker.setState(Invoker.State.ACTIVE);
@@ -614,7 +705,7 @@ public class MainActivity extends DroidGap {
 		case SHOW:
 			// mCommand = mc.new VisorMoveUp(receiver);
 			mCommand = mVisorMoveUp;
-			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveUp ");
+			Log.d(TAG, "MainActivity#mouvementHandler() - VisorMoveUp ");
 			mState = State.PROJECTING;
 			delayTriggers();
 			invoker.setState(Invoker.State.ACTIVE);
@@ -640,8 +731,8 @@ public class MainActivity extends DroidGap {
 			mGuidDisplayNotifications2.setPeriod(INACTIVITY_PERIOD);
 			mCommand = mGuidDisplayNotifications2;
 			delayTriggers();
-			Log.d(TAG3,
-					"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
+			//Log.d(TAG,
+			//		"MainActivity#mouvementHandler() - GuiDisplayNotifications ");
 			invoker.launch(mCommand);
 			break;
 		case SEARCH_DISPLAY:
@@ -650,7 +741,7 @@ public class MainActivity extends DroidGap {
 			mState = State.STANDBY;
 			// mCommand = mc.new GuiHome(receiver);
 			mCommand = mGuiHome;
-			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiHome ");
+			Log.d(TAG, "MainActivity#mouvementHandler() - GuiHome ");
 			delayTriggers();
 			invoker.launch(mCommand);
 			break;
@@ -662,7 +753,7 @@ public class MainActivity extends DroidGap {
 
 				mMipUtils.closeApp("air.air.MipVideoPlayer", context);
 				// finishActivity(1);
-				Log.d(TAG6, "back event fired");
+				Log.d(TAG, "back event fired");
 			}
 
 			if (mMode.equals(PICTURE_MODE)) {
@@ -675,7 +766,7 @@ public class MainActivity extends DroidGap {
 
 				finishActivity(LOCAL_VIDEO_REQUEST_CODE);
 			}
-			Log.d(TAG3, "MainActivity#mouvementHandler() - GuiBack - mState: "
+			Log.d(TAG, "MainActivity#mouvementHandler() - GuiBack - mState: "
 					+ mState);
 
 			break;
@@ -685,7 +776,7 @@ public class MainActivity extends DroidGap {
 			// mCommand = mc.new VisorMoveDown(receiver);
 			mCommand = mVisorMoveDown;
 			delayTriggers();
-			Log.d(TAG3, "MainActivity#mouvementHandler() - VisorMoveDown ");
+			Log.d(TAG, "MainActivity#mouvementHandler() - VisorMoveDown ");
 			invoker.launch(mCommand);
 			break;
 
@@ -709,17 +800,17 @@ public class MainActivity extends DroidGap {
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 
 		int speed = MipReceiver.SPEED;
-	
+
 		int turnSpeed = speed - 3;
 		int time = MipReceiver.TIME;
 		// int turnTime = MipReceiver.TIME / 2;
 		int turnTime = MipReceiver.TURN_TIME;
 		mipUsbDeviceUno = MipUsbDevice.getInstance(context, DeviceType.UNO);
 
-		// Log.d(TAG2, "jettHandler cmd: " + input[1]);
+		// Log.d(TAG, "jettHandler cmd: " + input[1]);
 
 		if (input[1].equals("moveForward") && mipUsbDeviceUno.isUsbConnected()) {
-            speed = Integer.parseInt(input[2]);
+			speed = Integer.parseInt(input[2]);
 			arduinoCtrl.drive(speed, speed, time, time);
 		}
 
@@ -730,7 +821,7 @@ public class MainActivity extends DroidGap {
 
 		if (input[1].equals("moveLeft") && mipUsbDeviceUno.isUsbConnected()) {
 
-			 turnSpeed = Integer.parseInt(input[2]) - 3;
+			turnSpeed = Integer.parseInt(input[2]) - 3;
 			arduinoCtrl.drive(-turnSpeed, turnSpeed, turnTime, turnTime);
 		}
 
@@ -743,13 +834,13 @@ public class MainActivity extends DroidGap {
 
 			// mCommand = mc.new MipStop(receiver);
 			// invoker.launch(mCommand);
-			// Log.d(TAG2, "jettHandler triggered stop");
+			// Log.d(TAG, "jettHandler triggered stop");
 		}
 
 		if (input[1].equals("toggleProjector")) {
 			playSound();
 			arduinoCtrl.projectorOnOff();
-			Log.d(TAG2, "jettyHandler triggered projector power on/off ");
+			Log.d(TAG, "jettyHandler triggered projector power on/off ");
 		}
 
 		if (input[1].equals("moveProjectorTo")) {
@@ -769,7 +860,7 @@ public class MainActivity extends DroidGap {
 			playSound();
 			mMoveProjectorTo.setParams(rotationSettings);
 			invoker.launch(mMoveProjectorTo);
-			Log.d(TAG2, "jettHandler triggered moveProjectorTo params: "
+			Log.d(TAG, "jettHandler triggered moveProjectorTo params: "
 					+ input[2]);
 		}
 
@@ -779,10 +870,10 @@ public class MainActivity extends DroidGap {
 
 			loadURL("javascript:changeLocation('" + mLocation + "')");
 			// String host = prop.getProperty("host");
-			Log.d(TAG2, "jettyHandler triggered changeLocation  city: "
+			Log.d(TAG, "jettyHandler triggered changeLocation  city: "
 					+ mLocation);
 		}
-		
+
 		if (input[1].equals("getLogs")) {
 			logger.searchRunningAppProcesses();
 		}
@@ -797,9 +888,9 @@ public class MainActivity extends DroidGap {
 
 		if (MegamipLSClient.CMD_LAUNCH.equals(params[0])) {
 			String p2pID = params[1];
-			Log.d(TAG3,
+			Log.d(TAG,
 					"pushServerHandler - launching Telepresence module - p2pID:"
-							+ p2pID);
+							+ p2pID + " isConnected: " + mMegamipLSClient.isConnected());
 
 			Intent intent;
 			try {
@@ -814,8 +905,15 @@ public class MainActivity extends DroidGap {
 			}
 
 		}
+		
+		if ("Connected to Lightstreamer server ".equals(params[0])) {
+			btnLed4.setPressed(true);
+			Log.d(TAG,
+					"pushServerHandler - "
+							+  " isConnected: " + mMegamipLSClient.isConnected());
+		}
 
-		Log.d(TAG3, " pushServerHandler args: " + params[0]);
+		Log.d(TAG, " pushServerHandler args: " + params[0]);
 
 	}
 
@@ -855,7 +953,7 @@ public class MainActivity extends DroidGap {
 		// settings initialisation
 
 		loadURL("javascript:changeLocation(" + mLocation + ")");
-		Log.d(TAG2, "current location: " + mLocation);
+		Log.d(TAG, "current location: " + mLocation);
 
 		// reference to usb connections to the arduino nano and uno
 		arduinoCtrl = new ArduinoCtrlMM(this);
@@ -867,10 +965,20 @@ public class MainActivity extends DroidGap {
 
 		// sound initialization
 		soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-		soundId = soundPool.load(this, R.raw.button_31, 1);
-		
-		
+		// soundId = soundPool.load(this, R.raw.button_31, 1);
+
 		logger = new PerformanceUtils(this);
+
+		// led initialisation
+
+		btnLed1 = (ImageButton) findViewById(R.id.btnLed1);  // connection to the Uno device 
+		btnLed2 = (ImageButton) findViewById(R.id.btnLed2);  // connection to the Nano device 
+		btnLed3 = (ImageButton) findViewById(R.id.btnLed3);  // connection to the Pro Micro device 
+		btnLed4 = (ImageButton) findViewById(R.id.btnLed4);  // connection to the LightStreamer server
+		btnLed1.setPressed(true);
+		btnLed2.setPressed(true);
+		btnLed3.setPressed(true);
+		btnLed4.setPressed(true);
 
 	}
 
@@ -937,7 +1045,7 @@ public class MainActivity extends DroidGap {
 
 				int x = e.getPosition().x;
 				int y = e.getPosition().y;
-				Log.d(TAG3, "------------------ x: " + x + " y: " + y);
+				Log.d(TAG, "------------------ x: " + x + " y: " + y);
 				// up/down swipe
 				int diffY = y - yStart;
 
@@ -952,8 +1060,8 @@ public class MainActivity extends DroidGap {
 				// simple touch
 
 				// mic button
-				if ((x >= 9 && y >= 3650 && x <= 506 )
-						|| (x >= 1646 && y >= 3911 && x <= 2662 )) {
+				if ((x >= 9 && y >= 3650 && x <= 506)
+						|| (x >= 1646 && y >= 3911 && x <= 2662)) {
 					delayTriggers();
 
 					onSpeak();
@@ -967,7 +1075,7 @@ public class MainActivity extends DroidGap {
 
 			@Override
 			public void onNotify() {
-				Log.d(TAG3, "swipe down ...");
+				Log.d(TAG, "swipe down ...");
 				mUpDownSwipeFlag = true;
 
 				mScreenOrientation = ScreenOrientation.POSITION_0;
@@ -987,7 +1095,7 @@ public class MainActivity extends DroidGap {
 
 			@Override
 			public void onNotify() {
-				Log.d(TAG3, "swipe up ...");
+				Log.d(TAG, "swipe up ...");
 
 				mScreenOrientation = ScreenOrientation.POSITION_180;
 				String params = (mUpDownSwipeFlag) ? "1" : "2";
@@ -1016,7 +1124,7 @@ public class MainActivity extends DroidGap {
 
 			@Override
 			public void onNotify(ServerEvent e) {
-				Log.d(TAG3, " onNotify fired - jettyListener ... ");
+				Log.d(TAG, " onNotify fired - jettyListener ... ");
 
 				delayTriggers();
 				final String params = e.getParams();
@@ -1030,7 +1138,7 @@ public class MainActivity extends DroidGap {
 					}
 				}).start();
 
-				// Log.d(TAG3, " onNotify fired - jettyListener ... 1");
+				// Log.d(TAG, " onNotify fired - jettyListener ... 1");
 			}
 
 		});
@@ -1050,24 +1158,30 @@ public class MainActivity extends DroidGap {
 					@Override
 					public void onError(LsServerEvent e) {
 						int error = Integer.parseInt(e.getParams());
-						Log.d(TAG2,
+						Log.d(TAG,
 								"mMegamipLSClient onError - MainActivity ... error: "
 										+ error);
 						if (error == MegamipLSClient.ERROR
 								|| error == MegamipLSClient.CONNECTION_ERROR
 								|| error == MegamipLSClient.SERVER_ERROR) {
+							
+							btnLed4.setPressed(false);
 
 							// we retry to reconnect after 30 seconds
 							new Thread(new Runnable() {
 								public void run() {
 									try {
-										Thread.sleep(30000);
-										boolean isConnected = mMegamipLSClient.isConnected();
-										Log.d(TAG2, "is connected: "+ isConnected);
-										if(!isConnected){
+										Thread.sleep(CHECK_LSCLIENT_INTERVAL_INMILLIS);
+										counter1++;
+										boolean isConnected = mMegamipLSClient
+												.isConnected();
+										Log.d(TAG, "is connected: "
+												+ isConnected + " threadId: " + counter1);
+										if (!isConnected) {
 											mMegamipLSClient.onResume();
+											
 										}
-									
+
 									} catch (InterruptedException e) {
 
 										e.printStackTrace();
@@ -1097,10 +1211,10 @@ public class MainActivity extends DroidGap {
 
 				}
 
-				Log.d(TAG1,
-						"MainActivity - mTrgInactivity#update  -- action = "
-								+ " invoker.state: " + invoker.getState()
-								+ " mState: " + mState);
+//				Log.d(TAG,
+//						"MainActivity - mTrgInactivity#update  -- action = "
+//								+ " invoker.state: " + invoker.getState()
+//								+ " mState: " + mState);
 
 			}
 		});
@@ -1117,6 +1231,15 @@ public class MainActivity extends DroidGap {
 							public void run() {
 								// invoker.launch(mc.new GuiBlink(receiver));
 								invoker.launch(mGuiBlink);
+							
+								handler.post(new Runnable() {
+									
+									@Override
+									public void run() {
+										txtLog.setText("");
+										
+									}
+								});
 
 							}
 						}).start();
@@ -1178,11 +1301,11 @@ public class MainActivity extends DroidGap {
 			mSpeakNowDlg.show();
 			mSpeakNowDlg.showListening();
 
-			Log.d(TAG2, "onReadyForSpeech");
+			Log.d(TAG, "onReadyForSpeech");
 		}
 
 		public void onBeginningOfSpeech() {
-			Log.d(TAG2, "onBeginningOfSpeech");
+			Log.d(TAG, "onBeginningOfSpeech");
 		}
 
 		public void onRmsChanged(float rmsdB) {
@@ -1193,7 +1316,7 @@ public class MainActivity extends DroidGap {
 
 		public void onBufferReceived(byte[] buffer) {
 			if (0 == compteur1) {
-				Log.d(TAG2, "onBufferReceived");
+				Log.d(TAG, "onBufferReceived");
 				compteur1 = 1;
 			}
 		}
@@ -1204,7 +1327,7 @@ public class MainActivity extends DroidGap {
 			// mCommand = mc.new GuiHideMic(receiver); // we hide the mic
 			// animation on the GUI
 			// invoker.launch(mCommand);
-			Log.d(TAG2, "onEndofSpeech");
+			Log.d(TAG, "onEndofSpeech");
 		}
 
 		public void onError(int error) {
@@ -1213,7 +1336,7 @@ public class MainActivity extends DroidGap {
 			// mCommand = mc.new GuiHideMic(receiver); // we hide the mic
 			// animation on the GUI
 			// invoker.launch(mCommand);
-			Log.d(TAG2, "onError error no = " + error);
+			Log.d(TAG, "onError error no = " + error);
 			// mText.setText("error " + error);
 
 			String message = "";
@@ -1267,7 +1390,7 @@ public class MainActivity extends DroidGap {
 			compteur1 = 0;
 			String str = new String();
 
-			Log.d(TAG2, "onResults " + results);
+			Log.d(TAG, "onResults " + results);
 			ArrayList data = results
 					.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 			for (int i = 0; i < data.size(); i++) {
@@ -1285,11 +1408,11 @@ public class MainActivity extends DroidGap {
 		}
 
 		public void onPartialResults(Bundle partialResults) {
-			Log.d(TAG2, "onPartialResults");
+			Log.d(TAG, "onPartialResults");
 		}
 
 		public void onEvent(int eventType, Bundle params) {
-			Log.d(TAG2, "onEvent " + eventType);
+			Log.d(TAG, "onEvent " + eventType);
 		}
 	}
 
@@ -1339,7 +1462,8 @@ public class MainActivity extends DroidGap {
 
 		});
 
-		Log.d(TAG2, "MainActivity onResume()--- mState: " + mState);
+		checkUsbDevices(context);
+		Log.d(TAG, "MainActivity onResume()--- mState: " + mState);
 	}
 
 	@Override
@@ -1348,20 +1472,20 @@ public class MainActivity extends DroidGap {
 		super.onPause();
 		if (mSpeakNowDlg.isShowing()) {
 			mSpeakNowDlg.dismiss();
-			Log.d(TAG3, "MainActivity onPause() block if");
+			Log.d(TAG, "MainActivity onPause() block if");
 		}
 
 		mMegamipLSClient.onPause(); // we disconnect from the Lightstreamer
 									// server
 		mTrgInactivity.stopTimer();
 		mTrgBlink.stopTimer();
-		Log.d(TAG2, "MainActivity onPause()");
+		Log.d(TAG, "MainActivity onPause()");
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Log.d(TAG2, "MainActivity onStop()...");
+		Log.d(TAG, "MainActivity onStop()...");
 	}
 
 	@Override
@@ -1369,6 +1493,7 @@ public class MainActivity extends DroidGap {
 		super.onNewIntent(intent);
 
 		Log.d("A3", "onNewIntent ...");
+		checkUsbDevices(context);
 
 	}
 
@@ -1382,12 +1507,12 @@ public class MainActivity extends DroidGap {
 			String notifications = deviceManager.getNotifications();
 			mGuidDisplayNotifications.setNotifications(notifications);
 			invoker.launch(mGuidDisplayNotifications);
-			Log.d(TAG3,
+			Log.d(TAG,
 					"MaintActivity - getNotifications - bloc try - notifications: "
 							+ notifications);
 		} catch (Exception e) {
 
-			Log.d(TAG3, "getNewEmails - bloc catch e: " + e.getMessage());
+			Log.d(TAG, "getNewEmails - bloc catch e: " + e.getMessage());
 		}
 
 	}
@@ -1396,7 +1521,7 @@ public class MainActivity extends DroidGap {
 
 	public void onKeyBoard(String keyCode) {
 
-		Log.d(TAG3, "onKeyBoard -- " + keyCode);
+		Log.d(TAG, "onKeyBoard -- " + keyCode);
 
 		int key = Integer.parseInt(keyCode);
 		byte[] input = { 0, 0, Byte.valueOf(keyCode) };
@@ -1421,7 +1546,7 @@ public class MainActivity extends DroidGap {
 				startActivityForResult(mediaplayerIntent, 1);
 
 			} catch (URISyntaxException e) {
-				Log.d(TAG2, "block catch - onLaunchVideo ...");
+				Log.d(TAG, "block catch - onLaunchVideo ...");
 				e.printStackTrace();
 			}
 			// mediaplayerIntent.putExtra("id", videoId);

@@ -1,13 +1,22 @@
 package com.megamip.util;
 
 import java.io.DataOutputStream;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.conn.util.InetAddressUtils;
+
+
 import android.app.ActivityManager;
 import android.content.Context;
+import android.text.format.Formatter;
 import android.util.Log;
 
 public class MipUtils {
@@ -93,6 +102,52 @@ public class MipUtils {
 	    os.close();
 
 	    process.waitFor();
-	}    
+	} 
+	
+	public static String getIPAddress() {
+		try {
+			for (Enumeration<NetworkInterface> en = NetworkInterface
+					.getNetworkInterfaces(); en.hasMoreElements();) {
+				NetworkInterface intf = en.nextElement();
+				
+				if(intf.getName().equals("wlan0") ){
+					InterfaceAddress addr = intf.getInterfaceAddresses().get(1);
+					return addr.getAddress().getHostAddress();
+				}
+
+			}
+		} catch (Exception ex) {
+			Log.d(MipUtils.class.getName(),
+					"bloc catch ex: " + ex.getMessage());
+		}
+		return "";
+	}
+	
+	
+	 public static String getIPAddress(boolean useIPv4) {
+	        try {
+	            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+	            for (NetworkInterface intf : interfaces) {
+	                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+	                for (InetAddress addr : addrs) {
+	                    if (!addr.isLoopbackAddress()) {
+	                        String sAddr = addr.getHostAddress().toUpperCase();
+	                        boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr); 
+	                        if (useIPv4) {
+	                            if (isIPv4) 
+	                                return sAddr;
+	                        } else {
+	                            if (!isIPv4) {
+	                                int delim = sAddr.indexOf('%'); // drop ip6 port suffix
+	                                return delim<0 ? sAddr : sAddr.substring(0, delim);
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        } catch (Exception ex) { } // for now eat exceptions
+	        return "";
+	    }
+
 
 }

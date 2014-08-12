@@ -167,7 +167,7 @@ public class JettyServer extends Service {
 			
 			// making the service a foreground service 
 			Notification note = new Notification(R.drawable.led_on,
-					"Can you hear the music?", System.currentTimeMillis());
+					"Megamip lanched ...", System.currentTimeMillis());
 			
 			Intent i= new Intent(this, JettyServer.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

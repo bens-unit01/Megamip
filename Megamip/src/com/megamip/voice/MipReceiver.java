@@ -29,7 +29,7 @@ public class MipReceiver {
 //	public static final int SPEED = 30, TIME = 3, TURN_TIME = 2;
 	public static final int SPEED = 15, TIME = 3, TURN_TIME = 2;
 	
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG3 = "A3";
+	public static final String TAG = MipReceiver.class.getSimpleName();
 
 	// actors
 
@@ -124,7 +124,7 @@ public class MipReceiver {
 
 		final String callbackFunction = JAVASCRIPT + "showNotifications2"
 				+ BRC_OPEN + notifications + "', " + period + ")";
-		Log.d(TAG3, callbackFunction);
+	//	//Log.d(TAG, callbackFunction);
 		loadURL(callbackFunction);
 
 	}
@@ -163,7 +163,7 @@ public class MipReceiver {
 		 * 
 		 * }
 		 */
-		Log.d(TAG3, "MipReceiver - speak()");
+	//	//Log.d(TAG, "MipReceiver - speak()");
 
 		/*
 		 * handler.post(new Runnable() { public void run() {
@@ -179,7 +179,7 @@ public class MipReceiver {
 	// Megamip motion methods
 	// drive(speedLeft, speedRight, distanceLeft, distanceRight);
 	public void mipMoveForward() {
-		//Log.d(TAG2, "MipReceiver moveForward ...");
+		////Log.d(TAG, "MipReceiver moveForward ...");
 		arduinoCtrl.drive(SPEED, SPEED, TIME, TIME);
 	}
 
@@ -187,57 +187,57 @@ public class MipReceiver {
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 		int speed = Integer.parseInt(input[2]);
 		int time = Integer.parseInt(input[3]);
-		Log.d(TAG2, "MipReceiver moveForward - speed: " + speed + " time: "
-				+ time);
+		//Log.d(TAG, "MipReceiver moveForward - speed: " + speed + " time: "
+		//		+ time);
 		arduinoCtrl.drive(speed, speed, time, time);
 	}
 
 	public void mipMoveBackward() {
 		arduinoCtrl.drive(-SPEED, -SPEED, TIME, TIME);
-		//Log.d(TAG2, "MipReceiver moveBackward ...");
+		////Log.d(TAG, "MipReceiver moveBackward ...");
 	}
 
 	public void mipMoveBackward(String params) {
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 		int speed = Integer.parseInt(input[2]);
 		int time = Integer.parseInt(input[3]);
-		Log.d(TAG2, "MipReceiver moveBackward - speed: " + speed + " time: "
-				+ time);
+		//Log.d(TAG, "MipReceiver moveBackward - speed: " + speed + " time: "
+		//		+ time);
 		arduinoCtrl.drive(-speed, -speed, time, time);
 
 	}
 
 	public void mipMoveLeft() {
 		arduinoCtrl.drive(-SPEED, SPEED, TIME/2, TIME/2);
-		//Log.d(TAG2, "MipReceiver moveLeft ...");
+		////Log.d(TAG, "MipReceiver moveLeft ...");
 	}
 
 	public void mipMoveLeft(String params) {
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 		int speed = Integer.parseInt(input[2]);
 		int time = Integer.parseInt(input[3]);
-		Log.d(TAG2, "MipReceiver moveLeft - speed: " + speed + " time: " + time);
+		//Log.d(TAG, "MipReceiver moveLeft - speed: " + speed + " time: " + time);
 		arduinoCtrl.drive(-speed, speed, time, time);
 
 	}
 
 	public void mipMoveRight() {
 		arduinoCtrl.drive(SPEED, -SPEED, TIME/2, TIME/2);
-		//Log.d(TAG2, "MipReceiver moveRight ...");
+		////Log.d(TAG, "MipReceiver moveRight ...");
 	}
 
 	public void mipMoveRight(String params) {
 		String[] input = params.split(JettyServer.SPLIT_CHAR);
 		int speed = Integer.parseInt(input[2]);
 		int time = Integer.parseInt(input[3]);
-		Log.d(TAG2, "MipReceiver moveRight - speed: " + speed + " time: "
-				+ time);
+		//Log.d(TAG, "MipReceiver moveRight - speed: " + speed + " time: "
+		//		+ time);
 		arduinoCtrl.drive(speed, -speed, time, time);
 	}
 
 	public void mipStop() {
 
-		Log.d(TAG2, "MipReceiver mipStop");
+		//Log.d(TAG, "MipReceiver mipStop");
 		arduinoCtrl.stop();
 	}
 
@@ -249,7 +249,7 @@ public class MipReceiver {
 		// + BRC_CLOSE;
 		final String callbackFunction = JAVASCRIPT + functionName + BRC_OPEN
 				+ args + BRC_CLOSE;
-		Log.d(TAG3, callbackFunction);
+		//Log.d(TAG, callbackFunction);
 		loadURL(callbackFunction);
 	}
 
@@ -289,7 +289,7 @@ public class MipReceiver {
 		default:
 			break;
 		}
-		Log.d(TAG2, "MipReceiver moveProjectorTo pos: "+pos.toString());
+		//Log.d(TAG, "MipReceiver moveProjectorTo pos: "+pos.toString());
 		arduinoCtrl.moveProjectorTo(pos);
 	}
 

@@ -13,8 +13,7 @@ import android.util.Log;
 
 public class MegamipLSClient {
 
-	
-	// connection status 
+	// connection status
 	public static final int DISCONNECTED = 0;
 	public static final int CONNECTING = 1;
 	public static final int CONNECTED = 2;
@@ -24,10 +23,8 @@ public class MegamipLSClient {
 	public static final int ERROR = 6;
 	public static final int CONNECTION_ERROR = 7;
 	public static final int SERVER_ERROR = 8;
-	
-	
-	
-	public static final String TAG1 = "A1", TAG2 = "A2", TAG5 = "A5";
+
+	public static final String TAG = MegamipLSClient.class.getSimpleName();
 	public static final String CMD_LAUNCH = "LAUNCH";
 	public static final String CMD_SEPARATOR = ":";
 	private LsListener lsListener;
@@ -90,7 +87,7 @@ public class MegamipLSClient {
 	public void addMegamipLSClientListener(
 			MegamipLSClientListener megamipLSClientListener) {
 		mListeListeners.add(megamipLSClientListener);
-		Log.d(TAG5, "new Lightstreamer listener added ...");
+		Log.d(TAG, "new Lightstreamer listener added ...");
 
 	}
 
@@ -136,9 +133,8 @@ public class MegamipLSClient {
 				for (MegamipLSClientListener b : mListeListeners) {
 					message = new Integer(connectionError).toString();
 					b.onError(new LsServerEvent(this, message));
-					Log.d(TAG5,
-							"MegamipLSClientListener onError()  - message: "
-									+ message);
+					Log.d(TAG, "MegamipLSClientListener onError()  - message: "
+							+ message);
 				}
 
 			}
@@ -187,7 +183,7 @@ public class MegamipLSClient {
 		 * if user explicitly chose to disconnect the application before hiding
 		 * it, do not start it back once it's back visible.
 		 */
-		Log.d(TAG5, "Lightstreamer onResume() ...");
+		Log.d(TAG, "Lightstreamer onResume() ...");
 		if (!userDisconnect) {
 			start(phase.get());
 		}
@@ -196,7 +192,7 @@ public class MegamipLSClient {
 	public void onPause() {
 
 		// disconnect when application is paused
-		Log.d(TAG5, "Lightstreamer onPause() ...");
+		Log.d(TAG, "Lightstreamer onPause() ...");
 		stop(phase.get());
 	}
 
@@ -207,12 +203,20 @@ public class MegamipLSClient {
 
 		for (MegamipLSClientListener b : mListeListeners) {
 
-			b.onNotify(new LsServerEvent(this, message));
-			Log.d(TAG5, "MegamipLSClientListener onNotify()  - message: "
-					+ message);
-			if(message.equals("Disconnected")){
+			if (message.equals("Disconnected")) {
+				connected.set(false);
 				b.onError(new LsServerEvent(this, "8"));
+			} else {
+
+				if (message.equals("Connected to Lightstreamer server ")){
+					connected.set(true);
+				}
+				
+				b.onNotify(new LsServerEvent(this, message));
 			}
+
+			Log.d(TAG, "MegamipLSClientListener onNotify()  - message: "
+					+ message);
 		}
 
 	}

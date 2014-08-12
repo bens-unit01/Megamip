@@ -7,7 +7,7 @@ import com.lightstreamer.ls_client.UpdateInfo;
 
 public class LsListener implements LightstreamerListener {
 
-	  public static final String TAG1 = "A1", TAG2 = "A2", TAG5 = "A5";
+	  public static final String TAG = LsListener.class.getSimpleName();
 	  private Handler handler;
 	  private MegamipLSClient client;
 	  
@@ -53,7 +53,7 @@ public class LsListener implements LightstreamerListener {
             statusTxt = "Disconnected";
     }
     updateStatus(statusTxt);
-    Log.d(TAG5, "LsListener - onStatusChange() - status: "+status);
+    Log.d(TAG, "LsListener - onStatusChange() - status: "+status);
 
 		
 	}
@@ -62,7 +62,7 @@ public class LsListener implements LightstreamerListener {
 		  this.handler.postDelayed(
 	                new MessageRunnable(message), 0);
 	      
-	        Log.d(TAG5, "updateStatus() - message: "+message);
+	        Log.d(TAG, "updateStatus() - message: "+message);
 		
 	}
 	@Override
@@ -97,7 +97,7 @@ public class LsListener implements LightstreamerListener {
 	                    }
                 }
                 
-                Log.d(TAG5, "onItemUpdate() message: "+value);
+                Log.d(TAG, "onItemUpdate() message: "+value);
             }
 		
 
@@ -105,13 +105,13 @@ public class LsListener implements LightstreamerListener {
 	@Override
 	public void onLostUpdate(int phase, int itemPos, String itemName,
 			int lostUpdates) {
-		  Log.d(TAG5, "onLostUpdate");
+		  Log.d(TAG, "onLostUpdate");
 		
 	}
 
 	@Override
 	public void onReconnectRequest(int phase) {
-		 Log.d(TAG5, "onReconnectRequest");
+		 Log.d(TAG, "onReconnectRequest");
 		
 	}
 	
@@ -125,7 +125,7 @@ public class LsListener implements LightstreamerListener {
         }
 
         public void run() {
-           Log.d(TAG5, "run() message: "+this.message);
+           Log.d(TAG, "run() message: "+this.message);
            client.update(this.message);
         }
     }

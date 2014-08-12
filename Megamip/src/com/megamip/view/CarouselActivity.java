@@ -1,5 +1,12 @@
 package com.megamip.view;
 
+/*
+ * 
+ * This class uses "Sergey Tarasevich" universal image loader ( link: https://github.com/nostra13/Android-Universal-Image-Loader ) 
+ * 
+ * Some code of this class is inspired by the sample example  
+ * 
+ * */
 import com.megamip.util.JettyServer;
 import com.megamip.util.MipTimer;
 import com.megamip.util.MipTimer.MipTimerListener;
@@ -19,10 +26,21 @@ import com.megamip.voice.MipUsbDevice.DeviceType;
 import com.megamip.voice.MipUsbDevice.UsbListener;
 import com.megamip.voice.R;
 import com.megamip.voice.R.layout;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.media.AudioManager;
@@ -36,12 +54,15 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 public class CarouselActivity extends Activity implements TouchUpListener {
 
@@ -83,6 +104,9 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 	private ProgressBar progressBar;
 	private int progressBarStatus = 0;
 
+	protected ImageLoader imageLoader;
+	protected DisplayImageOptions options;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -94,6 +118,20 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 		// Set content layout
 		carouselGui = new CarouselGui(this);
 		setContentView(carouselGui);
+
+		// image loader initialisation -----------
+
+		initImageLoader(this);
+		options = new DisplayImageOptions.Builder()
+				.showImageForEmptyUri(R.drawable.ic_empty)
+				.showImageOnFail(R.drawable.ic_error)
+				.resetViewBeforeLoading(true).cacheOnDisk(false)
+				.imageScaleType(ImageScaleType.EXACTLY)
+				// .bitmapConfig(Bitmap.Config.RGB_565).considerExifParams(true)
+				.bitmapConfig(Bitmap.Config.ALPHA_8).considerExifParams(true)
+				.displayer(new FadeInBitmapDisplayer(300)).build();
+		imageLoader = ImageLoader.getInstance();
+
 		mHandler = new Handler();
 		Intent i = getIntent();
 		int rotation = i.getIntExtra("rotation", 0);
@@ -118,6 +156,11 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 
 		mTouchUpListener = this;
 
+		setListeners();
+
+	}
+
+	private void setListeners() {
 		btnBack = (ImageButton) findViewById(R.id.btnBack);
 
 		btnBack.setOnTouchListener(new OnTouchListener() {
@@ -302,16 +345,12 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 
 		final DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		float d = getResources().getDisplayMetrics().density;
-		Log.d(TAG, "density : " + d);
+		// float d = getResources().getDisplayMetrics().density;
+		// Log.d(TAG, "density : " + d);
 		final int imageWidth = displayMetrics.widthPixels - 80;
 		final int imageHeight = displayMetrics.heightPixels;
-		// Get the array of puppy resources
 
-		final TypedArray puppyResourcesTypedArray = getResources()
-				.obtainTypedArray(arrayId);
-
-		// we add the first item
+		// we add the first item to provide a margin for the first element
 		ImageView firstItem = new ImageView(this);
 		firstItem.setBackgroundResource(R.drawable.shadow);
 		firstItem.setImageResource(R.raw.empty);
@@ -323,164 +362,118 @@ public class CarouselActivity extends Activity implements TouchUpListener {
 		firstItem.setLayoutParams(flp);
 		mCarouselContainer.addView(firstItem);
 
-		// Populate the carousel with items
-		mLazyLoadTimer = new MipTimer(0.5f, 1);
-		mLazyLoadTimer.addEventListener(new MipTimerListener() {
-
-			@Override
-			public void update() {
-				Log.d(TAG, " lazyLoadTimer ...");
-
-				loadImages();
-				mLazyLoadTimer.stopTimer();
-
-			}
-
-			private void loadImages() {
-				mHandler.post(new Runnable() {
-
-					@Override
-					public void run() {
-						Log.d(TAG, "loading start ...");
-
-						progressBar = (ProgressBar) findViewById(R.id.progressBar1);
-						progressBar.setProgress(0);
-						progressBar.setMax(100);
-
-						new Thread(new Runnable() {
-							public void run() {
-
-								while (progressBarStatus < 100) {
-
-									progressBarStatus++;
-
-									try {
-										Thread.sleep(10);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-
-									// Update the progress bar
-									mHandler.post(new Runnable() {
-										public void run() {
-
-											progressBar
-													.setProgress(progressBarStatus);
-										}
-									});
-								}
-
-								// ok, file is downloaded,
-								if (progressBarStatus >= 100) {
-
-									// sleep 2 seconds, so that you can see the
-									// 100%
-									try {
-										Thread.sleep(100);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-
-									mHandler.post(new Runnable() {
-										public void run() {
-											progressBar
-													.setVisibility(View.GONE);
-										}
-									});
-
-								}
-							}
-						}).start();
-
-						mHandler.postDelayed(new Runnable() {
-
-							@Override
-							public void run() {
-								ImageView imageItem;
-								for (int i = 2; i < puppyResourcesTypedArray
-										.length(); ++i) {
-									// Create new ImageView
-
-									imageItem = new ImageView(mActivity);
-
-									// Set the shadow background
-									imageItem
-											.setBackgroundResource(R.drawable.shadow);
-
-									// Set the image view resource
-									imageItem
-											.setImageResource(puppyResourcesTypedArray
-													.getResourceId(i, -1));
-
-									LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-											imageWidth, imageHeight);
-									lp.setMargins(0, 15, 15, 0); // lp.setMargins(left,
-																	// top,
-																	// right,
-																	// bottom);
-
-									imageItem.setLayoutParams(lp);
-									// / Add image view to the carousel
-									// container
-									mCarouselContainer.addView(imageItem);
-
-								}
-
-								// we add the last item
-								ImageView lastItem = new ImageView(mActivity);
-								lastItem.setBackgroundResource(R.drawable.shadow);
-								lastItem.setImageResource(R.raw.empty);
-								LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
-										30, imageHeight);
-								llp.setMargins(0, 15, 15, 0);
-								lastItem.setLayoutParams(llp);
-								mCarouselContainer.addView(lastItem);
-
-							}
-						}, 600);
-
-						// hiding the progress bar
-
-						// ProgressBar pb =
-						// (ProgressBar)findViewById(R.id.progressBar1);
-						// pb.setVisibility(View.GONE);
-						// if(progressBar != null) progressBar.dismiss();
-						Log.d(TAG, "loading end ...");
-
-					}
-				});
-
-			}
-		});
-
 		ImageView imageItem;
-		// for (int i = 0; i < puppyResourcesTypedArray.length(); ++i) {
-		for (int i = 0; i < 2; ++i) {
+		// int i = 1;
+		TypedArray resourcesTypedArray = getResources().obtainTypedArray(
+				arrayId);
+
+		int spinnerPositionX = imageWidth / 2 - 50;
+		int spinnerPositionY = imageHeight / 2 - 50;
+		LayoutParams lpImage = new LinearLayout.LayoutParams(imageWidth,
+				imageHeight);
+		// RelativeLayout.LayoutParams imageContainer = new
+		// RelativeLayout.LayoutParams(
+		// spinnerPositionX, spinnerPositionY);
+		RelativeLayout.LayoutParams spinnerContainer = new RelativeLayout.LayoutParams(
+				imageWidth, imageHeight);
+		RelativeLayout.LayoutParams spinnerSize = new RelativeLayout.LayoutParams(
+				80, 80);
+
+		Log.d(TAG, "widht: " + imageWidth + " height: " + imageHeight);
+
+		for (int i = 0; i < resourcesTypedArray.length(); ++i) {
 			// Create new ImageView
 			imageItem = new ImageView(this);
 
 			// Set the shadow background
 			imageItem.setBackgroundResource(R.drawable.shadow);
+			FrameLayout fl = new FrameLayout(this);
+			imageItem.setLayoutParams(lpImage);
+			fl.addView(imageItem);
+			RelativeLayout rl = new RelativeLayout(this);
 
-			// Set the image view resource
-			imageItem.setImageResource(puppyResourcesTypedArray.getResourceId(
-					i, -1));
+			ProgressBar spinner = new ProgressBar(this);
+			spinnerSize.addRule(RelativeLayout.CENTER_IN_PARENT);
+			spinner.setLayoutParams(spinnerSize);
+			rl.addView(spinner);
+			fl.addView(rl, spinnerContainer);
+			mCarouselContainer.addView(fl);
 
-			// Set the size of the image view to the previously computed value
-			// imageItem.setLayoutParams(new
-			// LinearLayout.LayoutParams(imageWidth,
-			// imageHeight));
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-					imageWidth, imageHeight);
-			lp.setMargins(0, 15, 15, 0); // lp.setMargins(left, top, right,
-											// bottom);
-
-			imageItem.setLayoutParams(lp);
-			// / Add image view to the carousel container
-			mCarouselContainer.addView(imageItem);
-
+			loadImage(imageItem, i, resourcesTypedArray, spinner, options);
 		}
 
+		// we add the last item
+		ImageView lastItem = new ImageView(mActivity);
+		lastItem.setBackgroundResource(R.drawable.shadow);
+		lastItem.setImageResource(R.raw.empty);
+		LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(30,
+				imageHeight);
+		llp.setMargins(0, 15, 15, 0);
+		lastItem.setLayoutParams(llp);
+		mCarouselContainer.addView(lastItem);
+
+	}
+
+	private static void initImageLoader(Context context) {
+
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+				context).threadPriority(Thread.MAX_PRIORITY)
+				.denyCacheImageMultipleSizesInMemory()
+				.diskCacheFileNameGenerator(new Md5FileNameGenerator())
+				.diskCacheSize(50 * 1024 * 1024)
+				// 50 Mb
+				.tasksProcessingOrder(QueueProcessingType.LIFO)
+				.writeDebugLogs() // Remove for release app
+				.build();
+		// Initialize ImageLoader with configuration.
+		ImageLoader.getInstance().init(config);
+	}
+
+	private void loadImage(ImageView imageView, int resourceIndex,
+			TypedArray resourcesTypedArray, ProgressBar loading,
+			DisplayImageOptions options) {
+
+		final ProgressBar spinner = loading;
+
+		String url = resourcesTypedArray.getString(resourceIndex);
+		imageLoader.displayImage(url, imageView, options,
+				new SimpleImageLoadingListener() {
+					@Override
+					public void onLoadingStarted(String imageUri, View view) {
+						spinner.setVisibility(View.VISIBLE);
+					}
+
+					@Override
+					public void onLoadingFailed(String imageUri, View view,
+							FailReason failReason) {
+						String message = null;
+						switch (failReason.getType()) {
+						case IO_ERROR:
+							message = "Input/Output error";
+							break;
+						case DECODING_ERROR:
+							message = "Image can't be decoded";
+							break;
+						case NETWORK_DENIED:
+							message = "Downloads are denied";
+							break;
+						case OUT_OF_MEMORY:
+							message = "Out Of Memory error";
+							break;
+						case UNKNOWN:
+							message = "Unknown error";
+							break;
+						}
+
+						spinner.setVisibility(View.GONE);
+					}
+
+					@Override
+					public void onLoadingComplete(String imageUri, View view,
+							Bitmap loadedImage) {
+						spinner.setVisibility(View.GONE);
+					}
+				});
 	}
 
 	public void setScreenOrientation(final int rotation) {

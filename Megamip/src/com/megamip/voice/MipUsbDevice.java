@@ -113,7 +113,6 @@ public class MipUsbDevice {
 		super();
 
 		partialResult = new PartialResult();
-		
 
 		mUsbManager = (UsbManager) context
 				.getSystemService(Context.USB_SERVICE);
@@ -151,7 +150,7 @@ public class MipUsbDevice {
 			mUsbDriver.setDTR(true);
 			Log.d(TAG3, "MipUsbDevice  - driver open - baudrate = 115200");
 		} catch (IOException e) {
-			
+
 			try {
 				mUsbDriver.close();
 			} catch (IOException e1) {
@@ -169,7 +168,7 @@ public class MipUsbDevice {
 					"MipUsbDevice - constructor - bloc catch ex = "
 							+ e.getMessage());
 		}
-	    stopIoManager();
+		stopIoManager();
 		startIoManager();
 	}
 
@@ -177,7 +176,6 @@ public class MipUsbDevice {
 		super();
 
 		partialResult = new PartialResult();
-	
 
 		mUsbManager = (UsbManager) context
 				.getSystemService(Context.USB_SERVICE);
@@ -205,13 +203,30 @@ public class MipUsbDevice {
 					"MipUsbDevice - constructor - bloc catch ex = "
 							+ e.getMessage());
 		}
-	    stopIoManager();
+		stopIoManager();
 		startIoManager();
 	}
-	
-	
+
 	public boolean isUsbConnected(){
-		return mUsbDriver != null;
+			return mUsbDriver != null;
+	}
+		
+	public static boolean isDeviceConnected(Context context, int productId) {
+		UsbManager usbManager = (UsbManager) context
+				.getSystemService(Context.USB_SERVICE);
+
+		boolean connected = false;
+		HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
+		for (UsbDevice element : deviceList.values()) {
+
+			if (productId == element.getProductId()) {
+				connected = true;
+			}
+
+		}
+
+	
+		return connected;
 	}
 
 	/*
@@ -238,11 +253,14 @@ public class MipUsbDevice {
 				unoConnected = true;
 				Log.d("A3", "uno connected ...");
 			}
-			
+
 			if (MICRO_PRODUCT_ID == element.getProductId()) {
 				microConnected = true;
 				Log.d("A3", "micro connected ...");
 			}
+			Log.d(TAG3, " list "+ element.getProductId());
+			
+			
 		}
 
 		return unoConnected && nanoConnected && microConnected;
@@ -258,47 +276,45 @@ public class MipUsbDevice {
 		@Override
 		public void onNewData(final byte[] data) {
 
-		
 			// ---- notifyAll
 
-			try{
-			Log.d(TAG3, "UsbDevice onNewData -----  ");
-			if (partialResult.flag) {
+			try {
+				Log.d(TAG3, "UsbDevice onNewData -----  ");
+				if (partialResult.flag) {
 
-				int j = partialResult.lastIndex;
-				for (int i = 0; i < data.length; i++) {
-					partialResult.buffer[j + i] = data[i];
+					int j = partialResult.lastIndex;
+					for (int i = 0; i < data.length; i++) {
+						partialResult.buffer[j + i] = data[i];
 
+					}
+					partialResult.lastIndex = 0;
+					partialResult.flag = false;
+					for (UsbListener b : mListeListeners) {
+
+						b.onNotify(new UsbEvent(this, partialResult.buffer));
+						Log.d(TAG3, "UsbDevice  onNewData 1  ");
+					}
+
+				} else if (includeValue(data, UsbCommand.END_BYTE)
+						&& (data.length > 4)) {
+					for (UsbListener b : mListeListeners) {
+
+						b.onNotify(new UsbEvent(this, data));
+						Log.d(TAG3, "UsbDevice  onNewData 2  ");
+					}
+				} else { // we dont have the whole data, we save the data we
+							// just
+							// got
+
+					for (int i = 0; i < data.length; i++) {
+						partialResult.buffer[i] = data[i];
+						partialResult.lastIndex = i;
+					}
+					partialResult.lastIndex++;
+					partialResult.flag = true;
 				}
-				partialResult.lastIndex = 0;
-				partialResult.flag = false;
-				for (UsbListener b : mListeListeners) {
 
-					b.onNotify(new UsbEvent(this, partialResult.buffer));
-					Log.d(TAG3, "UsbDevice  onNewData 1  ");
-				}
-				
-              
-			}else if (includeValue(data, UsbCommand.END_BYTE)
-					&& (data.length > 4)) {
-				for (UsbListener b : mListeListeners) {
-
-					b.onNotify(new UsbEvent(this, data));
-					Log.d(TAG3, "UsbDevice  onNewData 2  ");
-				}
-			} else { // we dont have the whole data, we save the data we just
-						// got
-
-				for (int i = 0; i < data.length; i++) {
-					partialResult.buffer[i] = data[i];
-					partialResult.lastIndex = i;
-				}
-				partialResult.lastIndex++;
-				partialResult.flag = true;
-			}
-			
-			
-			}catch(Exception e){
+			} catch (Exception e) {
 				Log.d(TAG3, "bloc catch ... onNewData() ");
 				e.printStackTrace();
 			}
